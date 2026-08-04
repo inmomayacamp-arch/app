@@ -237,6 +237,7 @@
     {
       id: "p9",
       featured: true,
+      sharing: { enabled: true, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "Solo clientes nuevos.", expiresAt: "2026-12-31T00:00:00Z", visibility: "todos", selectedAgentSlugs: [] },
       agentSlug: "danielacanul",
       title: "Casa en Fracc. Las Américas",
       type: "casa",
@@ -261,6 +262,7 @@
     {
       id: "p10",
       featured: true,
+      sharing: { enabled: true, totalCommission: 4, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "invitacion", selectedAgentSlugs: [] },
       agentSlug: "danielacanul",
       title: "Departamento en Altabrisa",
       type: "departamento",

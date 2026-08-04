@@ -61,11 +61,28 @@
     }
   ];
 
+  // --- Bolsa Inmobiliaria Compartida (solo Plan Profesional) ---
+  var COLLABORATIONS = [
+    {
+      id: "col1", propertyId: "p9", ownerSlug: "danielacanul", collaboratorSlug: "oswaldochable",
+      status: "activa", requestStatus: "aprobada", clientId: null, createdAt: "2026-07-29T10:00:00Z",
+      sentCount: 2, viewsCount: 14, contactsCount: 1, visitsScheduled: 1,
+      history: [{ action: "Agregada al catálogo", date: "2026-07-29T10:00:00Z" }]
+    }
+  ];
+
+  var SHARE_REQUESTS = [];
+
+  var SETTLEMENTS = [];
+
   window.App.agent = window.App.agent || {};
   window.App.agent.data = {
     CLIENTS: CLIENTS,
     CALENDAR_EVENTS: CALENDAR_EVENTS,
     NOTIFICATIONS: NOTIFICATIONS,
-    CONVERSATIONS: CONVERSATIONS
+    CONVERSATIONS: CONVERSATIONS,
+    COLLABORATIONS: COLLABORATIONS,
+    SHARE_REQUESTS: SHARE_REQUESTS,
+    SETTLEMENTS: SETTLEMENTS
   };
 })();

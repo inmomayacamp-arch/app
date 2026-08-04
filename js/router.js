@@ -28,6 +28,7 @@
       { pattern: "/dashboard/propiedades", view: window.App.agent.views.properties.render, key: "dashboard" },
       { pattern: "/dashboard/clientes/:id", view: window.App.agent.views.clients.renderDetail, key: "dashboard" },
       { pattern: "/dashboard/clientes", view: window.App.agent.views.clients.renderList, key: "dashboard" },
+      { pattern: "/dashboard/bolsa", view: window.App.agent.views.sharedPool.render, key: "dashboard" },
       { pattern: "/dashboard/enlaces/nuevo", view: v.linksManage.renderCreate, key: "dashboard" },
       { pattern: "/dashboard/enlaces/:clientSlug", view: v.linkStats.render, key: "dashboard" },
       { pattern: "/dashboard/enlaces", view: v.linksManage.renderList, key: "dashboard" },

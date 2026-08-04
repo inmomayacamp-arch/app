@@ -32,19 +32,23 @@
   function renderCreate(params, root) {
     var agent = state.agents.current();
     var myProperties = state.properties.byAgent(agent.slug);
+    var sharedCatalog = (window.App.agent.state.sharedPool ? window.App.agent.state.sharedPool.catalog() : []).map(function (row) { return row.property; });
+    var allSelectable = myProperties.concat(sharedCatalog);
     var clientLabel = "";
     var message = "";
     var selected = [];
 
+    function rowHTML(p) {
+      var checked = selected.indexOf(p.id) !== -1;
+      var isShared = p.agentSlug !== agent.slug;
+      return '<label class="select-property-row" data-row="' + p.id + '">' +
+        '<img src="' + p.photos[0] + '" alt="" />' +
+        '<div class="select-property-row__info"><strong>' + u.escapeHtml(p.title) + (isShared ? ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span>' : '') + '</strong><span>' + u.formatPrice(p.price) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
+        '<span class="checkbox-circle' + (checked ? ' is-checked' : '') + '" data-check="' + p.id + '">' + u.icon('check', { size: 14 }) + '</span>' +
+        '</label>';
+    }
     function rowsHTML() {
-      return myProperties.map(function (p) {
-        var checked = selected.indexOf(p.id) !== -1;
-        return '<label class="select-property-row" data-row="' + p.id + '">' +
-          '<img src="' + p.photos[0] + '" alt="" />' +
-          '<div class="select-property-row__info"><strong>' + u.escapeHtml(p.title) + '</strong><span>' + u.formatPrice(p.price) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
-          '<span class="checkbox-circle' + (checked ? ' is-checked' : '') + '" data-check="' + p.id + '">' + u.icon('check', { size: 14 }) + '</span>' +
-          '</label>';
-      }).join('');
+      return allSelectable.map(rowHTML).join('');
     }
 
     var content =
@@ -53,7 +57,7 @@
       '  <div class="form-field"><label>Mensaje personalizado (opcional)</label><textarea rows="3" data-message placeholder="Hola, te comparto estas propiedades que seleccioné especialmente para ti."></textarea></div>' +
       '  <div class="form-field"><label>Selecciona las propiedades para este cliente</label></div>' +
       '  <div data-rows>' + rowsHTML() + '</div>' +
-      (myProperties.length === 0 ? '<div class="empty-state"><p>Primero publica alguna propiedad para poder incluirla en un enlace.</p><a class="btn btn--primary" href="#/dashboard/publicar">Publicar propiedad</a></div>' : '') +
+      (allSelectable.length === 0 ? '<div class="empty-state"><p>Primero publica una propiedad o agrega una de la Bolsa Compartida para poder incluirla en un enlace.</p><a class="btn btn--primary" href="#/dashboard/publicar">Publicar propiedad</a></div>' : '') +
       '  <button type="button" class="btn btn--primary btn--block" data-create style="margin-top:16px">Crear enlace (<span data-count>0</span> seleccionadas)</button>' +
       '</div>';
 

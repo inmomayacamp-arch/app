@@ -54,6 +54,64 @@
     });
   }
 
+  function shareSheet(p, agent, refresh) {
+    var s = Object.assign({ enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: '', expiresAt: null, visibility: 'todos', selectedAgentSlugs: [] }, p.sharing);
+    var otherAgents = window.App.data.getAllAgents().filter(function (a) { return a.slug !== agent.slug; });
+
+    c.openSheet({
+      title: "Compartir con asesores",
+      body:
+        '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-f="enabled"' + (s.enabled ? ' checked' : '') + ' style="width:18px;height:18px" /> Compartir esta propiedad con otros asesores</label></div>' +
+        '<div data-share-fields style="display:' + (s.enabled ? 'block' : 'none') + '">' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Comisión total (%)</label><input type="number" min="0" max="100" data-f="totalCommission" value="' + s.totalCommission + '" /></div>' +
+        '<div class="form-field"><label>% para colaborador</label><input type="number" min="0" max="100" data-f="collaboratorCommission" value="' + s.collaboratorCommission + '" /></div>' +
+        '</div>' +
+        '<div class="form-field"><label>Monto fijo (opcional, MXN)</label><input type="number" min="0" data-f="fixedAmount" value="' + (s.fixedAmount || '') + '" /></div>' +
+        '<div class="form-field"><label>Vigencia hasta (opcional)</label><input type="date" data-f="expiresAt" value="' + (s.expiresAt ? s.expiresAt.slice(0, 10) : '') + '" /></div>' +
+        '<div class="form-field"><label>Visibilidad</label><select data-f="visibility">' +
+        '<option value="todos"' + (s.visibility === 'todos' ? ' selected' : '') + '>Todos los asesores</option>' +
+        '<option value="seleccionados"' + (s.visibility === 'seleccionados' ? ' selected' : '') + '>Solo asesores seleccionados</option>' +
+        '<option value="inmobiliaria"' + (s.visibility === 'inmobiliaria' ? ' selected' : '') + '>Solo dentro de mi inmobiliaria</option>' +
+        '<option value="invitacion"' + (s.visibility === 'invitacion' ? ' selected' : '') + '>Solo por invitación (requiere aprobación)</option>' +
+        '</select></div>' +
+        (otherAgents.length ? '<div class="form-field" data-selected-wrap style="display:' + (s.visibility === 'seleccionados' ? 'block' : 'none') + '"><label>Asesores seleccionados</label>' +
+          otherAgents.map(function (a) {
+            return '<label class="row gap-2" style="padding:4px 0"><input type="checkbox" data-selected-agent="' + a.slug + '"' + (s.selectedAgentSlugs.indexOf(a.slug) !== -1 ? ' checked' : '') + ' /> ' + u.escapeHtml(a.name) + '</label>';
+          }).join('') + '</div>' : '') +
+        '<div class="form-field"><label>Observaciones</label><textarea rows="2" data-f="conditions" placeholder="Ej. Solo clientes nuevos.">' + u.escapeHtml(s.conditions) + '</textarea></div>' +
+        '</div>' +
+        '<button type="button" class="btn btn--primary btn--block" data-save>Guardar configuración</button>'
+    });
+
+    var sheetRoot = u.qs('#sheet-root');
+    var enabledCheckbox = u.qs('[data-f="enabled"]', sheetRoot);
+    var fieldsWrap = u.qs('[data-share-fields]', sheetRoot);
+    enabledCheckbox.addEventListener('change', function () { fieldsWrap.style.display = enabledCheckbox.checked ? 'block' : 'none'; });
+    var visibilitySelect = u.qs('[data-f="visibility"]', sheetRoot);
+    var selectedWrap = u.qs('[data-selected-wrap]', sheetRoot);
+    if (visibilitySelect) visibilitySelect.addEventListener('change', function () {
+      if (selectedWrap) selectedWrap.style.display = visibilitySelect.value === 'seleccionados' ? 'block' : 'none';
+    });
+
+    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
+      var selectedAgentSlugs = u.qsa('[data-selected-agent]', sheetRoot).filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.getAttribute('data-selected-agent'); });
+      window.App.agent.state.sharedPool.setSharing(p.id, {
+        enabled: enabledCheckbox.checked,
+        totalCommission: Number(u.qs('[data-f="totalCommission"]', sheetRoot).value) || 0,
+        collaboratorCommission: Number(u.qs('[data-f="collaboratorCommission"]', sheetRoot).value) || 0,
+        fixedAmount: u.qs('[data-f="fixedAmount"]', sheetRoot).value ? Number(u.qs('[data-f="fixedAmount"]', sheetRoot).value) : null,
+        expiresAt: u.qs('[data-f="expiresAt"]', sheetRoot).value ? new Date(u.qs('[data-f="expiresAt"]', sheetRoot).value).toISOString() : null,
+        visibility: visibilitySelect.value,
+        selectedAgentSlugs: selectedAgentSlugs,
+        conditions: u.qs('[data-f="conditions"]', sheetRoot).value
+      });
+      c.closeSheet();
+      u.toast('Configuración de bolsa compartida guardada', { tone: 'success' });
+      refresh();
+    });
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
     var allowFeatured = canFeature(agent.slug);
@@ -77,6 +135,7 @@
           '<a class="btn btn--sm btn--outline" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">Ver</a>' +
           '<button type="button" class="btn btn--sm btn--outline" data-edit="' + p.id + '">Editar</button>' +
           '<button type="button" class="btn btn--sm btn--outline" data-duplicate="' + p.id + '">Duplicar</button>' +
+          (allowFeatured ? '<button type="button" class="btn btn--sm btn--outline" data-share="' + p.id + '">' + u.icon('exchange', { size: 13 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida' : 'Compartir') + '</button>' : '') +
           '<button type="button" class="btn btn--sm btn--outline" data-remove="' + p.id + '">Eliminar</button>' +
           '</div></td></tr>';
       }).join('');
@@ -108,6 +167,9 @@
       });
       u.qsa('[data-edit]', root).forEach(function (btn) {
         btn.addEventListener('click', function () { editSheet(properties.filter(function (p) { return p.id === btn.getAttribute('data-edit'); })[0], refresh); });
+      });
+      u.qsa('[data-share]', root).forEach(function (btn) {
+        btn.addEventListener('click', function () { shareSheet(properties.filter(function (p) { return p.id === btn.getAttribute('data-share'); })[0], agent, refresh); });
       });
       u.qsa('[data-duplicate]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {

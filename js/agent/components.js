@@ -11,6 +11,7 @@
     { route: "propiedades", href: "#/dashboard/propiedades", label: "Mis propiedades", icon: "home" },
     { route: "clientes", href: "#/dashboard/clientes", label: "Clientes", icon: "users" },
     { route: "enlaces", href: "#/dashboard/enlaces", label: "Enlaces", icon: "link" },
+    { route: "bolsa", href: "#/dashboard/bolsa", label: "Bolsa Compartida", icon: "exchange", badge: function () { return as.sharedPool ? as.sharedPool.pendingRequests().length : 0; } },
     { route: "calendario", href: "#/dashboard/calendario", label: "Calendario", icon: "calendar" },
     { route: "mensajes", href: "#/dashboard/mensajes", label: "Mensajes", icon: "chat" },
     { route: "perfil-profesional", href: "#/dashboard/perfil-profesional", label: "Perfil profesional", icon: "user" },
