@@ -1,0 +1,60 @@
+// Service worker mínimo: cachea el "app shell" para que InmoMap sea instalable
+// y cargue rápido en visitas repetidas. Los mapas y fotos siempre van a la red.
+var CACHE_NAME = "inmomap-shell-v1";
+var APP_SHELL = [
+  "./",
+  "index.html",
+  "manifest.json",
+  "css/styles.css",
+  "js/config.js",
+  "js/utils.js",
+  "js/data.js",
+  "js/state.js",
+  "js/map.js",
+  "js/components.js",
+  "js/views/explore.js",
+  "js/views/propertyList.js",
+  "js/views/propertyDetail.js",
+  "js/views/favorites.js",
+  "js/views/agentProfile.js",
+  "js/views/clientLink.js",
+  "js/views/dashboardHome.js",
+  "js/views/publishWizard.js",
+  "js/views/linksManage.js",
+  "js/views/linkStats.js",
+  "js/router.js",
+  "js/app.js",
+  "icons/icon.svg"
+];
+
+self.addEventListener("install", function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(function (cache) { return cache.addAll(APP_SHELL); })
+      .then(function () { return self.skipWaiting(); })
+  );
+});
+
+self.addEventListener("activate", function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(keys.filter(function (key) { return key !== CACHE_NAME; }).map(function (key) { return caches.delete(key); }));
+    }).then(function () { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener("fetch", function (event) {
+  var url = new URL(event.request.url);
+  if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  event.respondWith(
+    caches.match(event.request).then(function (cached) {
+      if (cached) return cached;
+      return fetch(event.request).then(function (response) {
+        var copy = response.clone();
+        caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
+        return response;
+      }).catch(function () { return cached; });
+    })
+  );
+});

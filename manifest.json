@@ -1,0 +1,16 @@
+{
+  "name": "InmoMap — La plataforma inmobiliaria donde el mapa es el centro",
+  "short_name": "InmoMap",
+  "description": "Explora propiedades en venta y renta directamente sobre un mapa interactivo.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F9FAFB",
+  "theme_color": "#DC2626",
+  "lang": "es-MX",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
