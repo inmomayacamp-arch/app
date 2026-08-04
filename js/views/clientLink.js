@@ -34,7 +34,7 @@
       '  <a class="btn btn--whatsapp btn--block" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
       '</div>' +
       '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
-      '  <div class="explore-map" style="height:46vh"><div class="map-canvas" data-map></div></div>' +
+      '  <div class="explore-map"><div class="map-canvas" data-map></div></div>' +
       '  <div class="explore-list"><div class="explore-list__inner">' +
       '    <div class="property-grid property-grid--standalone" data-list></div>' +
       '  </div></div>' +

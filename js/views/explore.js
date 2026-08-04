@@ -39,12 +39,15 @@
     root.innerHTML =
       '<div class="explore-layout">' +
       '  <div class="explore-search">' +
-      '    <div class="chip-row" data-quick-ops>' +
+      '    <div class="row gap-2" style="align-items:center">' +
+      '    <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       '      <button type="button" class="chip is-active" data-op="todas">Todos</button>' +
       '      <button type="button" class="chip" data-op="venta">Venta</button>' +
       '      <button type="button" class="chip" data-op="renta">Renta</button>' +
       '      <button type="button" class="chip" data-type-quick="terreno">Terrenos</button>' +
       '      <button type="button" class="chip" data-type-quick="local">Locales</button>' +
+      '    </div>' +
+      '    <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
       '    </div>' +
       '  </div>' +
       '  <div class="explore-map">' +
@@ -62,19 +65,14 @@
       '    <div class="explore-list__inner">' +
       '      <div class="row" style="justify-content:space-between;align-items:center;margin-top:4px">' +
       '        <h2 class="section-title" style="margin:0">Propiedades destacadas (<span data-count>0</span>)</h2>' +
-      '        <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 16 }) + '</button>' +
+      '        <a href="#/propiedades" class="text-muted" style="font-weight:700;font-size:0.85rem">Ver todas</a>' +
       '      </div>' +
-      '      <div class="property-grid" data-list></div>' +
+      '      <div class="property-scroller" data-list></div>' +
       '    </div>' +
       '  </div>' +
       '  <div class="explore-discover">' +
       '    <div class="container">' +
-      '      <div class="row" style="justify-content:space-between;align-items:center;margin-top:20px">' +
-      '        <h2 class="section-title" style="margin:0">Propiedades cerca de ti</h2>' +
-      '        <a href="#/propiedades" class="text-muted" style="font-weight:700;font-size:0.85rem">Ver todas</a>' +
-      '      </div>' +
-      '      <div class="property-scroller" data-scroller></div>' +
-      '      <h2 class="section-title">Explorar por categoría</h2>' +
+      '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
       '      <div class="dashboard-grid" style="margin-top:0" data-categories>' +
       CATEGORIES.map(function (cat) {
         return '<button type="button" class="dashboard-card" data-category="' + cat.type + '"><span class="dashboard-card__icon">' + u.icon(cat.icon, { size: 18 }) + '</span><strong>' + cat.label + '</strong></button>';
@@ -125,9 +123,6 @@
       u.qs('[data-list]', root).innerHTML = featuredList.length
         ? featuredList.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
-
-      var nearby = state.properties.all().filter(function (p) { return p.featured; }).slice(0, 8);
-      u.qs('[data-scroller]', root).innerHTML = nearby.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('');
     }
 
     refreshList();

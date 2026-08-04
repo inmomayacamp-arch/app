@@ -58,7 +58,7 @@
         return '<button type="button" class="tab' + (t.key === activeTab ? ' is-active' : '') + '" data-tab="' + t.key + '">' + t.label + '</button>';
       }).join('') + '</div>' +
       '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
-      '  <div class="explore-map" style="height:50vh"><div class="map-canvas" data-map></div></div>' +
+      '  <div class="explore-map"><div class="map-canvas" data-map></div></div>' +
       '  <div class="explore-list"><div class="explore-list__inner">' +
       '    <div class="property-grid property-grid--standalone" data-list></div>' +
       '  </div></div>' +
