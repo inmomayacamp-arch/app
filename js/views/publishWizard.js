@@ -145,7 +145,9 @@
         '<button type="button" class="btn btn--primary btn--block" data-next>' + (step === TOTAL_STEPS ? 'Publicar' : 'Siguiente') + '</button>' +
         '</div>';
 
-      c.mountChrome('publish');
+      document.body.classList.add('is-admin');
+      u.qs('#site-header').innerHTML = '';
+      u.qs('#bottom-nav').innerHTML = '';
       wireStep();
     }
 
@@ -232,7 +234,9 @@
           photos: payload.photos
         });
         root.innerHTML = '<div class="page-header"><h1 class="page-header__title">Publicar propiedad</h1></div>' + confirmationHTML();
-        c.mountChrome('publish');
+        document.body.classList.add('is-admin');
+        u.qs('#site-header').innerHTML = '';
+        u.qs('#bottom-nav').innerHTML = '';
         u.toast('Propiedad publicada', { tone: 'success' });
       });
     }

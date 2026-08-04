@@ -28,7 +28,10 @@
       '</div>' +
       '<div class="client-banner">' +
       '  <span class="client-banner__icon">' + u.icon('user', { size: 22 }) + '</span>' +
-      '  <div><strong>' + u.escapeHtml(agent.name) + ' preparó esta selección para ti</strong><span>' + properties.length + ' propiedades elegidas especialmente para ' + u.escapeHtml(link.clientLabel) + '</span></div>' +
+      '  <div><strong>' + u.escapeHtml(agent.name) + ' preparó esta selección para ti</strong><span>' + (link.message ? u.escapeHtml(link.message) : properties.length + ' propiedades elegidas especialmente para ' + u.escapeHtml(link.clientLabel)) + '</span></div>' +
+      '</div>' +
+      '<div class="page-wrap" style="padding:12px 16px 0">' +
+      '  <a class="btn btn--whatsapp btn--block" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
       '</div>' +
       '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
       '  <div class="explore-map" style="height:46vh"><div class="map-canvas" data-map></div></div>' +

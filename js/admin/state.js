@@ -81,9 +81,14 @@
   }
 
   // --- Agentes ---
+  function defaultAgentInfo() {
+    var expires = new Date();
+    expires.setDate(expires.getDate() + 30);
+    return { status: "activo", plan: "basico", planExpiresAt: expires.toISOString(), documentsSubmitted: true, joinedAt: new Date().toISOString() };
+  }
   function allAgents() {
-    return window.App.data.AGENTS.map(function (a) {
-      var info = Object.assign({}, d.AGENT_ADMIN_INFO[a.slug], agentOverrides[a.slug]);
+    return window.App.data.getAllAgents().map(function (a) {
+      var info = Object.assign({}, defaultAgentInfo(), d.AGENT_ADMIN_INFO[a.slug], agentOverrides[a.slug]);
       return Object.assign({}, a, info);
     });
   }

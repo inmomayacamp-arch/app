@@ -22,11 +22,22 @@
       { pattern: "/propiedad/:id", view: v.propertyDetail.render, key: "explore" },
       { pattern: "/favoritos", view: v.favorites.render, key: "favorites" },
       { pattern: "/perfil", view: v.account.render, key: "perfil" },
+      { pattern: "/dashboard/login", view: window.App.agent.views.login.render, key: "dashboard" },
       { pattern: "/dashboard", view: v.dashboardHome.render, key: "dashboard" },
       { pattern: "/dashboard/publicar", view: v.publishWizard.render, key: "publish" },
+      { pattern: "/dashboard/propiedades", view: window.App.agent.views.properties.render, key: "dashboard" },
+      { pattern: "/dashboard/clientes/:id", view: window.App.agent.views.clients.renderDetail, key: "dashboard" },
+      { pattern: "/dashboard/clientes", view: window.App.agent.views.clients.renderList, key: "dashboard" },
       { pattern: "/dashboard/enlaces/nuevo", view: v.linksManage.renderCreate, key: "dashboard" },
       { pattern: "/dashboard/enlaces/:clientSlug", view: v.linkStats.render, key: "dashboard" },
       { pattern: "/dashboard/enlaces", view: v.linksManage.renderList, key: "dashboard" },
+      { pattern: "/dashboard/calendario", view: window.App.agent.views.calendar.render, key: "dashboard" },
+      { pattern: "/dashboard/perfil-profesional", view: window.App.agent.views.profile.render, key: "dashboard" },
+      { pattern: "/dashboard/estadisticas", view: window.App.agent.views.stats.render, key: "dashboard" },
+      { pattern: "/dashboard/publicidad", view: window.App.agent.views.advertising.render, key: "dashboard" },
+      { pattern: "/dashboard/notificaciones", view: window.App.agent.views.notifications.render, key: "dashboard" },
+      { pattern: "/dashboard/suscripcion", view: window.App.agent.views.subscription.render, key: "dashboard" },
+      { pattern: "/dashboard/mensajes", view: window.App.agent.views.messages.render, key: "dashboard" },
       { pattern: "/admin/login", view: window.App.admin.views.login.render, key: "admin" },
       { pattern: "/admin", view: window.App.admin.views.dashboard.render, key: "admin" },
       { pattern: "/admin/usuarios", view: window.App.admin.views.users.render, key: "admin" },
@@ -89,6 +100,11 @@
 
     if (path.indexOf("/admin") === 0 && path !== "/admin/login" && !window.App.admin.state.auth.isAuthed()) {
       window.location.hash = "#/admin/login";
+      return;
+    }
+
+    if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login" && !window.App.state.agents.isLoggedIn()) {
+      window.location.hash = "#/dashboard/login";
       return;
     }
 

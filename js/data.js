@@ -337,6 +337,7 @@
       agentSlug: "oswaldochable",
       clientSlug: "familia-garcia",
       clientLabel: "Familia García",
+      message: "Hola, les comparto estas opciones que seleccioné pensando en lo que buscan cerca del malecón.",
       propertyIds: ["p1", "p2", "p5", "p6", "p4"],
       createdAt: "2026-07-26T15:00:00Z",
       stats: {
@@ -354,18 +355,27 @@
           { propertyId: "p1", views: 8 },
           { propertyId: "p2", views: 5 },
           { propertyId: "p4", views: 3 }
-        ]
+        ],
+        favoritePropertyIds: ["p1", "p4"]
       }
     }
   ];
+
+  function getAllAgents() {
+    var s = window.App.state;
+    var registered = (s && s.agents) ? s.agents.registered() : [];
+    var combined = AGENTS.concat(registered);
+    return (s && s.agents && s.agents.applyProfileOverride) ? combined.map(s.agents.applyProfileOverride) : combined;
+  }
 
   window.App = window.App || {};
   window.App.data = {
     AGENTS: AGENTS,
     PROPERTIES: PROPERTIES,
     CLIENT_LINKS: CLIENT_LINKS,
+    getAllAgents: getAllAgents,
     getAgent: function (slug) {
-      return AGENTS.filter(function (a) { return a.slug === slug; })[0] || null;
+      return getAllAgents().filter(function (a) { return a.slug === slug; })[0] || null;
     },
     getProperty: function (id) {
       return PROPERTIES.filter(function (p) { return p.id === id; })[0] || null;

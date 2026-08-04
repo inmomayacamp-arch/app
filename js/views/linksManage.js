@@ -5,19 +5,16 @@
   var u = window.App.utils;
   var c = window.App.components;
   var state = window.App.state;
-  var data = window.App.data;
+  var ac = window.App.agent.components;
 
   function renderList(params, root) {
-    var agent = data.getAgent(window.APP_CONFIG.CURRENT_AGENT_SLUG);
+    var agent = state.agents.current();
     var links = state.links.byAgent(agent.slug);
 
-    root.innerHTML =
-      '<div class="page-header">' +
-      '  <a class="btn btn--icon" href="#/dashboard" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
-      '  <h1 class="page-header__title">Enlaces para clientes</h1>' +
-      '  <a class="btn btn--primary btn--sm" href="#/dashboard/enlaces/nuevo">' + u.icon('plus', { size: 15 }) + ' Nuevo</a>' +
+    var content =
+      '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
+      '  <a class="btn btn--primary btn--sm" href="#/dashboard/enlaces/nuevo">' + u.icon('plus', { size: 15 }) + ' Nuevo enlace</a>' +
       '</div>' +
-      '<div class="page-wrap">' +
       (links.length
         ? '<div class="stack gap-2">' + links.map(function (link) {
           var url = window.location.origin + window.location.pathname + '#/' + agent.slug + '/' + link.clientSlug;
@@ -27,17 +24,16 @@
             u.icon('chevronRight', { size: 16 }) +
             '</a>';
         }).join('') + '</div>'
-        : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('link', { size: 30 }) + '</span><h3>Aún no tienes enlaces</h3><p>Crea un enlace personalizado seleccionando propiedades para un cliente específico.</p><a class="btn btn--primary" href="#/dashboard/enlaces/nuevo">Crear mi primer enlace</a></div>') +
-      '</div>';
+        : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('link', { size: 30 }) + '</span><h3>Aún no tienes enlaces</h3><p>Crea un enlace personalizado seleccionando propiedades para un cliente específico.</p><a class="btn btn--primary" href="#/dashboard/enlaces/nuevo">Crear mi primer enlace</a></div>');
 
-    c.mountChrome('dashboard');
-    document.title = 'Enlaces para clientes — InmoMap';
+    ac.mount('enlaces', 'Enlaces para clientes', content, root);
   }
 
   function renderCreate(params, root) {
-    var agent = data.getAgent(window.APP_CONFIG.CURRENT_AGENT_SLUG);
+    var agent = state.agents.current();
     var myProperties = state.properties.byAgent(agent.slug);
     var clientLabel = "";
+    var message = "";
     var selected = [];
 
     function rowsHTML() {
@@ -51,27 +47,23 @@
       }).join('');
     }
 
-    root.innerHTML =
-      '<div class="page-header">' +
-      '  <a class="btn btn--icon" href="#/dashboard/enlaces" aria-label="Cancelar">' + u.icon('x', { size: 18 }) + '</a>' +
-      '  <h1 class="page-header__title">Nuevo enlace personalizado</h1>' +
-      '</div>' +
-      '<div class="page-wrap">' +
+    var content =
+      '<div class="admin-section" style="max-width:640px">' +
       '  <div class="form-field"><label>Nombre del cliente</label><input type="text" data-client-label placeholder="Familia García" /></div>' +
+      '  <div class="form-field"><label>Mensaje personalizado (opcional)</label><textarea rows="3" data-message placeholder="Hola, te comparto estas propiedades que seleccioné especialmente para ti."></textarea></div>' +
       '  <div class="form-field"><label>Selecciona las propiedades para este cliente</label></div>' +
       '  <div data-rows>' + rowsHTML() + '</div>' +
       (myProperties.length === 0 ? '<div class="empty-state"><p>Primero publica alguna propiedad para poder incluirla en un enlace.</p><a class="btn btn--primary" href="#/dashboard/publicar">Publicar propiedad</a></div>' : '') +
-      '</div>' +
-      '<div class="wizard-footer">' +
-      '  <button type="button" class="btn btn--primary btn--block" data-create>Crear enlace (<span data-count>0</span> seleccionadas)</button>' +
+      '  <button type="button" class="btn btn--primary btn--block" data-create style="margin-top:16px">Crear enlace (<span data-count>0</span> seleccionadas)</button>' +
       '</div>';
 
-    c.mountChrome('dashboard');
-    document.title = 'Nuevo enlace — InmoMap';
+    ac.mount('enlaces', 'Nuevo enlace personalizado', content, root);
 
     u.qs('[data-client-label]', root).addEventListener('input', function (e) { clientLabel = e.target.value; });
+    u.qs('[data-message]', root).addEventListener('input', function (e) { message = e.target.value; });
 
-    u.qs('[data-rows]', root).addEventListener('click', function (e) {
+    var rowsContainer = u.qs('[data-rows]', root);
+    if (rowsContainer) rowsContainer.addEventListener('click', function (e) {
       var row = e.target.closest('[data-row]');
       if (!row) return;
       e.preventDefault();
@@ -85,7 +77,7 @@
     u.qs('[data-create]', root).addEventListener('click', function () {
       if (!clientLabel.trim()) { u.toast('Escribe el nombre del cliente'); return; }
       if (!selected.length) { u.toast('Selecciona al menos una propiedad'); return; }
-      var link = state.links.create({ clientLabel: clientLabel.trim(), propertyIds: selected });
+      var link = state.links.create({ clientLabel: clientLabel.trim(), message: message.trim(), propertyIds: selected });
       u.toast('Enlace creado', { tone: 'success' });
       window.location.hash = '#/dashboard/enlaces/' + link.clientSlug;
     });
