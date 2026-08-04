@@ -26,6 +26,21 @@
       { pattern: "/dashboard/enlaces/nuevo", view: v.linksManage.renderCreate, key: "dashboard" },
       { pattern: "/dashboard/enlaces/:clientSlug", view: v.linkStats.render, key: "dashboard" },
       { pattern: "/dashboard/enlaces", view: v.linksManage.renderList, key: "dashboard" },
+      { pattern: "/admin/login", view: window.App.admin.views.login.render, key: "admin" },
+      { pattern: "/admin", view: window.App.admin.views.dashboard.render, key: "admin" },
+      { pattern: "/admin/usuarios", view: window.App.admin.views.users.render, key: "admin" },
+      { pattern: "/admin/agentes", view: window.App.admin.views.agents.render, key: "admin" },
+      { pattern: "/admin/propiedades", view: window.App.admin.views.properties.render, key: "admin" },
+      { pattern: "/admin/mapa", view: window.App.admin.views.mapAdmin.render, key: "admin" },
+      { pattern: "/admin/suscripciones", view: window.App.admin.views.subscriptions.render, key: "admin" },
+      { pattern: "/admin/pagos", view: window.App.admin.views.payments.render, key: "admin" },
+      { pattern: "/admin/estadisticas", view: window.App.admin.views.stats.render, key: "admin" },
+      { pattern: "/admin/moderacion", view: window.App.admin.views.moderation.render, key: "admin" },
+      { pattern: "/admin/publicidad", view: window.App.admin.views.marketing.render, key: "admin" },
+      { pattern: "/admin/notificaciones", view: window.App.admin.views.notifications.render, key: "admin" },
+      { pattern: "/admin/configuracion", view: window.App.admin.views.settings.render, key: "admin" },
+      { pattern: "/admin/reportes", view: window.App.admin.views.reports.render, key: "admin" },
+      { pattern: "/admin/seguridad", view: window.App.admin.views.security.render, key: "admin" },
       { pattern: "/:agentSlug/:clientSlug", view: v.clientLink.render, key: "explore" },
       { pattern: "/:agentSlug", view: v.agentProfile.render, key: "explore" }
     ].map(function (r) {
@@ -70,6 +85,12 @@
     window.App.components.closeSheet();
     var root = u.qs("#view-root");
     var path = currentPath();
+
+    if (path.indexOf("/admin") === 0 && path !== "/admin/login" && !window.App.admin.state.auth.isAuthed()) {
+      window.location.hash = "#/admin/login";
+      return;
+    }
+
     var match = matchRoute(path);
 
     if (!match) {

@@ -1,11 +1,12 @@
 // Service worker mínimo: cachea el "app shell" para que InmoMap sea instalable
 // y cargue rápido en visitas repetidas. Los mapas y fotos siempre van a la red.
-var CACHE_NAME = "inmomap-shell-v1";
+var CACHE_NAME = "inmomap-shell-v2";
 var APP_SHELL = [
   "./",
   "index.html",
   "manifest.json",
   "css/styles.css",
+  "css/admin.css",
   "js/config.js",
   "js/utils.js",
   "js/data.js",
@@ -22,6 +23,24 @@ var APP_SHELL = [
   "js/views/publishWizard.js",
   "js/views/linksManage.js",
   "js/views/linkStats.js",
+  "js/admin/data.js",
+  "js/admin/state.js",
+  "js/admin/components.js",
+  "js/admin/views/login.js",
+  "js/admin/views/dashboard.js",
+  "js/admin/views/users.js",
+  "js/admin/views/agents.js",
+  "js/admin/views/properties.js",
+  "js/admin/views/mapAdmin.js",
+  "js/admin/views/subscriptions.js",
+  "js/admin/views/payments.js",
+  "js/admin/views/stats.js",
+  "js/admin/views/moderation.js",
+  "js/admin/views/marketing.js",
+  "js/admin/views/notifications.js",
+  "js/admin/views/settings.js",
+  "js/admin/views/reports.js",
+  "js/admin/views/security.js",
   "js/router.js",
   "js/app.js",
   "icons/icon.svg"

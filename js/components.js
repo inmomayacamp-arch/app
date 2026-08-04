@@ -49,6 +49,7 @@
   }
 
   function mountChrome(activeRoute) {
+    document.body.classList.remove('is-admin');
     u.qs('#site-header').innerHTML = renderHeader(activeRoute);
     u.qs('#bottom-nav').innerHTML = renderBottomNav(activeRoute);
   }

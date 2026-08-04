@@ -40,7 +40,17 @@
     list: '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/>',
     map: '<polygon points="9,3 3,6 3,20 9,17 15,20 21,17 21,3 15,6 9,3"/><line x1="9" y1="3" x2="9" y2="17"/><line x1="15" y1="6" x2="15" y2="20"/>',
     store: '<rect x="3" y="10" width="18" height="10" rx="1"/><polyline points="3,10 5,4 19,4 21,10"/><line x1="9" y1="20" x2="9" y2="14"/><line x1="15" y1="20" x2="15" y2="14"/>',
-    briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none"/><line x1="3" y1="13" x2="21" y2="13"/>'
+    briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" fill="none"/><line x1="3" y1="13" x2="21" y2="13"/>',
+    users: '<circle cx="8" cy="8" r="3"/><polyline points="2,20 2,18 5,15.5 11,15.5 14,18 14,20"/><circle cx="17" cy="9" r="2.4"/><polyline points="15,20 15,18.3 17,16.3 20.5,16.3 21.5,17.3"/>',
+    dollar: '<line x1="12" y1="2" x2="12" y2="22"/><text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor" stroke="none">$</text>',
+    chart: '<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="11" y="8" width="3" height="12"/><rect x="16" y="14" width="3" height="6"/>',
+    flag: '<line x1="5" y1="21" x2="5" y2="3"/><polyline points="5,4 18,4 15,8 18,12 5,12"/>',
+    megaphone: '<polygon points="3,10 3,14 8,14 15,19 15,5 8,10"/><line x1="17" y1="7" x2="19" y2="5"/><line x1="17" y1="17" x2="19" y2="19"/>',
+    bell: '<polygon points="7,16 7,10 9,6 15,6 17,10 17,16 19,18 5,18"/><path d="M10 20a2 2 0 0 0 4 0" fill="none"/>',
+    download: '<line x1="12" y1="3" x2="12" y2="15"/><polyline points="7,10 12,15 17,10"/><line x1="4" y1="20" x2="20" y2="20"/>',
+    shield: '<polygon points="12,3 19,6 19,12 12,21 5,12 5,6"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+    grid: '<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>'
   };
 
   function icon(name, opts) {
