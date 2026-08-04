@@ -169,7 +169,7 @@
   var PRICE_MAX = 5000000;
 
   function defaultFilters() {
-    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0 };
+    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '' };
   }
 
   function applyFilters(list, filters) {

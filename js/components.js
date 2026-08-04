@@ -13,9 +13,9 @@
   var NAV_ITEMS = [
     { route: "explore", href: "#/", label: "Explorar", icon: "home" },
     { route: "properties", href: "#/propiedades", label: "Propiedades", icon: "list" },
-    { route: "publish", href: "#/dashboard/publicar", label: "Publicar", icon: "plus", fab: true },
+    { route: "search", label: "Buscar", icon: "search", fab: true, action: "open-search" },
     { route: "favorites", href: "#/favoritos", label: "Favoritos", icon: "heart", badge: true },
-    { route: "dashboard", href: "#/dashboard", label: "Perfil", icon: "user" }
+    { route: "perfil", href: "#/perfil", label: "Perfil", icon: "user" }
   ];
 
   function renderHeader(activeRoute) {
@@ -37,8 +37,8 @@
   function renderBottomNav(activeRoute) {
     return NAV_ITEMS.map(function (item) {
       if (item.fab) {
-        return '<a class="bottom-nav__item" href="' + item.href + '" aria-label="' + item.label + '">' +
-          '<span class="bottom-nav__fab">' + u.icon('plus', { size: 20 }) + '</span></a>';
+        return '<button type="button" class="bottom-nav__item" data-nav-action="' + item.action + '" aria-label="' + item.label + '">' +
+          '<span class="bottom-nav__fab">' + u.icon(item.icon, { size: 20 }) + '</span></button>';
       }
       var cls = "bottom-nav__item" + (item.route === activeRoute ? " is-active" : "");
       var count = item.badge ? state.favorites.count() : 0;
@@ -217,12 +217,22 @@
   ];
 
   function openFilterSheet(currentFilters, allProperties, onApply) {
-    var working = Object.assign({}, u.defaultFilters(), currentFilters, { types: (currentFilters.types || []).slice() });
+    var working = Object.assign({}, u.defaultFilters(), currentFilters, {
+      types: (currentFilters.types || []).slice(),
+      searchText: currentFilters.searchText || ''
+    });
 
     function countMatches() { return u.applyFilters(allProperties, working).length; }
 
     function bodyHTML() {
       return (
+        '<div class="filter-sheet__section">' +
+        '<span class="filter-sheet__label">Buscar</span>' +
+        '<div class="search-bar" style="box-shadow:none;border:1px solid var(--color-border-strong)">' +
+        u.icon('search', { size: 18, class: 'text-muted' }) +
+        '<input type="text" placeholder="Colonia, ciudad o nombre" data-search-text value="' + u.escapeHtml(working.searchText) + '" />' +
+        '</div></div>' +
+
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Operación</span>' +
         '<div class="filter-options" data-group="operation">' +
@@ -326,8 +336,11 @@
           input.addEventListener('change', onRange);
         });
       }
+      var searchInput = u.qs('[data-search-text]', root);
+      if (searchInput) searchInput.addEventListener('input', function (e) { working.searchText = e.target.value; });
+
       var clearBtn = u.qs('[data-clear]', root);
-      if (clearBtn) clearBtn.addEventListener('click', function () { working = u.defaultFilters(); rerender(); });
+      if (clearBtn) clearBtn.addEventListener('click', function () { working = Object.assign(u.defaultFilters(), { searchText: '' }); rerender(); });
       var applyBtn = u.qs('[data-apply]', root);
       if (applyBtn) applyBtn.addEventListener('click', function () { closeSheet(); onApply(working); });
     }

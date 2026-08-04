@@ -39,6 +39,7 @@
   var PROPERTIES = [
     {
       id: "p1",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Casa moderna en Fracc. Vista Alegre",
       type: "casa",
@@ -64,6 +65,7 @@
     },
     {
       id: "p2",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Casa en San Román",
       type: "casa",
@@ -88,6 +90,7 @@
     },
     {
       id: "p3",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Departamento amueblado en Lerma",
       type: "departamento",
@@ -112,6 +115,7 @@
     },
     {
       id: "p4",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Terreno en Dzitya",
       type: "terreno",
@@ -135,6 +139,7 @@
     },
     {
       id: "p5",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Casa en Fracc. Malecón",
       type: "casa",
@@ -159,6 +164,7 @@
     },
     {
       id: "p6",
+      featured: true,
       agentSlug: "oswaldochable",
       title: "Departamento en Centro Histórico",
       type: "departamento",
@@ -182,6 +188,7 @@
     },
     {
       id: "p7",
+      featured: false,
       agentSlug: "oswaldochable",
       title: "Local comercial en Av. López Mateos",
       type: "local",
@@ -205,6 +212,7 @@
     },
     {
       id: "p8",
+      featured: false,
       agentSlug: "oswaldochable",
       title: "Oficina en corporativo Pedro Sainz",
       type: "oficina",
@@ -228,6 +236,7 @@
     },
     {
       id: "p9",
+      featured: true,
       agentSlug: "danielacanul",
       title: "Casa en Fracc. Las Américas",
       type: "casa",
@@ -251,6 +260,7 @@
     },
     {
       id: "p10",
+      featured: true,
       agentSlug: "danielacanul",
       title: "Departamento en Altabrisa",
       type: "departamento",
@@ -274,6 +284,7 @@
     },
     {
       id: "p11",
+      featured: true,
       agentSlug: "danielacanul",
       title: "Terreno en Cholul",
       type: "terreno",
@@ -297,6 +308,7 @@
     },
     {
       id: "p12",
+      featured: true,
       agentSlug: "danielacanul",
       title: "Casa en San Ramón Norte",
       type: "casa",

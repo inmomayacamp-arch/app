@@ -105,7 +105,11 @@
   }
 
   // --- Propiedades (moderación) ---
-  function modFor(id) { return Object.assign({ status: "aprobada", featured: false, removed: false }, propertyMod[id]); }
+  function modFor(id) {
+    var base = window.App.state.properties.get(id);
+    var baseFeatured = !!(base && base.featured);
+    return Object.assign({ status: "aprobada", featured: baseFeatured, removed: false }, propertyMod[id]);
+  }
   function allPropertiesWithMod() {
     return window.App.state.properties.all()
       .map(function (p) { return Object.assign({}, p, modFor(p.id)); })

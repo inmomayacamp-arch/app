@@ -15,6 +15,23 @@
     c.bindFavoriteButtons(document.body);
     c.bindCopyButtons(document.body);
 
+    // Ícono central del nav inferior: abre el panel de búsqueda y filtros
+    // de la vista actual: si no existe ahí, navega a Explorar y lo abre.
+    document.body.addEventListener("click", function (e) {
+      var btn = e.target.closest('[data-nav-action="open-search"]');
+      if (!btn) return;
+      var existing = document.querySelector('[data-open-filters]');
+      if (existing) {
+        existing.click();
+        return;
+      }
+      window.location.hash = "#/";
+      setTimeout(function () {
+        var filtersBtn = document.querySelector('[data-open-filters]');
+        if (filtersBtn) filtersBtn.click();
+      }, 60);
+    });
+
     if (window.App.admin && window.App.admin.state) {
       applyBrandColor(window.App.admin.state.settings.get().primaryColor);
     }

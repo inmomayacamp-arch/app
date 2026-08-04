@@ -21,6 +21,7 @@
       { pattern: "/propiedades", view: v.propertyList.render, key: "properties" },
       { pattern: "/propiedad/:id", view: v.propertyDetail.render, key: "explore" },
       { pattern: "/favoritos", view: v.favorites.render, key: "favorites" },
+      { pattern: "/perfil", view: v.account.render, key: "perfil" },
       { pattern: "/dashboard", view: v.dashboardHome.render, key: "dashboard" },
       { pattern: "/dashboard/publicar", view: v.publishWizard.render, key: "publish" },
       { pattern: "/dashboard/enlaces/nuevo", view: v.linksManage.renderCreate, key: "dashboard" },

@@ -17,15 +17,14 @@
 
   function render(params, root) {
     var filters = u.defaultFilters();
-    var searchText = "";
     var mapCtrl = null;
     var boundsOnly = false;
 
     function visibleProperties() {
       var base = state.properties.all();
       var filtered = u.applyFilters(base, filters);
-      if (searchText.trim()) {
-        var q = searchText.trim().toLowerCase();
+      if (filters.searchText && filters.searchText.trim()) {
+        var q = filters.searchText.trim().toLowerCase();
         filtered = filtered.filter(function (p) {
           return (p.title + ' ' + p.neighborhood + ' ' + p.city).toLowerCase().indexOf(q) !== -1;
         });
@@ -40,10 +39,6 @@
     root.innerHTML =
       '<div class="explore-layout">' +
       '  <div class="explore-search">' +
-      '    <div class="search-bar">' + u.icon('search', { size: 18, class: 'text-muted' }) +
-      '      <input type="text" placeholder="Buscar por colonia, ciudad o nombre" data-search aria-label="Buscar propiedades" />' +
-      '      <button type="button" class="btn btn--icon" data-open-filters aria-label="Abrir filtros">' + u.icon('sliders', { size: 18 }) + '</button>' +
-      '    </div>' +
       '    <div class="chip-row" data-quick-ops>' +
       '      <button type="button" class="chip is-active" data-op="todas">Todos</button>' +
       '      <button type="button" class="chip" data-op="venta">Venta</button>' +
@@ -65,7 +60,10 @@
       '  </div>' +
       '  <div class="explore-list">' +
       '    <div class="explore-list__inner">' +
-      '      <h2 class="section-title" style="margin-top:4px">Propiedades en el mapa (<span data-count>0</span>)</h2>' +
+      '      <div class="row" style="justify-content:space-between;align-items:center;margin-top:4px">' +
+      '        <h2 class="section-title" style="margin:0">Propiedades destacadas (<span data-count>0</span>)</h2>' +
+      '        <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 16 }) + '</button>' +
+      '      </div>' +
       '      <div class="property-grid" data-list></div>' +
       '    </div>' +
       '  </div>' +
@@ -115,14 +113,20 @@
     }
 
     function refreshList() {
-      var list = visibleProperties();
-      u.qs('[data-count]', root).textContent = list.length;
-      u.qs('[data-list]', root).innerHTML = list.length
-        ? list.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
-        : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin resultados</h3><p>Ajusta los filtros o mueve el mapa para ver más propiedades.</p></div>';
-      if (mapCtrl.ready) mapCtrl.setMarkers(list, onSelectProperty);
+      // El mapa siempre muestra todas las propiedades disponibles que cumplen los filtros:
+      // el mapa es el elemento visual principal de la app.
+      var mapList = visibleProperties();
+      if (mapCtrl.ready) mapCtrl.setMarkers(mapList, onSelectProperty);
 
-      var nearby = state.properties.all().slice(0, 8);
+      // La lista de abajo solo muestra una selección curada (destacadas), máximo 10,
+      // para mantener el foco en el mapa.
+      var featuredList = mapList.filter(function (p) { return p.featured; }).slice(0, 10);
+      u.qs('[data-count]', root).textContent = featuredList.length;
+      u.qs('[data-list]', root).innerHTML = featuredList.length
+        ? featuredList.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
+        : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
+
+      var nearby = state.properties.all().filter(function (p) { return p.featured; }).slice(0, 8);
       u.qs('[data-scroller]', root).innerHTML = nearby.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('');
     }
 
@@ -149,13 +153,7 @@
       });
     });
 
-    // Búsqueda por texto
-    u.qs('[data-search]', root).addEventListener('input', u.debounce(function (e) {
-      searchText = e.target.value;
-      refreshList();
-    }, 200));
-
-    // Filtros avanzados
+    // Búsqueda y filtros avanzados
     u.qs('[data-open-filters]', root).addEventListener('click', function () {
       c.openFilterSheet(filters, state.properties.all(), function (applied) {
         filters = applied;

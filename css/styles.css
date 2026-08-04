@@ -153,6 +153,7 @@ body.is-admin .view-root { padding: 0; min-height: 100dvh; }
   font-size: 0.68rem;
   font-weight: 600;
   position: relative;
+  background: none; border: none; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
 .bottom-nav__item.is-active { color: var(--color-primary); }
 .bottom-nav__badge {
