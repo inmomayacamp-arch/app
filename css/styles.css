@@ -317,10 +317,9 @@ body.is-admin .site-header { display: none; }
 .map-legend__item { display: inline-flex; align-items: center; gap: 6px; color: var(--color-ink-secondary); font-weight: 600; }
 .map-legend__dot { width: 9px; height: 9px; border-radius: 50%; }
 
-.map-controls {
-  position: absolute; right: 12px; bottom: 12px; z-index: var(--z-overlay);
-  display: flex; flex-direction: column; gap: 8px;
-}
+/* Botón de "usar mi ubicación": se agrega al grupo de controles nativos de Mapbox
+   (mapboxgl-ctrl-group) para que se acomode automáticamente debajo del zoom, sin encimarse. */
+.mapboxgl-ctrl-group .mapboxgl-ctrl-icon { display: flex; align-items: center; justify-content: center; color: var(--color-ink-secondary); }
 
 /* Pines de precio sobre el mapa */
 .map-pin {

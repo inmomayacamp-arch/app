@@ -22,6 +22,36 @@
   var TYPE_ICONS = { casa: "home", departamento: "layers", terreno: "map", local: "store", oficina: "briefcase" };
   var PRICE_ZOOM_THRESHOLD = 15;
 
+  var LOCALE_ES = {
+    'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + scroll para hacer zoom',
+    'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + scroll para hacer zoom',
+    'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa'
+  };
+
+  function LocateControl() {}
+  LocateControl.prototype.onAdd = function (map) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mapboxgl-ctrl-icon';
+    btn.setAttribute('aria-label', 'Usar mi ubicación');
+    btn.innerHTML = utils.icon('locate', { size: 18 });
+    btn.addEventListener('click', function () {
+      if (!navigator.geolocation) { utils.toast('Tu navegador no soporta geolocalización.'); return; }
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        map.flyTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 14, essential: true });
+      }, function () {
+        utils.toast('No pudimos acceder a tu ubicación.');
+      });
+    });
+    this._container = document.createElement('div');
+    this._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+    this._container.appendChild(btn);
+    return this._container;
+  };
+  LocateControl.prototype.onRemove = function () {
+    if (this._container.parentNode) this._container.parentNode.removeChild(this._container);
+  };
+
   function priceBubbleEl(property, opts) {
     opts = opts || {};
     var colorVar = utils.typeColorVar(property.type, property.operation);
@@ -65,9 +95,11 @@
       center: opts.center || window.APP_CONFIG.DEFAULT_CENTER,
       zoom: opts.zoom || window.APP_CONFIG.DEFAULT_ZOOM,
       attributionControl: true,
-      cooperativeGestures: isTouchDevice
+      cooperativeGestures: isTouchDevice,
+      locale: LOCALE_ES
     });
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
+    if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');
 
     var markers = [];
     var lastProperties = [];

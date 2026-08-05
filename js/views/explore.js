@@ -53,7 +53,6 @@
       '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-terreno)"></span>Terreno</span>' +
       '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-otro)"></span>Otro</span>' +
       '    </div>' +
-      '    <div class="map-controls"><button type="button" class="btn btn--icon" data-locate aria-label="Usar mi ubicación">' + u.icon('locate', { size: 18 }) + '</button></div>' +
       '  </div>' +
       '  <div class="explore-list">' +
       '    <div class="explore-list__inner">' +
@@ -93,7 +92,7 @@
     c.mountChrome('explore');
     document.title = 'InmoMap — Explorar propiedades en el mapa';
 
-    mapCtrl = window.App.map.create(u.qs('[data-map]', root), {});
+    mapCtrl = window.App.map.create(u.qs('[data-map]', root), { showLocate: true });
 
     function onSelectProperty(property) {
       window.location.hash = '#/propiedad/' + property.id;
@@ -161,16 +160,6 @@
       refreshList();
     });
 
-    // Ubicación del usuario
-    u.qs('[data-locate]', root).addEventListener('click', function () {
-      if (!mapCtrl.ready) { u.toast('Configura tu token de Mapbox para usar la ubicación.'); return; }
-      if (!navigator.geolocation) { u.toast('Tu navegador no soporta geolocalización.'); return; }
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        mapCtrl.flyTo([pos.coords.longitude, pos.coords.latitude], 14);
-      }, function () {
-        u.toast('No pudimos acceder a tu ubicación.');
-      });
-    });
   }
 
   window.App.views = window.App.views || {};
