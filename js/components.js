@@ -18,8 +18,20 @@
     { route: "perfil", href: "#/perfil", label: "Perfil", icon: "user" }
   ];
 
+  // Si hay un asesor con sesión iniciada, la pestaña "Perfil" se convierte en
+  // acceso directo a su panel de trabajo en vez de la cuenta de comprador.
+  function navItems() {
+    var isAgent = window.App.state.agents && window.App.state.agents.isLoggedIn();
+    if (!isAgent) return NAV_ITEMS;
+    return NAV_ITEMS.map(function (item) {
+      return item.route === "perfil"
+        ? { route: "perfil", href: "#/dashboard/publicar", label: "Publicar", icon: "plus" }
+        : item;
+    });
+  }
+
   function renderHeader(activeRoute) {
-    var links = NAV_ITEMS.filter(function (i) { return !i.fab; }).map(function (item) {
+    var links = navItems().filter(function (i) { return !i.fab; }).map(function (item) {
       var cls = "site-header__link" + (item.route === activeRoute ? " is-active" : "");
       var badge = item.badge && state.favorites.count() ? ' (' + state.favorites.count() + ')' : '';
       return '<a class="' + cls + '" href="' + item.href + '">' + u.escapeHtml(item.label) + badge + '</a>';
@@ -35,7 +47,7 @@
   }
 
   function renderBottomNav(activeRoute) {
-    return NAV_ITEMS.map(function (item) {
+    return navItems().map(function (item) {
       if (item.fab) {
         return '<button type="button" class="bottom-nav__item" data-nav-action="' + item.action + '" aria-label="' + item.label + '">' +
           '<span class="bottom-nav__fab">' + u.icon(item.icon, { size: 20 }) + '</span></button>';

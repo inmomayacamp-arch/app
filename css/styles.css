@@ -99,6 +99,10 @@ button, [role="button"], summary { cursor: pointer; }
   .view-root { padding-bottom: 0; padding-top: var(--header-h); }
 }
 body.is-admin .view-root { padding: 0; min-height: 100dvh; }
+/* El header fijo de escritorio ocupa su alto aunque quede vacío: en pantallas
+   sin navegación estándar (login, checkout, enlace exclusivo) hay que ocultarlo
+   del todo o queda una franja en blanco flotando sobre el contenido. */
+body.is-admin .site-header { display: none; }
 
 /* ---- Header (escritorio) ---- */
 .site-header {
@@ -521,18 +525,22 @@ body.is-admin .view-root { padding: 0; min-height: 100dvh; }
 .tab.is-active { background: var(--color-ink); border-color: var(--color-ink); color: #fff; }
 
 /* ==========================================================================
-   Enlace personalizado para cliente
+   Enlace personalizado para cliente (página exclusiva, sin nav estándar)
    ========================================================================== */
 
-.client-banner {
-  margin: 12px 16px; padding: 14px 16px; border-radius: var(--radius-md);
-  background: var(--color-primary-light); border: 1px solid var(--color-primary-ring);
-  display: flex; align-items: center; gap: 12px;
+.client-exclusive__header {
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  border-bottom: 1px solid var(--color-border); background: var(--color-surface);
 }
-@media (min-width: 900px) { .client-banner { max-width: 880px; margin: 12px auto; } }
-.client-banner__icon { color: var(--color-primary); }
-.client-banner strong { display: block; font-size: 0.9rem; }
-.client-banner span { font-size: 0.78rem; color: var(--color-ink-secondary); }
+.client-exclusive__logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; color: var(--color-primary); }
+
+.explore-agent { grid-area: agent; padding-bottom: 32px; }
+
+.client-exclusive__note { font-size: 0.86rem; color: var(--color-ink-secondary); }
+.client-exclusive__note strong { color: var(--color-ink); }
+.client-exclusive__message {
+  max-width: 420px; margin: 8px auto 0; font-size: 0.9rem; font-style: italic; color: var(--color-ink-secondary);
+}
 
 /* ==========================================================================
    Estados vacíos
