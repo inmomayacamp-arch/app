@@ -100,6 +100,7 @@
       '<div class="page-header"><h1 class="page-header__title">Planes para agentes</h1></div>' +
       '<div class="plans-page">' +
       '  <div class="container plans-hero">' +
+      '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon("chevronLeft", { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon("briefcase", { size: 14 }) + ' Planes para agentes</span>' +
       '    <h2 class="plans-hero__title">Elige el plan ideal para hacer crecer <span>tu negocio</span></h2>' +
       '    <p class="plans-hero__subtitle">Potencia tu trabajo, llega a más clientes y cierra más ventas con InmoMap.</p>' +
@@ -114,6 +115,7 @@
 
       '  <div class="container">' +
       '    <div class="plans-footnote">' + u.icon("shield", { size: 16 }) + ' Puedes cambiar de plan o cancelarlo en cualquier momento.</div>' +
+      '    <p class="text-muted" style="text-align:center;font-size:0.85rem;margin-top:14px">¿Ya tienes cuenta? <a href="#/dashboard/login" style="color:var(--color-primary);font-weight:700">Inicia sesión</a></p>' +
       '  </div>' +
       '</div>';
 

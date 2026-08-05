@@ -40,6 +40,7 @@
       '<div class="page-header"><h1 class="page-header__title">Publica tu propiedad</h1></div>' +
       '<div class="plans-page">' +
       '  <div class="container plans-hero">' +
+      '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon('chevronLeft', { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon('home', { size: 14 }) + ' Para propietarios</span>' +
       '    <h2 class="plans-hero__title">Vende o renta tu propiedad <span>directo, sin intermediarios</span></h2>' +
       '    <p class="plans-hero__subtitle">Publica tu propiedad en el mapa de InmoMap y recibe contactos directo a tu WhatsApp y teléfono.</p>' +

@@ -247,6 +247,9 @@ body.is-admin .site-header { display: none; }
 }
 
 .explore-search { grid-area: search; position: relative; z-index: var(--z-overlay); }
+/* En móvil el botón central de búsqueda del bottom-nav ya abre los filtros;
+   este ícono junto a los chips solo hace falta en escritorio, que no tiene bottom-nav. */
+@media (max-width: 899.98px) { [data-open-filters] { display: none; } }
 .explore-map { grid-area: map; position: relative; height: 58vh; min-height: 360px; }
 @media (min-width: 900px) { .explore-map { height: 520px; border-radius: var(--radius-lg); overflow: hidden; } }
 .explore-list { grid-area: list; }
@@ -745,6 +748,15 @@ body.is-admin .site-header { display: none; }
   color: var(--color-ink-secondary);
 }
 .promo-card__login-link:hover { color: var(--color-primary); }
+
+.account-brand {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 6px; padding: 48px 20px 24px; color: var(--color-ink-muted);
+}
+.account-brand__logo {
+  display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.3rem; color: var(--color-primary);
+}
+.account-brand p { font-size: 0.82rem; }
 
 /* ==========================================================================
    Planes para agentes (página pública de precios)

@@ -29,6 +29,11 @@
       '      <a class="btn btn--primary btn--sm" href="#/planes-propietario">' + u.icon('home', { size: 14 }) + ' Publicar mi propiedad</a>' +
       '    </div>' +
       '  </div>' +
+
+      '  <div class="account-brand">' +
+      '    <span class="account-brand__logo">' + u.icon('pin', { size: 26 }) + ' InmoMap</span>' +
+      '    <p>La plataforma inmobiliaria donde el mapa es el centro.</p>' +
+      '  </div>' +
       '</div>';
 
     c.mountChrome('perfil');
