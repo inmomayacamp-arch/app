@@ -83,6 +83,48 @@
   }
 
   /* ---------------------------------------------------------------------
+   * Chips rápidos de operación / tipo (Todos / Venta / Renta / Terrenos / Locales)
+   * ------------------------------------------------------------------- */
+
+  var QUICK_CHIPS = [
+    { op: "todas", label: "Todos", color: "var(--color-primary)" },
+    { op: "venta", label: "Venta", color: "var(--color-venta)" },
+    { op: "renta", label: "Renta", color: "var(--color-renta)" },
+    { type: "terreno", label: "Terrenos", color: "var(--color-terreno)" },
+    { type: "local", label: "Locales", color: "var(--color-otro)" }
+  ];
+
+  function quickFilterChipsHTML() {
+    return QUICK_CHIPS.map(function (chip) {
+      var attr = chip.op ? 'data-op="' + chip.op + '"' : 'data-type-quick="' + chip.type + '"';
+      var isActive = chip.op === "todas";
+      return '<button type="button" class="chip' + (isActive ? ' is-active' : '') + '" ' + attr + ' style="--chip-color:' + chip.color + '"><span class="chip__check"></span>' + chip.label + '</button>';
+    }).join('');
+  }
+
+  function bindQuickFilterChips(root, filters, onChange) {
+    u.qsa('[data-op]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filters.operation = btn.getAttribute('data-op');
+        filters.types = [];
+        u.qsa('[data-op]', root).forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+        u.qsa('[data-type-quick]', root).forEach(function (b) { b.classList.remove('is-active'); });
+        onChange();
+      });
+    });
+    u.qsa('[data-type-quick]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var type = btn.getAttribute('data-type-quick');
+        var active = btn.classList.toggle('is-active');
+        filters.types = active ? [type] : [];
+        u.qsa('[data-op]', root).forEach(function (b) { b.classList.remove('is-active'); });
+        if (!active) u.qs('[data-op="todas"]', root).classList.add('is-active');
+        onChange();
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------------
    * Tarjeta de propiedad
    * ------------------------------------------------------------------- */
 
@@ -482,6 +524,8 @@
     propertyPriceLabel: propertyPriceLabel,
     bindFavoriteButtons: bindFavoriteButtons,
     bindContactButtons: bindContactButtons,
+    quickFilterChipsHTML: quickFilterChipsHTML,
+    bindQuickFilterChips: bindQuickFilterChips,
     openSheet: openSheet,
     closeSheet: closeSheet,
     openPropertyPeek: openPropertyPeek,

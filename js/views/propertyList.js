@@ -23,6 +23,7 @@
       '  <a class="btn btn--outline btn--sm" href="#/">' + u.icon('map', { size: 15 }) + ' Mapa</a>' +
       '</div>' +
       '<div class="page-wrap">' +
+      '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML() + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
       '    <select data-sort aria-label="Ordenar por" style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:9px 14px;font-weight:700;font-size:0.85rem;background:var(--color-surface)">' +
       Object.keys(SORTERS).map(function (key) { return '<option value="' + key + '">' + SORTERS[key].label + '</option>'; }).join('') +
@@ -44,6 +45,7 @@
     }
 
     refresh();
+    c.bindQuickFilterChips(root, filters, refresh);
 
     u.qs('[data-sort]', root).addEventListener('change', function (e) {
       sortKey = e.target.value;

@@ -206,17 +206,24 @@ body.is-admin .site-header { display: none; }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 16px; border-radius: var(--radius-full);
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px 8px 10px; border-radius: var(--radius-full);
   background: var(--color-surface); border: 1px solid var(--color-border);
   font-weight: 700; font-size: 0.85rem; color: var(--color-ink-secondary);
   white-space: nowrap;
 }
-.chip.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-.chip[data-op="venta"].is-active { background: var(--color-venta-bg); border-color: var(--color-venta); color: var(--color-venta); }
-.chip[data-op="renta"].is-active { background: var(--color-renta-bg); border-color: var(--color-renta); color: var(--color-renta); }
-.chip[data-type-quick="terreno"].is-active { background: var(--color-terreno-bg); border-color: var(--color-terreno); color: var(--color-terreno); }
-.chip[data-type-quick="local"].is-active { background: var(--color-otro-bg); border-color: var(--color-otro); color: var(--color-otro); }
+.chip.is-active { border-color: var(--chip-color, var(--color-primary)); color: var(--color-ink); }
+.chip__check {
+  width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid var(--chip-color, var(--color-border-strong));
+  display: inline-flex; align-items: center; justify-content: center; background: var(--color-surface);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.chip.is-active .chip__check { background: var(--chip-color, var(--color-primary)); border-color: var(--chip-color, var(--color-primary)); }
+.chip.is-active .chip__check::after {
+  content: ""; width: 6px; height: 3px; margin-bottom: 2px;
+  border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg);
+}
 .chip-row {
   display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px;
   scrollbar-width: none;

@@ -30,6 +30,15 @@
       '    </div>' +
       '  </div>' +
 
+      '  <div class="promo-card promo-card--agent" style="margin-top:16px">' +
+      '    <span class="promo-card__icon">' + u.icon('user', { size: 28 }) + '</span>' +
+      '    <div class="promo-card__body">' +
+      '      <strong>¿Ya tienes una cuenta?</strong>' +
+      '      <p>Inicia sesión para acceder a tu panel de asesor o administrar tu propiedad publicada.</p>' +
+      '      <a class="btn btn--primary btn--sm" href="#/dashboard/login">' + u.icon('user', { size: 14 }) + ' Iniciar sesión</a>' +
+      '    </div>' +
+      '  </div>' +
+
       '  <div class="account-brand">' +
       '    <span class="account-brand__logo">' + u.icon('pin', { size: 26 }) + ' InmoMap</span>' +
       '    <p>La plataforma inmobiliaria donde el mapa es el centro.</p>' +

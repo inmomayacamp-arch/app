@@ -41,11 +41,7 @@
       '  <div class="explore-search">' +
       '    <div class="row gap-2" style="align-items:center">' +
       '    <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
-      '      <button type="button" class="chip is-active" data-op="todas">Todos</button>' +
-      '      <button type="button" class="chip" data-op="venta"><span class="map-legend__dot" style="background:var(--color-venta)"></span>Venta</button>' +
-      '      <button type="button" class="chip" data-op="renta"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</button>' +
-      '      <button type="button" class="chip" data-type-quick="terreno"><span class="map-legend__dot" style="background:var(--color-terreno)"></span>Terrenos</button>' +
-      '      <button type="button" class="chip" data-type-quick="local"><span class="map-legend__dot" style="background:var(--color-otro)"></span>Locales</button>' +
+      c.quickFilterChipsHTML() +
       '    </div>' +
       '    <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
       '    </div>' +
@@ -74,6 +70,8 @@
       '    <div class="container">' +
       '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
       '      <div class="category-grid" data-categories>' +
+      '        <button type="button" class="category-card" data-nearby style="--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' +
+      '          <span class="category-card__icon">' + u.icon('locate', { size: 22 }) + '</span><strong>Cerca de ti</strong></button>' +
       CATEGORIES.map(function (cat) {
         return '<button type="button" class="category-card" data-category="' + cat.type + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
           '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
@@ -121,25 +119,7 @@
     refreshList();
 
     // Chips rápidos de operación / tipo
-    u.qsa('[data-op]', root).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        filters.operation = btn.getAttribute('data-op');
-        filters.types = [];
-        u.qsa('[data-op]', root).forEach(function (b) { b.classList.toggle('is-active', b === btn); });
-        u.qsa('[data-type-quick]', root).forEach(function (b) { b.classList.remove('is-active'); });
-        refreshList();
-      });
-    });
-    u.qsa('[data-type-quick]', root).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var type = btn.getAttribute('data-type-quick');
-        var active = btn.classList.toggle('is-active');
-        filters.types = active ? [type] : [];
-        u.qsa('[data-op]', root).forEach(function (b) { b.classList.remove('is-active'); });
-        if (!active) u.qs('[data-op="todas"]', root).classList.add('is-active');
-        refreshList();
-      });
-    });
+    c.bindQuickFilterChips(root, filters, refreshList);
 
     // Búsqueda y filtros avanzados
     u.qs('[data-open-filters]', root).addEventListener('click', function () {
@@ -156,6 +136,23 @@
         filters.operation = 'todas';
         refreshList();
         u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    var nearbyBtn = u.qs('[data-nearby]', root);
+    if (nearbyBtn) nearbyBtn.addEventListener('click', function () {
+      if (!mapCtrl.ready) { u.toast('Configura tu token de Mapbox para usar la ubicación.'); return; }
+      if (!navigator.geolocation) { u.toast('Tu navegador no soporta geolocalización.'); return; }
+      u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        mapCtrl.map.once('moveend', function () {
+          boundsOnly = true;
+          u.qs('[data-search-area]', root).hidden = true;
+          refreshList();
+        });
+        mapCtrl.flyTo([pos.coords.longitude, pos.coords.latitude], 14);
+      }, function () {
+        u.toast('No pudimos acceder a tu ubicación.');
       });
     });
 
