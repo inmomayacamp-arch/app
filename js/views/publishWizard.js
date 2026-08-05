@@ -496,7 +496,7 @@
           uploadingCount += files.length;
           renderStep();
           files.forEach(function (file) {
-            window.App.photoUpload.uploadPropertyPhoto(file, agent.slug).then(function (url) {
+            window.App.photoUpload.uploadImage(file, agent.slug).then(function (url) {
               payload.photos.push({ url: url });
               uploadingCount -= 1;
               renderStep();

@@ -8,6 +8,19 @@
 
   function render(params, root) {
     var agent = state.agents.current();
+    var photoUrl = agent.photo;
+    var uploadingPhoto = false;
+
+    function avatarHTML() {
+      return (
+        '<button type="button" class="profile-avatar-picker" data-avatar-picker aria-label="Cambiar foto de perfil">' +
+        (uploadingPhoto
+          ? '<span class="spinner"></span>'
+          : '<img src="' + photoUrl + '" alt="" />') +
+        '<span class="profile-avatar-picker__badge">' + u.icon('camera', { size: 13 }) + '</span>' +
+        '</button>'
+      );
+    }
 
     var content =
       '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
@@ -16,9 +29,10 @@
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Foto y datos generales</div></div>' +
       '  <div class="row gap-3" style="align-items:flex-start;flex-wrap:wrap">' +
-      '  <img src="' + agent.photo + '" alt="" style="width:72px;height:72px;border-radius:50%;object-fit:cover" />' +
+      '  <div data-avatar-wrap>' + avatarHTML() + '</div>' +
+      '  <input type="file" accept="image/*" data-avatar-input style="display:none" />' +
       '  <div style="flex:1;min-width:220px">' +
-      '    <div class="form-field"><label>URL de tu fotografía</label><input type="text" data-f="photo" value="' + u.escapeHtml(agent.photo) + '" /></div>' +
+      '    <p class="text-muted" style="font-size:0.78rem;margin-top:4px">Toca tu foto para cambiarla.</p>' +
       '    <div class="form-field"><label>URL de tu logo (opcional)</label><input type="text" data-f="logoUrl" placeholder="https://..." value="' + u.escapeHtml(agent.logoUrl || '') + '" /></div>' +
       '  </div></div>' +
       '  <div class="form-row">' +
@@ -48,10 +62,31 @@
 
     ac.mount('perfil-profesional', 'Perfil profesional', content, root);
 
+    var fileInput = u.qs('[data-avatar-input]', root);
+    u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      var file = fileInput.files && fileInput.files[0];
+      fileInput.value = '';
+      if (!file) return;
+      uploadingPhoto = true;
+      u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
+      window.App.photoUpload.uploadImage(file, 'avatars/' + agent.slug).then(function (url) {
+        photoUrl = url;
+        uploadingPhoto = false;
+        u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
+        u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
+      }).catch(function (err) {
+        uploadingPhoto = false;
+        u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
+        u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
+        u.toast(err.message || 'No se pudo subir la foto');
+      });
+    });
+
     u.qs('[data-save]', root).addEventListener('click', async function () {
       try {
         await state.agents.updateProfile(agent.slug, {
-          photo: u.qs('[data-f="photo"]', root).value,
+          photo: photoUrl,
           logoUrl: u.qs('[data-f="logoUrl"]', root).value,
           name: u.qs('[data-f="name"]', root).value,
           company: u.qs('[data-f="company"]', root).value,

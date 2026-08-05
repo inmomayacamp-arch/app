@@ -41,8 +41,8 @@
 
     var content =
       '<div class="admin-section">' +
-      '  <div class="admin-section__head"><div><div class="admin-section__title">Autenticación</div><div class="admin-section__subtitle">Acceso protegido con correo y contraseña (demo)</div></div></div>' +
-      '  <p class="text-secondary" style="font-size:0.85rem">Sesión activa: <strong>' + d.DEMO_LOGIN.email + '</strong></p>' +
+      '  <div class="admin-section__head"><div><div class="admin-section__title">Autenticación</div><div class="admin-section__subtitle">Acceso protegido con correo y contraseña</div></div></div>' +
+      '  <p class="text-secondary" style="font-size:0.85rem">Sesión activa: <strong>' + u.escapeHtml((window.App.state.agents.current() || {}).email || '') + '</strong></p>' +
       '  <p class="text-muted" style="font-size:0.78rem">Últimos accesos registrados: ' + accessLog.length + '</p>' +
       '</div>' +
 

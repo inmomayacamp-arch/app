@@ -35,12 +35,10 @@
     }
 
     function loginFormHTML() {
-      var demo = state.agents.demoCredentials;
       return (
-        '<div class="form-field"><label>Correo</label><input type="text" data-email value="' + demo.email + '" /></div>' +
-        '<div class="form-field"><label>Contraseña</label><input type="password" data-password value="' + demo.password + '" /></div>' +
-        '<button type="button" class="btn btn--primary btn--block" data-login>Ingresar</button>' +
-        '<div class="admin-login__hint">Cuenta demo: <strong>' + demo.email + '</strong> / <strong>' + demo.password + '</strong> (ya vienen prellenados).</div>'
+        '<div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" autocomplete="username" /></div>' +
+        '<div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Tu contraseña" autocomplete="current-password" /></div>' +
+        '<button type="button" class="btn btn--primary btn--block" data-login>Ingresar</button>'
       );
     }
 

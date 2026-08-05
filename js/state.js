@@ -63,7 +63,6 @@
   var supabaseClient = window.App.supabase;
   var cachedProfiles = [];
   var cachedCurrentProfile = null;
-  var DEMO_AGENT_CREDENTIALS = { email: "oswaldo@inmomap.mx", password: "asesor123", slug: "oswaldochable" };
 
   function uniqueSlug(base) {
     var slug = base || utils.uid("asesor");
@@ -422,8 +421,7 @@
       logout: logoutAgent,
       isLoggedIn: isAgentLoggedIn,
       currentSlug: currentAgentSlug,
-      current: currentAgent,
-      demoCredentials: DEMO_AGENT_CREDENTIALS
+      current: currentAgent
     },
     properties: {
       bootstrap: bootstrapProperties,

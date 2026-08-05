@@ -29,16 +29,16 @@
     });
   }
 
-  async function uploadPropertyPhoto(file, agentSlug) {
+  async function uploadImage(file, folder) {
     var supabaseClient = window.App.supabase;
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     var blob = await resizeImage(file);
-    var path = agentSlug + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg";
+    var path = folder + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 8) + ".jpg";
     var uploadResult = await supabaseClient.storage.from("property-photos").upload(path, blob, { contentType: "image/jpeg", upsert: false });
     if (uploadResult.error) throw uploadResult.error;
     var pub = supabaseClient.storage.from("property-photos").getPublicUrl(path);
     return pub.data.publicUrl;
   }
 
-  window.App.photoUpload = { resizeImage: resizeImage, uploadPropertyPhoto: uploadPropertyPhoto };
+  window.App.photoUpload = { resizeImage: resizeImage, uploadImage: uploadImage };
 })();

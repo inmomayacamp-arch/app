@@ -1,10 +1,9 @@
-// Vista "Login del admin" (demo, sin backend real).
+// Vista "Login del admin": acceso con correo y contraseña reales (Supabase Auth).
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var s = window.App.admin.state;
-  var d = window.App.admin.data;
 
   function render(params, root) {
     document.body.classList.add('is-admin');
@@ -22,10 +21,9 @@
       '  <div class="admin-login__card">' +
       '    <div class="admin-login__logo">' + u.icon('pin', { size: 22 }) + ' InmoMap Admin</div>' +
       '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Panel exclusivo para el equipo de InmoMap</p>' +
-      '    <div class="form-field"><label>Correo</label><input type="text" data-email value="' + d.DEMO_LOGIN.email + '" /></div>' +
-      '    <div class="form-field"><label>Contraseña</label><input type="password" data-password value="' + d.DEMO_LOGIN.password + '" /></div>' +
+      '    <div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" autocomplete="username" /></div>' +
+      '    <div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Tu contraseña" autocomplete="current-password" /></div>' +
       '    <button type="button" class="btn btn--primary btn--block" data-login>Ingresar</button>' +
-      '    <div class="admin-login__hint">Prototipo: usa <strong>' + d.DEMO_LOGIN.email + '</strong> / <strong>' + d.DEMO_LOGIN.password + '</strong> (ya vienen prellenados).</div>' +
       '  </div>' +
       '</div>';
 

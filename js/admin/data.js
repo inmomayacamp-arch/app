@@ -147,7 +147,6 @@
     NOTIFICATIONS_LOG: NOTIFICATIONS_LOG,
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
     ROLES: ROLES,
-    ADMIN_USERS: ADMIN_USERS,
-    DEMO_LOGIN: { email: "admin@inmomap.mx", password: "admin123" }
+    ADMIN_USERS: ADMIN_USERS
   };
 })();
