@@ -136,15 +136,15 @@
     logAction("Propiedad actualizada (" + Object.keys(fields).join(", ") + ")", id);
   }
   function pendingPropertiesList() { return pendingProperties; }
-  function approvePendingProperty(id) {
+  async function approvePendingProperty(id) {
     var item = pendingProperties.filter(function (p) { return p.id === id; })[0];
     if (!item) return null;
-    pendingProperties = pendingProperties.filter(function (p) { return p.id !== id; });
-    writeJSON(KEYS.pendingProperties, pendingProperties);
-    var published = window.App.state.properties.publish({
+    var published = await window.App.state.properties.publish({
       title: item.title, type: item.type, operation: item.operation, price: item.price,
       city: item.city, neighborhood: item.neighborhood, agentSlug: item.agentSlug, photos: item.photos
     });
+    pendingProperties = pendingProperties.filter(function (p) { return p.id !== id; });
+    writeJSON(KEYS.pendingProperties, pendingProperties);
     logAction("Propiedad aprobada y publicada", item.title);
     return published;
   }

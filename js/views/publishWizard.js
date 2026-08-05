@@ -203,7 +203,7 @@
         renderStep();
       });
 
-      u.qs('[data-next]', root).addEventListener('click', function () {
+      u.qs('[data-next]', root).addEventListener('click', async function () {
         collectStepFields();
         if (step === 1 && !(Number(payload.price) > 0)) { u.toast('Ingresa un precio válido'); return; }
         if (step === 2 && !payload.city.trim()) { u.toast('Ingresa la ciudad'); return; }
@@ -216,28 +216,35 @@
         if (!payload.title.trim()) {
           payload.title = u.propertyTypeLabel(payload.type) + ' en ' + (payload.neighborhood || payload.city);
         }
-        published = state.properties.publish({
-          title: payload.title,
-          type: payload.type,
-          operation: payload.operation,
-          price: Number(payload.price) || 0,
-          city: payload.city,
-          neighborhood: payload.neighborhood || payload.city,
-          addressNote: payload.addressNote,
-          coords: payload.coords,
-          bedrooms: payload.bedrooms ? Number(payload.bedrooms) : null,
-          bathrooms: payload.bathrooms ? Number(payload.bathrooms) : null,
-          builtArea: payload.builtArea ? Number(payload.builtArea) : null,
-          lotArea: payload.lotArea ? Number(payload.lotArea) : null,
-          parking: payload.parking ? Number(payload.parking) : null,
-          description: payload.description,
-          photos: payload.photos
-        });
-        root.innerHTML = '<div class="page-header"><h1 class="page-header__title">Publicar propiedad</h1></div>' + confirmationHTML();
-        document.body.classList.add('is-admin');
-        u.qs('#site-header').innerHTML = '';
-        u.qs('#bottom-nav').innerHTML = '';
-        u.toast('Propiedad publicada', { tone: 'success' });
+        var nextBtn = u.qs('[data-next]', root);
+        nextBtn.disabled = true;
+        try {
+          published = await state.properties.publish({
+            title: payload.title,
+            type: payload.type,
+            operation: payload.operation,
+            price: Number(payload.price) || 0,
+            city: payload.city,
+            neighborhood: payload.neighborhood || payload.city,
+            addressNote: payload.addressNote,
+            coords: payload.coords,
+            bedrooms: payload.bedrooms ? Number(payload.bedrooms) : null,
+            bathrooms: payload.bathrooms ? Number(payload.bathrooms) : null,
+            builtArea: payload.builtArea ? Number(payload.builtArea) : null,
+            lotArea: payload.lotArea ? Number(payload.lotArea) : null,
+            parking: payload.parking ? Number(payload.parking) : null,
+            description: payload.description,
+            photos: payload.photos
+          });
+          root.innerHTML = '<div class="page-header"><h1 class="page-header__title">Publicar propiedad</h1></div>' + confirmationHTML();
+          document.body.classList.add('is-admin');
+          u.qs('#site-header').innerHTML = '';
+          u.qs('#bottom-nav').innerHTML = '';
+          u.toast('Propiedad publicada', { tone: 'success' });
+        } catch (err) {
+          nextBtn.disabled = false;
+          u.toast(err.message || 'No se pudo publicar la propiedad');
+        }
       });
     }
 

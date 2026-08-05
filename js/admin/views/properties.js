@@ -81,7 +81,15 @@
       ac.mount('propiedades', 'Propiedades', content, root);
 
       u.qsa('[data-approve]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { s.properties.approvePending(btn.getAttribute('data-approve')); u.toast('Propiedad aprobada y publicada'); refresh(); });
+        btn.addEventListener('click', async function () {
+          try {
+            await s.properties.approvePending(btn.getAttribute('data-approve'));
+            u.toast('Propiedad aprobada y publicada');
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo aprobar la propiedad');
+          }
+        });
       });
       u.qsa('[data-reject]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {

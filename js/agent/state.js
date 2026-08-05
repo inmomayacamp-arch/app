@@ -179,13 +179,13 @@
     return window.App.state.properties.byAgent(slug).filter(function (p) { return p.sharing && p.sharing.enabled; });
   }
 
-  function setSharing(propertyId, sharingFields) {
+  async function setSharing(propertyId, sharingFields) {
     var prop = window.App.state.properties.get(propertyId);
     var sharing = Object.assign({
       enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null,
       conditions: '', expiresAt: null, visibility: 'todos', selectedAgentSlugs: []
     }, prop.sharing, sharingFields);
-    window.App.state.properties.update(propertyId, { sharing: sharing });
+    await window.App.state.properties.update(propertyId, { sharing: sharing });
     return sharing;
   }
 

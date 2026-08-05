@@ -46,19 +46,27 @@
       ac.mount('publicidad', 'Publicidad', content, root);
 
       u.qsa('[data-toggle]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           var id = btn.getAttribute('data-toggle');
           var p = properties.filter(function (x) { return x.id === id; })[0];
-          state.properties.update(id, { featured: !p.featured });
-          refresh();
+          try {
+            await state.properties.update(id, { featured: !p.featured });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo actualizar la propiedad');
+          }
         });
       });
       var buyBtn = u.qs('[data-buy-campaign]', root);
-      if (buyBtn) buyBtn.addEventListener('click', function () {
+      if (buyBtn) buyBtn.addEventListener('click', async function () {
         var propId = u.qs('[data-campaign-property]', root).value;
-        state.properties.update(propId, { featured: true });
-        u.toast('Promoción activada por 7 días', { tone: 'success' });
-        refresh();
+        try {
+          await state.properties.update(propId, { featured: true });
+          u.toast('Promoción activada por 7 días', { tone: 'success' });
+          refresh();
+        } catch (err) {
+          u.toast(err.message || 'No se pudo activar la promoción');
+        }
       });
     }
 

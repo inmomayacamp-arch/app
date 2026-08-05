@@ -78,12 +78,19 @@
       u.qs('[data-count]', root).textContent = selected.length;
     });
 
-    u.qs('[data-create]', root).addEventListener('click', function () {
+    u.qs('[data-create]', root).addEventListener('click', async function () {
       if (!clientLabel.trim()) { u.toast('Escribe el nombre del cliente'); return; }
       if (!selected.length) { u.toast('Selecciona al menos una propiedad'); return; }
-      var link = state.links.create({ clientLabel: clientLabel.trim(), message: message.trim(), propertyIds: selected });
-      u.toast('Enlace creado', { tone: 'success' });
-      window.location.hash = '#/dashboard/enlaces/' + link.clientSlug;
+      var createBtn = u.qs('[data-create]', root);
+      createBtn.disabled = true;
+      try {
+        var link = await state.links.create({ clientLabel: clientLabel.trim(), message: message.trim(), propertyIds: selected });
+        u.toast('Enlace creado', { tone: 'success' });
+        window.location.hash = '#/dashboard/enlaces/' + link.clientSlug;
+      } catch (err) {
+        createBtn.disabled = false;
+        u.toast(err.message || 'No se pudo crear el enlace');
+      }
     });
   }
 

@@ -38,19 +38,23 @@
         '<button type="button" class="btn btn--primary btn--block" data-save>Guardar cambios</button>'
     });
     var sheetRoot = u.qs('#sheet-root');
-    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
-      state.properties.update(p.id, {
-        title: u.qs('[data-f="title"]', sheetRoot).value,
-        price: Number(u.qs('[data-f="price"]', sheetRoot).value) || p.price,
-        operation: u.qs('[data-f="operation"]', sheetRoot).value,
-        bedrooms: Number(u.qs('[data-f="bedrooms"]', sheetRoot).value) || null,
-        bathrooms: Number(u.qs('[data-f="bathrooms"]', sheetRoot).value) || null,
-        description: u.qs('[data-f="description"]', sheetRoot).value,
-        privateNotes: u.qs('[data-f="privateNotes"]', sheetRoot).value
-      });
-      c.closeSheet();
-      u.toast('Propiedad actualizada', { tone: 'success' });
-      refresh();
+    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
+      try {
+        await state.properties.update(p.id, {
+          title: u.qs('[data-f="title"]', sheetRoot).value,
+          price: Number(u.qs('[data-f="price"]', sheetRoot).value) || p.price,
+          operation: u.qs('[data-f="operation"]', sheetRoot).value,
+          bedrooms: Number(u.qs('[data-f="bedrooms"]', sheetRoot).value) || null,
+          bathrooms: Number(u.qs('[data-f="bathrooms"]', sheetRoot).value) || null,
+          description: u.qs('[data-f="description"]', sheetRoot).value,
+          privateNotes: u.qs('[data-f="privateNotes"]', sheetRoot).value
+        });
+        c.closeSheet();
+        u.toast('Propiedad actualizada', { tone: 'success' });
+        refresh();
+      } catch (err) {
+        u.toast(err.message || 'No se pudo actualizar la propiedad');
+      }
     });
   }
 
@@ -94,21 +98,25 @@
       if (selectedWrap) selectedWrap.style.display = visibilitySelect.value === 'seleccionados' ? 'block' : 'none';
     });
 
-    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
+    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
       var selectedAgentSlugs = u.qsa('[data-selected-agent]', sheetRoot).filter(function (cb) { return cb.checked; }).map(function (cb) { return cb.getAttribute('data-selected-agent'); });
-      window.App.agent.state.sharedPool.setSharing(p.id, {
-        enabled: enabledCheckbox.checked,
-        totalCommission: Number(u.qs('[data-f="totalCommission"]', sheetRoot).value) || 0,
-        collaboratorCommission: Number(u.qs('[data-f="collaboratorCommission"]', sheetRoot).value) || 0,
-        fixedAmount: u.qs('[data-f="fixedAmount"]', sheetRoot).value ? Number(u.qs('[data-f="fixedAmount"]', sheetRoot).value) : null,
-        expiresAt: u.qs('[data-f="expiresAt"]', sheetRoot).value ? new Date(u.qs('[data-f="expiresAt"]', sheetRoot).value).toISOString() : null,
-        visibility: visibilitySelect.value,
-        selectedAgentSlugs: selectedAgentSlugs,
-        conditions: u.qs('[data-f="conditions"]', sheetRoot).value
-      });
-      c.closeSheet();
-      u.toast('Configuración de bolsa compartida guardada', { tone: 'success' });
-      refresh();
+      try {
+        await window.App.agent.state.sharedPool.setSharing(p.id, {
+          enabled: enabledCheckbox.checked,
+          totalCommission: Number(u.qs('[data-f="totalCommission"]', sheetRoot).value) || 0,
+          collaboratorCommission: Number(u.qs('[data-f="collaboratorCommission"]', sheetRoot).value) || 0,
+          fixedAmount: u.qs('[data-f="fixedAmount"]', sheetRoot).value ? Number(u.qs('[data-f="fixedAmount"]', sheetRoot).value) : null,
+          expiresAt: u.qs('[data-f="expiresAt"]', sheetRoot).value ? new Date(u.qs('[data-f="expiresAt"]', sheetRoot).value).toISOString() : null,
+          visibility: visibilitySelect.value,
+          selectedAgentSlugs: selectedAgentSlugs,
+          conditions: u.qs('[data-f="conditions"]', sheetRoot).value
+        });
+        c.closeSheet();
+        u.toast('Configuración de bolsa compartida guardada', { tone: 'success' });
+        refresh();
+      } catch (err) {
+        u.toast(err.message || 'No se pudo guardar la configuración');
+      }
     });
   }
 
@@ -152,17 +160,25 @@
       ac.mount('propiedades', 'Mis propiedades', content, root);
 
       u.qsa('[data-status]', root).forEach(function (sel) {
-        sel.addEventListener('change', function () {
-          state.properties.update(sel.getAttribute('data-status'), { status: sel.value });
-          u.toast('Estado actualizado');
+        sel.addEventListener('change', async function () {
+          try {
+            await state.properties.update(sel.getAttribute('data-status'), { status: sel.value });
+            u.toast('Estado actualizado');
+          } catch (err) {
+            u.toast(err.message || 'No se pudo actualizar el estado');
+          }
         });
       });
       u.qsa('[data-feature]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           var id = btn.getAttribute('data-feature');
           var p = properties.filter(function (x) { return x.id === id; })[0];
-          state.properties.update(id, { featured: !p.featured });
-          refresh();
+          try {
+            await state.properties.update(id, { featured: !p.featured });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo actualizar la propiedad');
+          }
         });
       });
       u.qsa('[data-edit]', root).forEach(function (btn) {
@@ -172,18 +188,26 @@
         btn.addEventListener('click', function () { shareSheet(properties.filter(function (p) { return p.id === btn.getAttribute('data-share'); })[0], agent, refresh); });
       });
       u.qsa('[data-duplicate]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          state.properties.duplicate(btn.getAttribute('data-duplicate'));
-          u.toast('Propiedad duplicada', { tone: 'success' });
-          refresh();
+        btn.addEventListener('click', async function () {
+          try {
+            await state.properties.duplicate(btn.getAttribute('data-duplicate'));
+            u.toast('Propiedad duplicada', { tone: 'success' });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo duplicar la propiedad');
+          }
         });
       });
       u.qsa('[data-remove]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           if (!window.confirm('¿Eliminar esta propiedad? Ya no aparecerá en InmoMap.')) return;
-          state.properties.remove(btn.getAttribute('data-remove'));
-          u.toast('Propiedad eliminada');
-          refresh();
+          try {
+            await state.properties.remove(btn.getAttribute('data-remove'));
+            u.toast('Propiedad eliminada');
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo eliminar la propiedad');
+          }
         });
       });
     }

@@ -1,5 +1,5 @@
-// Estado de la aplicación: favoritos, cuentas de asesor, propiedades y enlaces.
-// Persistido en localStorage para simular un backend real sin necesitar servidor.
+// Estado de la aplicación: favoritos (localStorage), y cuentas de asesor, propiedades
+// y enlaces personalizados (Supabase real, con caché en memoria poblada en el arranque).
 (function () {
   "use strict";
 
@@ -7,10 +7,7 @@
   var data = window.App.data;
 
   var KEYS = {
-    favorites: "inmomap:favorites",
-    properties: "inmomap:properties",
-    propertyOverrides: "inmomap:propertyOverrides",
-    links: "inmomap:links"
+    favorites: "inmomap:favorites"
   };
 
   function readJSON(key, fallback) {
@@ -187,18 +184,67 @@
     cachedCurrentProfile = null;
   }
 
-  // --- Propiedades (mock + publicadas/editadas por el asesor) ---
-  var customProperties = readJSON(KEYS.properties, []);
-  var propertyOverrides = readJSON(KEYS.propertyOverrides, {});
+  // --- Propiedades (Supabase real; las de agentes aún no registrados quedan como demo) ---
+  var FALLBACK_PHOTO = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80";
+  var cachedProperties = [];
 
-  function mergeOverride(p) {
-    var o = propertyOverrides[p.id];
-    return o ? Object.assign({}, p, o) : p;
+  function mapPropertyRow(row) {
+    return {
+      id: row.id,
+      agentSlug: row.agent_slug,
+      title: row.title,
+      type: row.type,
+      operation: row.operation,
+      price: row.price,
+      city: row.city || "",
+      neighborhood: row.neighborhood || "",
+      addressNote: row.address_note || "",
+      coords: row.coords || window.APP_CONFIG.DEFAULT_CENTER,
+      bedrooms: row.bedrooms,
+      bathrooms: row.bathrooms,
+      builtArea: row.built_area,
+      lotArea: row.lot_area,
+      parking: row.parking,
+      description: row.description || "",
+      privateNotes: row.private_notes || "",
+      features: row.features || [],
+      photos: row.photos && row.photos.length ? row.photos : [FALLBACK_PHOTO],
+      featured: !!row.featured,
+      status: row.status || "disponible",
+      sharing: row.sharing || null,
+      createdAt: row.created_at
+    };
   }
+
+  function propertyFieldsToRow(fields) {
+    var map = {
+      title: "title", type: "type", operation: "operation", price: "price", city: "city",
+      neighborhood: "neighborhood", addressNote: "address_note", coords: "coords",
+      bedrooms: "bedrooms", bathrooms: "bathrooms", builtArea: "built_area", lotArea: "lot_area",
+      parking: "parking", description: "description", privateNotes: "private_notes",
+      features: "features", photos: "photos", featured: "featured", status: "status", sharing: "sharing"
+    };
+    var row = {};
+    Object.keys(fields).forEach(function (key) {
+      if (map[key]) row[map[key]] = fields[key];
+    });
+    return row;
+  }
+
+  async function bootstrapProperties() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("properties").select("*");
+      if (result.data) cachedProperties = result.data.map(mapPropertyRow);
+    } catch (e) {
+      console.error("No se pudieron cargar las propiedades de Supabase", e);
+    }
+  }
+
   function allProperties() {
-    return data.PROPERTIES.concat(customProperties)
-      .map(mergeOverride)
-      .filter(function (p) { return !p.deleted; });
+    var registeredSlugs = cachedProfiles.map(function (a) { return a.slug; });
+    var staticOnes = data.PROPERTIES.filter(function (p) { return registeredSlugs.indexOf(p.agentSlug) === -1; });
+    return staticOnes.concat(cachedProperties);
   }
   function getProperty(id) {
     return allProperties().filter(function (p) { return p.id === id; })[0] || null;
@@ -206,65 +252,102 @@
   function propertiesByAgent(slug) {
     return allProperties().filter(function (p) { return p.agentSlug === slug; });
   }
-  function publishProperty(payload) {
-    var property = Object.assign({
-      id: utils.uid("p"),
-      agentSlug: currentAgentSlug() || window.APP_CONFIG.CURRENT_AGENT_SLUG,
-      createdAt: new Date().toISOString(),
-      status: "disponible",
+  async function publishProperty(payload) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var current = cachedCurrentProfile;
+    var targetAgent = (payload.agentSlug && (!current || payload.agentSlug !== current.slug))
+      ? cachedProfiles.filter(function (a) { return a.slug === payload.agentSlug; })[0]
+      : current;
+    if (!targetAgent) throw new Error("No se encontró una cuenta de asesor registrada para publicar esta propiedad.");
+    var row = Object.assign(propertyFieldsToRow(payload), {
+      agent_id: targetAgent.id,
+      agent_slug: targetAgent.slug,
       featured: false,
-      photos: payload.photos && payload.photos.length ? payload.photos : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80"],
-      features: []
-    }, payload);
-    customProperties = customProperties.concat([property]);
-    writeJSON(KEYS.properties, customProperties);
-    emit("properties:change", customProperties);
+      status: "disponible",
+      photos: payload.photos && payload.photos.length ? payload.photos : [FALLBACK_PHOTO],
+      features: payload.features || []
+    });
+    var insertResult = await supabaseClient.from("properties").insert(row).select().single();
+    if (insertResult.error) throw insertResult.error;
+    var property = mapPropertyRow(insertResult.data);
+    cachedProperties = cachedProperties.concat([property]);
+    emit("properties:change", cachedProperties);
     return property;
   }
-  function updateProperty(id, fields) {
-    propertyOverrides[id] = Object.assign({}, propertyOverrides[id], fields);
-    writeJSON(KEYS.propertyOverrides, propertyOverrides);
-    emit("properties:change", propertyOverrides);
+  async function updateProperty(id, fields) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var updateResult = await supabaseClient.from("properties").update(propertyFieldsToRow(fields)).eq("id", id).select().single();
+    if (updateResult.error) throw updateResult.error;
+    var property = mapPropertyRow(updateResult.data);
+    cachedProperties = cachedProperties.map(function (p) { return p.id === id ? property : p; });
+    emit("properties:change", cachedProperties);
+    return property;
   }
-  function removeProperty(id) {
-    updateProperty(id, { deleted: true });
+  async function removeProperty(id) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var deleteResult = await supabaseClient.from("properties").delete().eq("id", id);
+    if (deleteResult.error) throw deleteResult.error;
+    cachedProperties = cachedProperties.filter(function (p) { return p.id !== id; });
+    emit("properties:change", cachedProperties);
   }
-  function duplicateProperty(id) {
+  async function duplicateProperty(id) {
     var original = getProperty(id);
     if (!original) return null;
-    var copy = Object.assign({}, original, {
-      id: utils.uid("p"),
-      title: original.title + " (copia)",
-      createdAt: new Date().toISOString(),
-      status: "disponible",
-      featured: false
-    });
-    delete copy.deleted;
-    customProperties = customProperties.concat([copy]);
-    writeJSON(KEYS.properties, customProperties);
-    emit("properties:change", customProperties);
-    return copy;
+    var copy = Object.assign({}, original, { title: original.title + " (copia)" });
+    delete copy.id;
+    delete copy.createdAt;
+    delete copy.agentSlug;
+    return await publishProperty(copy);
   }
 
-  // --- Enlaces personalizados (mock + creados por el asesor) ---
-  var customLinks = readJSON(KEYS.links, []);
+  // --- Enlaces personalizados (Supabase real; mock solo para agentes aún no registrados) ---
+  var cachedLinks = [];
 
-  function allLinks() { return data.CLIENT_LINKS.concat(customLinks); }
+  function mapLinkRow(row) {
+    return {
+      id: row.id,
+      agentSlug: row.agent_slug,
+      clientSlug: row.client_slug,
+      clientLabel: row.client_label,
+      message: row.message || "",
+      propertyIds: row.property_ids || [],
+      stats: row.stats || {},
+      createdAt: row.created_at
+    };
+  }
+
+  async function bootstrapLinks() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("client_links").select("*");
+      if (result.data) cachedLinks = result.data.map(mapLinkRow);
+    } catch (e) {
+      console.error("No se pudieron cargar los enlaces de Supabase", e);
+    }
+  }
+
+  function allLinks() {
+    var registeredSlugs = cachedProfiles.map(function (a) { return a.slug; });
+    var staticOnes = data.CLIENT_LINKS.filter(function (l) { return registeredSlugs.indexOf(l.agentSlug) === -1; });
+    return staticOnes.concat(cachedLinks);
+  }
   function linksByAgent(slug) {
     return allLinks().filter(function (l) { return l.agentSlug === slug; });
   }
   function getLink(agentSlug, clientSlug) {
     return allLinks().filter(function (l) { return l.agentSlug === agentSlug && l.clientSlug === clientSlug; })[0] || null;
   }
-  function createLink(payload) {
+  async function createLink(payload) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    if (!cachedCurrentProfile) throw new Error("Debes iniciar sesión como asesor para crear un enlace.");
     var clientSlug = utils.slugify(payload.clientLabel) || utils.uid("cliente");
-    var link = {
-      agentSlug: currentAgentSlug() || window.APP_CONFIG.CURRENT_AGENT_SLUG,
-      clientSlug: clientSlug,
-      clientLabel: payload.clientLabel,
+    var row = {
+      agent_id: cachedCurrentProfile.id,
+      agent_slug: cachedCurrentProfile.slug,
+      client_slug: clientSlug,
+      client_label: payload.clientLabel,
       message: payload.message || "",
-      propertyIds: payload.propertyIds,
-      createdAt: new Date().toISOString(),
+      property_ids: payload.propertyIds,
       stats: {
         views: 0, viewsDelta: 0,
         avgTimeMinutes: 0, avgTimeDelta: 0,
@@ -276,9 +359,11 @@
         favoritePropertyIds: []
       }
     };
-    customLinks = customLinks.concat([link]);
-    writeJSON(KEYS.links, customLinks);
-    emit("links:change", customLinks);
+    var insertResult = await supabaseClient.from("client_links").insert(row).select().single();
+    if (insertResult.error) throw insertResult.error;
+    var link = mapLinkRow(insertResult.data);
+    cachedLinks = cachedLinks.concat([link]);
+    emit("links:change", cachedLinks);
     return link;
   }
 
@@ -304,6 +389,7 @@
       demoCredentials: DEMO_AGENT_CREDENTIALS
     },
     properties: {
+      bootstrap: bootstrapProperties,
       all: allProperties,
       get: getProperty,
       byAgent: propertiesByAgent,
@@ -313,6 +399,7 @@
       duplicate: duplicateProperty
     },
     links: {
+      bootstrap: bootstrapLinks,
       all: allLinks,
       byAgent: linksByAgent,
       get: getLink,
