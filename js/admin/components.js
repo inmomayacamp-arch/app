@@ -88,9 +88,9 @@
     u.qs('[data-admin-open-nav]', root).addEventListener('click', function () { shell.classList.add('is-nav-open'); });
     u.qs('[data-admin-close-nav]', root).addEventListener('click', function () { shell.classList.remove('is-nav-open'); });
     var logoutLink = u.qs('[data-admin-logout]', root);
-    if (logoutLink) logoutLink.addEventListener('click', function (e) {
+    if (logoutLink) logoutLink.addEventListener('click', async function (e) {
       e.preventDefault();
-      s.auth.logout();
+      await s.auth.logout();
       window.location.hash = '#/admin/login';
     });
   }

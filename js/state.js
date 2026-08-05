@@ -10,11 +10,7 @@
     favorites: "inmomap:favorites",
     properties: "inmomap:properties",
     propertyOverrides: "inmomap:propertyOverrides",
-    links: "inmomap:links",
-    registeredAgents: "inmomap:registeredAgents",
-    agentCredentials: "inmomap:agentCredentials",
-    currentAgentSlug: "inmomap:currentAgentSlug",
-    agentProfileOverrides: "inmomap:agentProfileOverrides"
+    links: "inmomap:links"
   };
 
   function readJSON(key, fallback) {
@@ -66,88 +62,129 @@
       .filter(Boolean);
   }
 
-  // --- Cuentas de asesor: registro, inicio de sesión, sesión activa ---
-  var registeredAgents = readJSON(KEYS.registeredAgents, []);
-  var agentCredentials = readJSON(KEYS.agentCredentials, {});
-
+  // --- Cuentas de asesor: registro, inicio de sesión, sesión activa (Supabase Auth real) ---
+  var supabaseClient = window.App.supabase;
+  var cachedProfiles = [];
+  var cachedCurrentProfile = null;
   var DEMO_AGENT_CREDENTIALS = { email: "oswaldo@inmomap.mx", password: "asesor123", slug: "oswaldochable" };
-
-  function registeredAgentsList() { return registeredAgents; }
 
   function uniqueSlug(base) {
     var slug = base || utils.uid("asesor");
-    var all = data.AGENTS.map(function (a) { return a.slug; }).concat(registeredAgents.map(function (a) { return a.slug; }));
+    var all = data.AGENTS.map(function (a) { return a.slug; }).concat(cachedProfiles.map(function (a) { return a.slug; }));
     var candidate = slug, i = 2;
     while (all.indexOf(candidate) !== -1) { candidate = slug + "-" + i; i++; }
     return candidate;
   }
 
-  function registerAgent(fields) {
-    var slug = uniqueSlug(utils.slugify(fields.name));
-    var agent = {
-      slug: slug,
-      name: fields.name,
-      photo: "https://i.pravatar.cc/160?u=" + slug,
-      title: fields.title || "Asesor inmobiliario",
-      bio: fields.bio || "",
-      whatsapp: fields.phone || "",
-      phone: fields.phone || "",
-      city: fields.city || "",
-      rating: 5,
-      reviews: 0,
-      yearsExperience: 0,
-      clientsCount: 0,
-      social: { facebook: "", instagram: "" }
+  function mapProfileRow(row) {
+    return {
+      id: row.id,
+      role: row.role,
+      slug: row.slug,
+      name: row.name,
+      email: row.email,
+      photo: row.photo || "",
+      title: row.title || "Asesor inmobiliario",
+      bio: row.bio || "",
+      whatsapp: row.whatsapp || "",
+      phone: row.phone || "",
+      city: row.city || "",
+      company: row.company || "",
+      specialty: row.specialty || "",
+      schedule: row.schedule || "",
+      social: row.social || {},
+      rating: row.rating,
+      reviews: row.reviews,
+      yearsExperience: row.years_experience,
+      clientsCount: row.clients_count,
+      plan: row.plan,
+      status: row.status,
+      planExpiresAt: row.plan_expires_at,
+      createdAt: row.created_at
     };
-    registeredAgents = registeredAgents.concat([agent]);
-    writeJSON(KEYS.registeredAgents, registeredAgents);
+  }
 
-    agentCredentials[fields.email.trim().toLowerCase()] = { password: fields.password, slug: slug };
-    writeJSON(KEYS.agentCredentials, agentCredentials);
+  function agentFieldsToRow(fields) {
+    var map = {
+      photo: "photo", logoUrl: "logo_url", name: "name", company: "company", specialty: "specialty",
+      city: "city", bio: "bio", whatsapp: "whatsapp", phone: "phone", schedule: "schedule", social: "social",
+      plan: "plan", status: "status", planExpiresAt: "plan_expires_at"
+    };
+    var row = {};
+    Object.keys(fields).forEach(function (key) {
+      if (map[key]) row[map[key]] = fields[key];
+    });
+    return row;
+  }
 
-    setCurrentAgentSlug(slug);
-    emit("agents:change", registeredAgents);
+  function registeredAgentsList() { return cachedProfiles; }
+
+  async function bootstrapAgents() {
+    if (!supabaseClient) return;
+    try {
+      var sessionResult = await supabaseClient.auth.getSession();
+      var session = sessionResult && sessionResult.data && sessionResult.data.session;
+      if (session) {
+        var profileResult = await supabaseClient.from("profiles").select("*").eq("id", session.user.id).single();
+        if (profileResult.data) cachedCurrentProfile = mapProfileRow(profileResult.data);
+      }
+      var allResult = await supabaseClient.from("profiles").select("*");
+      if (allResult.data) cachedProfiles = allResult.data.map(mapProfileRow);
+    } catch (e) {
+      console.error("No se pudo inicializar la sesión de Supabase", e);
+    }
+  }
+
+  async function registerAgent(fields) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var email = fields.email.trim().toLowerCase();
+    var slug = uniqueSlug(utils.slugify(fields.name));
+    var signUpResult = await supabaseClient.auth.signUp({ email: email, password: fields.password });
+    if (signUpResult.error) throw signUpResult.error;
+    if (!signUpResult.data.session) throw new Error("Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.");
+
+    var row = {
+      id: signUpResult.data.user.id, role: "agent", slug: slug, name: fields.name, email: email,
+      photo: "https://i.pravatar.cc/160?u=" + slug, whatsapp: fields.phone || "", phone: fields.phone || "", city: fields.city || ""
+    };
+    var insertResult = await supabaseClient.from("profiles").insert(row).select().single();
+    if (insertResult.error) throw insertResult.error;
+
+    var agent = mapProfileRow(insertResult.data);
+    cachedCurrentProfile = agent;
+    cachedProfiles = cachedProfiles.concat([agent]);
+    emit("agents:change", cachedProfiles);
     return agent;
   }
 
-  var agentProfileOverrides = readJSON(KEYS.agentProfileOverrides, {});
-  function updateAgentProfile(slug, fields) {
-    agentProfileOverrides[slug] = Object.assign({}, agentProfileOverrides[slug], fields);
-    writeJSON(KEYS.agentProfileOverrides, agentProfileOverrides);
-    emit("agents:change", agentProfileOverrides);
-  }
-  function applyAgentProfileOverride(agent) {
-    var o = agentProfileOverrides[agent.slug];
-    return o ? Object.assign({}, agent, o, { social: Object.assign({}, agent.social, o.social) }) : agent;
-  }
-
-  function loginAgent(email, password) {
-    var key = (email || "").trim().toLowerCase();
-    if (key === DEMO_AGENT_CREDENTIALS.email && password === DEMO_AGENT_CREDENTIALS.password) {
-      setCurrentAgentSlug(DEMO_AGENT_CREDENTIALS.slug);
-      return data.getAgent(DEMO_AGENT_CREDENTIALS.slug);
-    }
-    var cred = agentCredentials[key];
-    if (cred && cred.password === password) {
-      setCurrentAgentSlug(cred.slug);
-      return data.getAgent(cred.slug);
-    }
-    return null;
+  async function updateAgentProfile(slug, fields) {
+    if (!supabaseClient || !cachedCurrentProfile || cachedCurrentProfile.slug !== slug) return;
+    var updateResult = await supabaseClient.from("profiles").update(agentFieldsToRow(fields)).eq("id", cachedCurrentProfile.id).select().single();
+    if (updateResult.error) throw updateResult.error;
+    var agent = mapProfileRow(updateResult.data);
+    cachedCurrentProfile = agent;
+    cachedProfiles = cachedProfiles.map(function (a) { return a.slug === slug ? agent : a; });
+    emit("agents:change", cachedProfiles);
   }
 
-  function setCurrentAgentSlug(slug) {
-    try { localStorage.setItem(KEYS.currentAgentSlug, slug); } catch (e) { /* no-op */ }
+  async function loginAgent(email, password) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var signInResult = await supabaseClient.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: password });
+    if (signInResult.error) return null;
+    var profileResult = await supabaseClient.from("profiles").select("*").eq("id", signInResult.data.user.id).single();
+    if (profileResult.error || !profileResult.data) return null;
+    var agent = mapProfileRow(profileResult.data);
+    cachedCurrentProfile = agent;
+    if (!cachedProfiles.some(function (a) { return a.slug === agent.slug; })) cachedProfiles = cachedProfiles.concat([agent]);
+    return agent;
   }
-  function currentAgentSlug() {
-    try { return localStorage.getItem(KEYS.currentAgentSlug); } catch (e) { return null; }
-  }
-  function isAgentLoggedIn() { return !!currentAgentSlug(); }
-  function currentAgent() {
-    var slug = currentAgentSlug();
-    return slug ? data.getAgent(slug) : null;
-  }
-  function logoutAgent() {
-    try { localStorage.removeItem(KEYS.currentAgentSlug); } catch (e) { /* no-op */ }
+
+  function currentAgentSlug() { return cachedCurrentProfile ? cachedCurrentProfile.slug : null; }
+  function isAgentLoggedIn() { return !!cachedCurrentProfile; }
+  function currentAgent() { return cachedCurrentProfile; }
+  async function logoutAgent() {
+    if (supabaseClient) await supabaseClient.auth.signOut();
+    cachedCurrentProfile = null;
   }
 
   // --- Propiedades (mock + publicadas/editadas por el asesor) ---
@@ -255,10 +292,10 @@
       list: favoriteProperties
     },
     agents: {
+      bootstrap: bootstrapAgents,
       registered: registeredAgentsList,
       register: registerAgent,
       updateProfile: updateAgentProfile,
-      applyProfileOverride: applyAgentProfileOverride,
       login: loginAgent,
       logout: logoutAgent,
       isLoggedIn: isAgentLoggedIn,

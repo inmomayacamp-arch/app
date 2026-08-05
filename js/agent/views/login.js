@@ -64,25 +64,40 @@
       });
 
       var loginBtn = u.qs('[data-login]', root);
-      if (loginBtn) loginBtn.addEventListener('click', function () {
+      if (loginBtn) loginBtn.addEventListener('click', async function () {
         var email = u.qs('[data-email]', root).value;
         var password = u.qs('[data-password]', root).value;
-        var agent = state.agents.login(email, password);
-        if (agent) { window.location.hash = '#/dashboard'; }
-        else { u.toast('Correo o contraseña incorrectos'); }
+        loginBtn.disabled = true;
+        try {
+          var agent = await state.agents.login(email, password);
+          if (agent) { window.location.hash = '#/dashboard'; }
+          else { u.toast('Correo o contraseña incorrectos'); }
+        } catch (err) {
+          u.toast(err.message || 'No se pudo iniciar sesión');
+        } finally {
+          loginBtn.disabled = false;
+        }
       });
 
       var registerBtn = u.qs('[data-register]', root);
-      if (registerBtn) registerBtn.addEventListener('click', function () {
+      if (registerBtn) registerBtn.addEventListener('click', async function () {
         var name = u.qs('[data-name]', root).value.trim();
         var email = u.qs('[data-reg-email]', root).value.trim();
         var phone = u.qs('[data-phone]', root).value.trim();
         var city = u.qs('[data-city]', root).value.trim();
         var password = u.qs('[data-reg-password]', root).value;
         if (!name || !email || !password) { u.toast('Completa nombre, correo y contraseña'); return; }
-        state.agents.register({ name: name, email: email, phone: phone, city: city, password: password });
-        u.toast('Cuenta creada, ¡bienvenido a InmoMap!', { tone: 'success' });
-        window.location.hash = '#/dashboard';
+        if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
+        registerBtn.disabled = true;
+        try {
+          await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password });
+          u.toast('Cuenta creada, ¡bienvenido a InmoMap!', { tone: 'success' });
+          window.location.hash = '#/dashboard';
+        } catch (err) {
+          u.toast(err.message || 'No se pudo crear la cuenta');
+        } finally {
+          registerBtn.disabled = false;
+        }
       });
     }
 

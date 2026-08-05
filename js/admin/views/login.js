@@ -29,13 +29,15 @@
       '  </div>' +
       '</div>';
 
-    function attempt() {
+    async function attempt() {
       var email = u.qs('[data-email]', root).value;
       var password = u.qs('[data-password]', root).value;
-      if (s.auth.login(email, password)) {
-        window.location.hash = '#/admin';
-      } else {
-        u.toast('Correo o contraseña incorrectos');
+      try {
+        var ok = await s.auth.login(email, password);
+        if (ok) window.location.hash = '#/admin';
+        else u.toast('Correo o contraseña incorrectos, o la cuenta no tiene permisos de administrador');
+      } catch (err) {
+        u.toast(err.message || 'No se pudo iniciar sesión');
       }
     }
     u.qs('[data-login]', root).addEventListener('click', attempt);

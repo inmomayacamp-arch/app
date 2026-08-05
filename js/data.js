@@ -366,8 +366,9 @@
   function getAllAgents() {
     var s = window.App.state;
     var registered = (s && s.agents) ? s.agents.registered() : [];
-    var combined = AGENTS.concat(registered);
-    return (s && s.agents && s.agents.applyProfileOverride) ? combined.map(s.agents.applyProfileOverride) : combined;
+    var registeredSlugs = registered.map(function (a) { return a.slug; });
+    // Los agentes de la lista estática se reemplazan por su versión real de Supabase si ya existe.
+    return AGENTS.filter(function (a) { return registeredSlugs.indexOf(a.slug) === -1; }).concat(registered);
   }
 
   window.App = window.App || {};

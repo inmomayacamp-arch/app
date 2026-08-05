@@ -9,7 +9,13 @@
   window.App.applyBrandColor = applyBrandColor;
 
   document.addEventListener("DOMContentLoaded", function () {
+    boot();
+  });
+
+  async function boot() {
     var c = window.App.components;
+    var viewRoot = document.getElementById("view-root");
+    if (viewRoot) viewRoot.innerHTML = '<div class="empty-state" style="padding-top:80px"><p class="text-muted">Cargando…</p></div>';
 
     // Delegación global: funciona sin importar qué vista esté montada.
     c.bindFavoriteButtons(document.body);
@@ -36,6 +42,7 @@
       applyBrandColor(window.App.admin.state.settings.get().primaryColor);
     }
 
+    await window.App.state.agents.bootstrap();
     window.App.router.init();
 
     if ("serviceWorker" in navigator) {
@@ -43,5 +50,5 @@
         navigator.serviceWorker.register("sw.js").catch(function () { /* PWA opcional: se ignora si falla */ });
       });
     }
-  });
+  }
 })();

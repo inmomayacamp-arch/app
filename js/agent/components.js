@@ -75,9 +75,9 @@
     u.qs('[data-agent-open-nav]', root).addEventListener('click', function () { shell.classList.add('is-nav-open'); });
     u.qs('[data-agent-close-nav]', root).addEventListener('click', function () { shell.classList.remove('is-nav-open'); });
     var logoutLink = u.qs('[data-agent-logout]', root);
-    if (logoutLink) logoutLink.addEventListener('click', function (e) {
+    if (logoutLink) logoutLink.addEventListener('click', async function (e) {
       e.preventDefault();
-      window.App.state.agents.logout();
+      await window.App.state.agents.logout();
       window.location.hash = '#/dashboard/login';
     });
   }

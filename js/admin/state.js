@@ -7,7 +7,6 @@
   var d = window.App.admin.data;
 
   var KEYS = {
-    auth: "inmomap:admin:auth",
     userOverrides: "inmomap:admin:userOverrides",
     agentOverrides: "inmomap:admin:agentOverrides",
     pendingAgents: "inmomap:admin:pendingAgents",
@@ -50,14 +49,21 @@
     writeJSON(KEYS.audit, audit);
   }
 
-  // --- Autenticación (demo, sin backend) ---
-  function isAuthed() { return sessionStorage.getItem(KEYS.auth) === "1"; }
-  function login(email, password) {
-    var ok = email.trim().toLowerCase() === d.DEMO_LOGIN.email && password === d.DEMO_LOGIN.password;
-    if (ok) { sessionStorage.setItem(KEYS.auth, "1"); logAction("Inicio de sesión", email); }
-    return ok;
+  // --- Autenticación (Supabase Auth real, requiere perfil con role = "admin") ---
+  function isAuthed() {
+    var agent = window.App.state.agents.current();
+    return !!agent && agent.role === "admin";
   }
-  function logout() { sessionStorage.removeItem(KEYS.auth); }
+  async function login(email, password) {
+    var agent = await window.App.state.agents.login(email, password);
+    if (agent && agent.role === "admin") {
+      logAction("Inicio de sesión", email);
+      return true;
+    }
+    if (agent) await window.App.state.agents.logout(); // no es admin: no dejar sesión de agente a medias
+    return false;
+  }
+  async function logout() { await window.App.state.agents.logout(); }
 
   // --- Usuarios ---
   function allUsers() {
@@ -88,7 +94,11 @@
   }
   function allAgents() {
     return window.App.data.getAllAgents().map(function (a) {
-      var info = Object.assign({}, defaultAgentInfo(), d.AGENT_ADMIN_INFO[a.slug], agentOverrides[a.slug]);
+      var hasRealPlanInfo = !!(a.plan && a.status);
+      var base = hasRealPlanInfo
+        ? { plan: a.plan, status: a.status, planExpiresAt: a.planExpiresAt, documentsSubmitted: true, joinedAt: a.createdAt || new Date().toISOString() }
+        : Object.assign({}, defaultAgentInfo(), d.AGENT_ADMIN_INFO[a.slug]);
+      var info = Object.assign({}, base, agentOverrides[a.slug]);
       return Object.assign({}, a, info);
     });
   }
