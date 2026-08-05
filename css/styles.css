@@ -135,7 +135,6 @@ body.is-admin .site-header { display: none; }
   }
   .site-header__link:hover { background: var(--color-bg); color: var(--color-ink); }
   .site-header__link.is-active { color: var(--color-primary); background: var(--color-primary-light); }
-  .site-header__actions { display: flex; align-items: center; gap: 12px; }
 }
 
 /* ---- Bottom nav (móvil) ---- */
@@ -213,6 +212,10 @@ body.is-admin .site-header { display: none; }
   white-space: nowrap;
 }
 .chip.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.chip[data-op="venta"].is-active { background: var(--color-venta-bg); border-color: var(--color-venta); color: var(--color-venta); }
+.chip[data-op="renta"].is-active { background: var(--color-renta-bg); border-color: var(--color-renta); color: var(--color-renta); }
+.chip[data-type-quick="terreno"].is-active { background: var(--color-terreno-bg); border-color: var(--color-terreno); color: var(--color-terreno); }
+.chip[data-type-quick="local"].is-active { background: var(--color-otro-bg); border-color: var(--color-otro); color: var(--color-otro); }
 .chip-row {
   display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px;
   scrollbar-width: none;
@@ -452,6 +455,9 @@ body.is-admin .site-header { display: none; }
   padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0));
 }
 @media (min-width: 900px) { .detail-header { display: none; } }
+/* En modo "enlace de cliente" no hay header de sitio que ofrezca una forma de
+   regresar, así que la flecha de volver se mantiene visible también en escritorio. */
+@media (min-width: 900px) { .detail-header--exclusive { display: flex; justify-content: flex-start; } }
 
 .carousel { position: relative; aspect-ratio: 4 / 3; background: var(--color-bg); overflow: hidden; }
 @media (min-width: 900px) { .carousel { aspect-ratio: 16 / 8; border-radius: var(--radius-lg); } }

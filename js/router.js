@@ -68,10 +68,25 @@
 
   function currentPath() {
     var hash = window.location.hash || "#/";
-    var path = hash.slice(1);
+    var path = hash.slice(1).split("?")[0];
     if (!path.startsWith("/")) path = "/" + path;
     if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
     return path || "/";
+  }
+
+  function currentQuery() {
+    var hash = window.location.hash || "#/";
+    var qIndex = hash.indexOf("?");
+    var query = {};
+    if (qIndex === -1) return query;
+    hash.slice(qIndex + 1).split("&").forEach(function (pair) {
+      if (!pair) return;
+      var eq = pair.indexOf("=");
+      var key = eq === -1 ? pair : pair.slice(0, eq);
+      var value = eq === -1 ? "" : pair.slice(eq + 1);
+      query[decodeURIComponent(key)] = decodeURIComponent(value);
+    });
+    return query;
   }
 
   function matchRoute(path) {
@@ -118,6 +133,7 @@
       window.App.components.mountChrome("explore");
     } else {
       try {
+        match.params.query = currentQuery();
         match.view(match.params, root);
       } catch (err) {
         console.error("Error al renderizar la vista:", err);

@@ -8,10 +8,13 @@
 
   function render(params, root) {
     var property = state.properties.get(params.id);
+    var fromRef = params.query && params.query.from; // "agentSlug/clientSlug" si se llegó desde un enlace de cliente
+    var backHref = fromRef ? '#/' + fromRef : '#/';
 
     if (!property) {
-      root.innerHTML = '<div class="empty-state"><h3>Propiedad no encontrada</h3><p>Es posible que ya no esté disponible.</p><a class="btn btn--primary" href="#/">Volver al mapa</a></div>';
-      c.mountChrome('explore');
+      root.innerHTML = '<div class="empty-state"><h3>Propiedad no encontrada</h3><p>Es posible que ya no esté disponible.</p><a class="btn btn--primary" href="' + backHref + '">Volver</a></div>';
+      if (fromRef) { document.body.classList.add('is-admin'); u.qs('#site-header').innerHTML = ''; u.qs('#bottom-nav').innerHTML = ''; }
+      else c.mountChrome('explore');
       return;
     }
 
@@ -20,12 +23,13 @@
     var priceLabel = u.formatPrice(property.price) + (property.operation === 'renta' ? ' MXN/mes' : ' MXN');
 
     root.innerHTML =
-      '<div class="detail-header">' +
-      '  <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      '<div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
+      '  <a class="btn btn--icon" href="' + backHref + '" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      (fromRef ? '' :
       '  <div class="row gap-2">' +
       '    <button type="button" class="btn btn--icon" data-share aria-label="Compartir propiedad">' + u.icon('share', { size: 16 }) + '</button>' +
       '    <button type="button" class="btn btn--icon" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>' +
-      '  </div>' +
+      '  </div>') +
       '</div>' +
       c.carouselHTML(property.photos) +
       '<div class="detail-body">' +
@@ -72,7 +76,13 @@
       ) : '') +
       '</div>';
 
-    c.mountChrome('explore');
+    if (fromRef) {
+      document.body.classList.add('is-admin');
+      u.qs('#site-header').innerHTML = '';
+      u.qs('#bottom-nav').innerHTML = '';
+    } else {
+      c.mountChrome('explore');
+    }
     document.title = property.title + ' — InmoMap';
 
     c.initCarousel(root);
@@ -87,7 +97,8 @@
       toggleBtn.textContent = collapsed ? 'Ver más' : 'Ver menos';
     });
 
-    u.qs('[data-share]', root).addEventListener('click', function () {
+    var shareBtn = u.qs('[data-share]', root);
+    if (shareBtn) shareBtn.addEventListener('click', function () {
       var url = window.location.href;
       if (navigator.share) {
         navigator.share({ title: property.title, url: url }).catch(function () {});

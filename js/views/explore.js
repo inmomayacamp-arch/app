@@ -42,10 +42,10 @@
       '    <div class="row gap-2" style="align-items:center">' +
       '    <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       '      <button type="button" class="chip is-active" data-op="todas">Todos</button>' +
-      '      <button type="button" class="chip" data-op="venta">Venta</button>' +
-      '      <button type="button" class="chip" data-op="renta">Renta</button>' +
-      '      <button type="button" class="chip" data-type-quick="terreno">Terrenos</button>' +
-      '      <button type="button" class="chip" data-type-quick="local">Locales</button>' +
+      '      <button type="button" class="chip" data-op="venta"><span class="map-legend__dot" style="background:var(--color-venta)"></span>Venta</button>' +
+      '      <button type="button" class="chip" data-op="renta"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</button>' +
+      '      <button type="button" class="chip" data-type-quick="terreno"><span class="map-legend__dot" style="background:var(--color-terreno)"></span>Terrenos</button>' +
+      '      <button type="button" class="chip" data-type-quick="local"><span class="map-legend__dot" style="background:var(--color-otro)"></span>Locales</button>' +
       '    </div>' +
       '    <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
       '    </div>' +

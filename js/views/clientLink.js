@@ -69,13 +69,18 @@
     minimalChrome();
     document.title = 'Selección de ' + agent.name + ' para ' + link.clientLabel + ' — InmoMap';
 
+    var backRef = '?from=' + encodeURIComponent(agent.slug + '/' + link.clientSlug);
+
     u.qs('[data-list]', root).innerHTML = properties.length
       ? properties.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
       : '<div class="empty-state"><h3>Esta selección aún no tiene propiedades</h3></div>';
+    u.qsa('.property-card[data-property-id]', root).forEach(function (card) {
+      card.setAttribute('href', card.getAttribute('href') + backRef);
+    });
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), {});
     if (mapCtrl.ready && properties.length) {
-      mapCtrl.setMarkers(properties, function (p) { window.location.hash = '#/propiedad/' + p.id; });
+      mapCtrl.setMarkers(properties, function (p) { window.location.hash = '#/propiedad/' + p.id + backRef; });
       mapCtrl.fitToProperties(properties);
     }
   }

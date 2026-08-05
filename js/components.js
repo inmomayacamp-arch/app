@@ -15,17 +15,17 @@
     { route: "properties", href: "#/propiedades", label: "Propiedades", icon: "list" },
     { route: "search", label: "Buscar", icon: "search", fab: true, action: "open-search" },
     { route: "favorites", href: "#/favoritos", label: "Favoritos", icon: "heart", badge: true },
-    { route: "perfil", href: "#/perfil", label: "Perfil", icon: "user" }
+    { route: "perfil", href: "#/dashboard/publicar", label: "Publicar", icon: "plus" }
   ];
 
-  // Si hay un asesor con sesión iniciada, la pestaña "Perfil" se convierte en
-  // acceso directo a su panel de trabajo en vez de la cuenta de comprador.
+  // Si hay un asesor con sesión iniciada, esa última pestaña se convierte en
+  // acceso directo a su panel de trabajo en vez de la invitación a publicar.
   function navItems() {
     var isAgent = window.App.state.agents && window.App.state.agents.isLoggedIn();
     if (!isAgent) return NAV_ITEMS;
     return NAV_ITEMS.map(function (item) {
       return item.route === "perfil"
-        ? { route: "perfil", href: "#/dashboard/publicar", label: "Publicar", icon: "plus" }
+        ? { route: "perfil", href: "#/dashboard", label: "Panel", icon: "briefcase" }
         : item;
     });
   }
@@ -39,10 +39,7 @@
 
     return (
       '<a class="site-header__logo" href="#/">' + u.icon('pin', { size: 22 }) + ' InmoMap</a>' +
-      '<nav class="site-header__nav">' + links + '</nav>' +
-      '<div class="site-header__actions">' +
-      '<a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
-      '</div>'
+      '<nav class="site-header__nav">' + links + '</nav>'
     );
   }
 
