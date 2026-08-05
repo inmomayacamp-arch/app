@@ -642,6 +642,7 @@ body.is-admin .site-header { display: none; }
   width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
   background: var(--color-primary-light); color: var(--color-primary);
 }
+.dashboard-card__icon--venta { background: var(--color-venta); color: #fff; }
 .dashboard-card__icon--renta { background: var(--color-renta-bg); color: var(--color-renta); }
 .dashboard-card__icon--terreno { background: var(--color-terreno-bg); color: var(--color-terreno); }
 .dashboard-card__icon--otro { background: var(--color-otro-bg); color: var(--color-otro); }
