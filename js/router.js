@@ -23,6 +23,8 @@
       { pattern: "/favoritos", view: v.favorites.render, key: "favorites" },
       { pattern: "/perfil", view: v.account.render, key: "perfil" },
       { pattern: "/planes", view: v.plans.render, key: "perfil" },
+      { pattern: "/planes-propietario", view: v.ownerPlan.render, key: "perfil" },
+      { pattern: "/registro-propietario", view: v.ownerRegister.render, key: "perfil" },
       { pattern: "/registro-agente/:plan", view: window.App.agent.views.registerPlan.render, key: "dashboard" },
       { pattern: "/dashboard/login", view: window.App.agent.views.login.render, key: "dashboard" },
       { pattern: "/dashboard", view: v.dashboardHome.render, key: "dashboard" },
@@ -124,6 +126,16 @@
     if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login" && !window.App.state.agents.isLoggedIn()) {
       window.location.hash = "#/dashboard/login";
       return;
+    }
+
+    // Las cuentas de propietario (publicación individual) no tienen panel de trabajo.
+    if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login") {
+      var loggedAgent = window.App.state.agents.current();
+      if (loggedAgent && loggedAgent.plan === "propietario") {
+        window.location.hash = "#/";
+        window.App.utils.toast("Tu publicación no incluye panel de trabajo");
+        return;
+      }
     }
 
     var match = matchRoute(path);

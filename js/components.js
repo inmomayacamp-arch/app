@@ -15,7 +15,7 @@
     { route: "properties", href: "#/propiedades", label: "Propiedades", icon: "list" },
     { route: "search", label: "Buscar", icon: "search", fab: true, action: "open-search" },
     { route: "favorites", href: "#/favoritos", label: "Favoritos", icon: "heart", badge: true },
-    { route: "perfil", href: "#/dashboard/publicar", label: "Publicar", icon: "plus" }
+    { route: "perfil", href: "#/perfil", label: "Publicar", icon: "plus" }
   ];
 
   // Si hay un asesor con sesión iniciada, esa última pestaña se convierte en

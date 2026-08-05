@@ -143,7 +143,7 @@
     var row = {
       id: signUpResult.data.user.id, role: "agent", slug: slug, name: fields.name, email: email,
       photo: "https://i.pravatar.cc/160?u=" + slug, whatsapp: fields.phone || "", phone: fields.phone || "", city: fields.city || "",
-      plan: fields.plan === "profesional" ? "profesional" : "basico"
+      plan: (fields.plan === "profesional" || fields.plan === "propietario") ? fields.plan : "basico"
     };
     var insertResult = await supabaseClient.from("profiles").insert(row).select().single();
     if (insertResult.error) throw insertResult.error;
@@ -263,7 +263,7 @@
     var row = Object.assign(propertyFieldsToRow(payload), {
       agent_id: targetAgent.id,
       agent_slug: targetAgent.slug,
-      featured: false,
+      featured: !!payload.featured,
       status: "disponible",
       photos: payload.photos && payload.photos.length ? payload.photos : [FALLBACK_PHOTO],
       features: payload.features || []

@@ -5,27 +5,13 @@
 
   var u = window.App.utils;
   var c = window.App.components;
-  var state = window.App.state;
 
   function render(params, root) {
-    var favCount = state.favorites.count();
-
     root.innerHTML =
       '<div class="page-header"><h1 class="page-header__title">Mi cuenta</h1></div>' +
       '<div class="page-wrap">' +
 
-      '  <div class="empty-state" style="padding:32px 20px 8px">' +
-      '    <span class="empty-state__icon">' + u.icon('user', { size: 32 }) + '</span>' +
-      '    <h3>Explora InmoMap</h3>' +
-      '    <p>Encuentra propiedades en venta y renta, guarda tus favoritas y contacta directo por WhatsApp con el asesor.</p>' +
-      '  </div>' +
-
-      '  <div class="dashboard-grid" style="grid-template-columns:repeat(2,1fr)">' +
-      '    <a class="dashboard-card" href="#/favoritos"><span class="dashboard-card__icon">' + u.icon('heart', { size: 18 }) + '</span><strong>Favoritos</strong><span>' + favCount + ' guardadas</span></a>' +
-      '    <a class="dashboard-card" href="#/propiedades"><span class="dashboard-card__icon">' + u.icon('list', { size: 18 }) + '</span><strong>Propiedades</strong><span>Ver todas</span></a>' +
-      '  </div>' +
-
-      '  <div class="promo-card promo-card--agent" style="margin-top:28px">' +
+      '  <div class="promo-card promo-card--agent">' +
       '    <span class="promo-card__icon">' + u.icon('briefcase', { size: 28 }) + '</span>' +
       '    <div class="promo-card__body">' +
       '      <strong>¿Eres asesor inmobiliario?</strong>' +
@@ -35,7 +21,14 @@
       '    </div>' +
       '  </div>' +
 
-      '  <p class="text-muted" style="font-size:0.78rem;margin-top:20px;text-align:center">¿Tienes una propiedad para vender o rentar? <a href="#/dashboard/publicar" style="color:var(--color-primary);font-weight:700">Publícala aquí</a></p>' +
+      '  <div class="promo-card promo-card--agent" style="margin-top:16px">' +
+      '    <span class="promo-card__icon">' + u.icon('home', { size: 28 }) + '</span>' +
+      '    <div class="promo-card__body">' +
+      '      <strong>¿Eres propietario y quieres publicar tu propiedad?</strong>' +
+      '      <p>Publica tu propiedad en venta o renta sin necesidad de una cuenta de asesor. Recibe contactos directo a tu WhatsApp y teléfono.</p>' +
+      '      <a class="btn btn--primary btn--sm" href="#/planes-propietario">' + u.icon('home', { size: 14 }) + ' Publicar mi propiedad</a>' +
+      '    </div>' +
+      '  </div>' +
       '</div>';
 
     c.mountChrome('perfil');
