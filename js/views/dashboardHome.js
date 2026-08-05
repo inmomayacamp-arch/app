@@ -57,7 +57,7 @@
 
       '<div class="dashboard-grid">' +
       '  <a class="dashboard-card" href="#/dashboard/perfil-profesional"><span class="dashboard-card__icon dashboard-card__icon--renta">' + u.icon('user', { size: 18 }) + '</span><strong>Editar perfil</strong><span>Tu información pública</span></a>' +
-      '  <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon dashboard-card__icon--venta">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
+      '  <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/enlaces/nuevo"><span class="dashboard-card__icon dashboard-card__icon--terreno">' + u.icon('link', { size: 18 }) + '</span><strong>Crear enlace</strong><span>Comparte propiedades con un cliente</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/calendario"><span class="dashboard-card__icon dashboard-card__icon--otro">' + u.icon('calendar', { size: 18 }) + '</span><strong>Calendario</strong><span>Citas, visitas y tareas</span></a>' +
       '</div>' +
@@ -68,12 +68,15 @@
       c.shareBarHTML(profileUrl) +
       '</div>' +
 
-      '<a class="dashboard-hero" href="#/dashboard/bolsa" style="margin-top:16px">' +
-      '  <div><div class="dashboard-hero__title">' + u.icon('exchange', { size: 17 }) + ' Bolsa Inmobiliaria Compartida</div>' +
-      '  <div class="dashboard-hero__subtitle">' + (poolPremium
-        ? (poolCount ? poolCount + (poolCount === 1 ? ' propiedad de otros asesores disponible' : ' propiedades de otros asesores disponibles') + ' para compartir comisión' : 'Descubre propiedades de otros asesores y gana comisión al compartir clientes')
-        : 'Colabora con otros asesores: comparte y descubre propiedades, y gana comisión por cada operación cerrada en conjunto') + '</div></div>' +
-      '  <span class="btn btn--lg dashboard-hero__cta">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '<a class="pool-promo-card" href="#/dashboard/bolsa" style="margin-top:16px">' +
+      '  <span class="pool-promo-card__icon">' + u.icon('exchange', { size: 20 }) + '</span>' +
+      '  <div class="pool-promo-card__text">' +
+      '    <strong>Bolsa Inmobiliaria Compartida</strong>' +
+      '    <span>' + (poolPremium
+        ? (poolCount ? poolCount + (poolCount === 1 ? ' propiedad disponible' : ' propiedades disponibles') + ' para compartir comisión' : 'Descubre propiedades de otros asesores y gana comisión')
+        : 'Colabora con otros asesores y gana comisión por cada operación conjunta') + '</span>' +
+      '  </div>' +
+      '  <span class="pool-promo-card__arrow">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
       '</a>' +
 
       '<div class="admin-section">' +

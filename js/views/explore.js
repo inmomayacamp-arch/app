@@ -38,16 +38,14 @@
 
     root.innerHTML =
       '<div class="explore-layout">' +
-      '  <div class="explore-search">' +
-      '    <div class="row gap-2" style="align-items:center">' +
-      '    <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
-      c.quickFilterChipsHTML() +
-      '    </div>' +
-      '    <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
-      '    </div>' +
-      '  </div>' +
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
+      '    <div class="map-chip-overlay">' +
+      '      <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
+      c.quickFilterChipsHTML() +
+      '      </div>' +
+      '      <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
+      '    </div>' +
       '    <button type="button" class="search-this-area" data-search-area hidden>' + u.icon('search', { size: 14 }) + ' Buscar en esta área</button>' +
       '    <div class="map-legend">' +
       '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-venta)"></span>Venta</span>' +
@@ -141,17 +139,12 @@
 
     var nearbyBtn = u.qs('[data-nearby]', root);
     if (nearbyBtn) nearbyBtn.addEventListener('click', function () {
-      if (!mapCtrl.ready) { u.toast('Configura tu token de Mapbox para usar la ubicación.'); return; }
       if (!navigator.geolocation) { u.toast('Tu navegador no soporta geolocalización.'); return; }
-      u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      nearbyBtn.disabled = true;
       navigator.geolocation.getCurrentPosition(function (pos) {
-        mapCtrl.map.once('moveend', function () {
-          boundsOnly = true;
-          u.qs('[data-search-area]', root).hidden = true;
-          refreshList();
-        });
-        mapCtrl.flyTo([pos.coords.longitude, pos.coords.latitude], 14);
+        window.location.hash = '#/propiedades?near=' + pos.coords.longitude + ',' + pos.coords.latitude;
       }, function () {
+        nearbyBtn.disabled = false;
         u.toast('No pudimos acceder a tu ubicación.');
       });
     });

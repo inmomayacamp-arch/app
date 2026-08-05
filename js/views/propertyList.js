@@ -7,6 +7,7 @@
   var state = window.App.state;
 
   var SORTERS = {
+    cercanas: { label: "Más cercanas", fn: function (a, b) { return (a._dist == null ? Infinity : a._dist) - (b._dist == null ? Infinity : b._dist); } },
     recientes: { label: "Más recientes", fn: function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); } },
     precioAsc: { label: "Precio: menor a mayor", fn: function (a, b) { return a.price - b.price; } },
     precioDesc: { label: "Precio: mayor a menor", fn: function (a, b) { return b.price - a.price; } }
@@ -14,7 +15,13 @@
 
   function render(params, root) {
     var filters = u.defaultFilters();
-    var sortKey = "recientes";
+    var nearCoords = null;
+    if (params && params.query && params.query.near) {
+      var parts = params.query.near.split(',').map(Number);
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) nearCoords = parts;
+    }
+    var sortKey = nearCoords ? "cercanas" : "recientes";
+    var sortKeys = nearCoords ? Object.keys(SORTERS) : Object.keys(SORTERS).filter(function (k) { return k !== 'cercanas'; });
 
     root.innerHTML =
       '<div class="page-header">' +
@@ -23,10 +30,11 @@
       '  <a class="btn btn--outline btn--sm" href="#/">' + u.icon('map', { size: 15 }) + ' Mapa</a>' +
       '</div>' +
       '<div class="page-wrap">' +
+      (nearCoords ? '<p class="text-muted" style="font-size:0.82rem;margin:-4px 0 12px">' + u.icon('locate', { size: 13 }) + ' Ordenadas por cercanía a tu ubicación</p>' : '') +
       '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML() + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
       '    <select data-sort aria-label="Ordenar por" style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:9px 14px;font-weight:700;font-size:0.85rem;background:var(--color-surface)">' +
-      Object.keys(SORTERS).map(function (key) { return '<option value="' + key + '">' + SORTERS[key].label + '</option>'; }).join('') +
+      sortKeys.map(function (key) { return '<option value="' + key + '"' + (key === sortKey ? ' selected' : '') + '>' + SORTERS[key].label + '</option>'; }).join('') +
       '    </select>' +
       '    <button type="button" class="btn btn--outline btn--sm" data-open-filters>' + u.icon('sliders', { size: 15 }) + ' Filtros</button>' +
       '  </div>' +
@@ -37,7 +45,11 @@
     document.title = 'InmoMap — Propiedades';
 
     function refresh() {
-      var list = u.applyFilters(state.properties.publicList(), filters).sort(SORTERS[sortKey].fn);
+      var list = u.applyFilters(state.properties.publicList(), filters);
+      if (nearCoords) {
+        list = list.map(function (p) { return Object.assign({}, p, { _dist: p.coords ? u.distanceKm(nearCoords, p.coords) : null }); });
+      }
+      list = list.sort(SORTERS[sortKey].fn);
       u.qs('[data-total]', root).textContent = list.length;
       u.qs('[data-list]', root).innerHTML = list.length
         ? list.map(function (p) { return c.propertyCardHTML(p, { variant: 'row' }); }).join('')

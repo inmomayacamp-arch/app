@@ -88,6 +88,15 @@
     return Number(n).toLocaleString('es-MX');
   }
 
+  function distanceKm(a, b) {
+    var R = 6371;
+    var dLat = (b[1] - a[1]) * Math.PI / 180;
+    var dLon = (b[0] - a[0]) * Math.PI / 180;
+    var lat1 = a[1] * Math.PI / 180, lat2 = b[1] * Math.PI / 180;
+    var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
   function slugify(str) {
     var normalized = String(str).toLowerCase().normalize('NFD');
     var stripped = '';
@@ -258,6 +267,7 @@
     formatPrice: formatPrice,
     formatCompact: formatCompact,
     formatNumber: formatNumber,
+    distanceKm: distanceKm,
     slugify: slugify,
     uid: uid,
     escapeHtml: escapeHtml,
