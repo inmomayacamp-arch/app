@@ -36,7 +36,7 @@
     document.title = 'InmoMap — Propiedades';
 
     function refresh() {
-      var list = u.applyFilters(state.properties.all(), filters).sort(SORTERS[sortKey].fn);
+      var list = u.applyFilters(state.properties.publicList(), filters).sort(SORTERS[sortKey].fn);
       u.qs('[data-total]', root).textContent = list.length;
       u.qs('[data-list]', root).innerHTML = list.length
         ? list.map(function (p) { return c.propertyCardHTML(p, { variant: 'row' }); }).join('')
@@ -51,7 +51,7 @@
     });
 
     u.qs('[data-open-filters]', root).addEventListener('click', function () {
-      c.openFilterSheet(filters, state.properties.all(), function (applied) {
+      c.openFilterSheet(filters, state.properties.publicList(), function (applied) {
         filters = applied;
         refresh();
       });

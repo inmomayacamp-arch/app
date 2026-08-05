@@ -131,12 +131,56 @@
     return 'hace ' + day + ' días';
   }
 
+  var PROPERTY_TYPES = [
+    { value: "casa", label: "Casa", icon: "home" },
+    { value: "departamento", label: "Departamento", icon: "layers" },
+    { value: "terreno", label: "Terreno", icon: "map" },
+    { value: "local", label: "Local comercial", icon: "store" },
+    { value: "bodega", label: "Bodega", icon: "store" },
+    { value: "quinta", label: "Quinta", icon: "home" },
+    { value: "edificio", label: "Edificio", icon: "layers" },
+    { value: "nave_industrial", label: "Nave industrial", icon: "store" },
+    { value: "consultorio", label: "Consultorio", icon: "briefcase" },
+    { value: "oficina", label: "Oficina", icon: "briefcase" },
+    { value: "otro", label: "Otro", icon: "home" }
+  ];
+
+  var CREDIT_TYPES = [
+    { value: "infonavit", label: "Infonavit" },
+    { value: "fovissste", label: "FOVISSSTE" },
+    { value: "bancario", label: "Crédito bancario" },
+    { value: "contado", label: "Recurso propio (contado)" },
+    { value: "pemex", label: "Crédito PEMEX" },
+    { value: "cfe", label: "Crédito CFE" },
+    { value: "imss", label: "Crédito IMSS" },
+    { value: "issfam", label: "Crédito ISSFAM" },
+    { value: "otro", label: "Otro" }
+  ];
+
+  var AMENITIES = [
+    "Alberca", "Jardín", "Terraza", "Roof garden", "Cocina integral", "Closet vestidor", "Área de lavado",
+    "Cuarto de servicio", "Bodega", "Aire acondicionado", "Paneles solares", "Cisterna", "Tinaco",
+    "Portón eléctrico", "Seguridad 24 horas", "Acceso controlado", "Elevador", "Gimnasio", "Salón de eventos",
+    "Canchas deportivas", "Área infantil", "Pet friendly", "Internet", "Gas estacionario", "Otro"
+  ];
+
+  var SPECIAL_TAGS = [
+    { value: "oportunidad", label: "🔥 Oportunidad" },
+    { value: "exclusiva", label: "⭐ Exclusiva" },
+    { value: "precio_rebajado", label: "💰 Precio rebajado" },
+    { value: "nueva", label: "🆕 Nueva" },
+    { value: "urge_vender", label: "🚨 Urge vender" },
+    { value: "acepta_creditos", label: "🏡 Acepta créditos" },
+    { value: "inversion", label: "📈 Ideal para inversión" }
+  ];
+
   function propertyTypeLabel(type) {
-    var map = { casa: 'Casa', departamento: 'Departamento', terreno: 'Terreno', local: 'Local comercial', oficina: 'Oficina' };
-    return map[type] || type;
+    var found = PROPERTY_TYPES.filter(function (t) { return t.value === type; })[0];
+    return found ? found.label : type;
   }
 
   function operationLabel(op) {
+    if (op === 'venta_renta') return 'Venta y renta';
     return op === 'renta' ? 'En renta' : 'En venta';
   }
 
@@ -146,8 +190,14 @@
 
   function typeColorVar(type, operation) {
     if (type === 'terreno') return '--color-terreno';
-    if (type === 'local' || type === 'oficina') return '--color-otro';
+    if (type === 'local' || type === 'oficina' || type === 'bodega' || type === 'nave_industrial' || type === 'consultorio') return '--color-otro';
     return operationColorVar(operation);
+  }
+
+  function badgeClassFor(type, operation) {
+    if (type === 'terreno') return 'terreno';
+    if (type === 'local' || type === 'oficina' || type === 'bodega' || type === 'nave_industrial' || type === 'consultorio') return 'otro';
+    return operation === 'venta_renta' ? 'venta' : operation;
   }
 
   function toast(message, opts) {
@@ -164,6 +214,12 @@
       el.classList.remove('is-visible');
       setTimeout(function () { el.remove(); }, 250);
     }, opts.duration || 2400);
+  }
+
+  function youtubeEmbedUrl(url) {
+    if (!url) return null;
+    var match = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/);
+    return match ? 'https://www.youtube.com/embed/' + match[1] : null;
   }
 
   function whatsappLink(phone, message) {
@@ -210,8 +266,14 @@
     typeColorVar: typeColorVar,
     toast: toast,
     whatsappLink: whatsappLink,
+    youtubeEmbedUrl: youtubeEmbedUrl,
+    badgeClassFor: badgeClassFor,
     PRICE_MAX: PRICE_MAX,
     defaultFilters: defaultFilters,
-    applyFilters: applyFilters
+    applyFilters: applyFilters,
+    PROPERTY_TYPES: PROPERTY_TYPES,
+    CREDIT_TYPES: CREDIT_TYPES,
+    AMENITIES: AMENITIES,
+    SPECIAL_TAGS: SPECIAL_TAGS
   };
 })();

@@ -15,6 +15,13 @@
     { value: "pausada", label: "Pausada" }
   ];
 
+  var PUBLISH_STATUS_LABELS = {
+    publicada: { label: "Publicada", tone: "aprobada" },
+    borrador: { label: "Borrador", tone: "pendiente" },
+    programada: { label: "Programada", tone: "pendiente" },
+    oculta: { label: "Oculta", tone: "rechazada" }
+  };
+
   function canFeature(agentSlug) {
     var info = window.App.admin.state.agents.all().filter(function (a) { return a.slug === agentSlug; })[0];
     return !info || info.plan === 'profesional';
@@ -129,13 +136,20 @@
 
       var rows = properties.map(function (p) {
         var status = p.status || 'disponible';
+        var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
+        var isHidden = (p.publishStatus || 'publicada') === 'oculta';
         return '<tr>' +
           '<td><img src="' + p.photos[0] + '" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.propertyTypeLabel(p.type) + ' · ' + u.escapeHtml(p.city) + '</div></td>' +
-          '<td>' + u.formatPrice(p.price) + (p.operation === 'renta' ? '/mes' : '') + '</td>' +
+          '<td>' + window.App.components.propertyPriceLabel(p) + '</td>' +
           '<td><select data-status="' + p.id + '" style="border:1px solid var(--color-border-strong);border-radius:8px;padding:6px 8px;font-size:0.8rem">' +
           STATUS_OPTIONS.map(function (s) { return '<option value="' + s.value + '"' + (status === s.value ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') +
           '</select></td>' +
+          '<td><span class="status-pill status-pill--' + pubStatus.tone + '">' + pubStatus.label + '</span>' +
+          (p.publishStatus && p.publishStatus !== 'publicada'
+            ? '<button type="button" class="btn btn--sm btn--outline" style="margin-top:6px" data-publish-now="' + p.id + '">Publicar ahora</button>'
+            : '<button type="button" class="btn btn--sm btn--outline" style="margin-top:6px" data-toggle-hide="' + p.id + '">' + (isHidden ? 'Mostrar' : 'Ocultar') + '</button>') +
+          '</td>' +
           '<td>' + (allowFeatured
             ? '<button type="button" class="btn btn--sm btn--outline" data-feature="' + p.id + '">' + (p.featured ? '★ Destacada' : 'Destacar') + '</button>'
             : '<span class="text-muted" style="font-size:0.76rem">Plan Profesional</span>') + '</td>' +
@@ -153,8 +167,8 @@
         '  <a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
         '</div>' +
         '<div class="admin-section">' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Propiedad</th><th>Precio</th><th>Estado</th><th>Destacada</th><th></th></tr></thead>' +
-        '  <tbody>' + (rows || '<tr><td colspan="6" class="admin-table__meta">Aún no tienes propiedades publicadas.</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Propiedad</th><th>Precio</th><th>Estado</th><th>Publicación</th><th>Destacada</th><th></th></tr></thead>' +
+        '  <tbody>' + (rows || '<tr><td colspan="7" class="admin-table__meta">Aún no tienes propiedades publicadas.</td></tr>') + '</tbody></table></div>' +
         '</div>';
 
       ac.mount('propiedades', 'Mis propiedades', content, root);
@@ -166,6 +180,31 @@
             u.toast('Estado actualizado');
           } catch (err) {
             u.toast(err.message || 'No se pudo actualizar el estado');
+          }
+        });
+      });
+      u.qsa('[data-publish-now]', root).forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          try {
+            await state.properties.update(btn.getAttribute('data-publish-now'), { publishStatus: 'publicada', scheduledAt: null });
+            u.toast('Propiedad publicada', { tone: 'success' });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo publicar la propiedad');
+          }
+        });
+      });
+      u.qsa('[data-toggle-hide]', root).forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          var id = btn.getAttribute('data-toggle-hide');
+          var p = properties.filter(function (x) { return x.id === id; })[0];
+          var nowHidden = (p.publishStatus || 'publicada') !== 'oculta';
+          try {
+            await state.properties.update(id, { publishStatus: nowHidden ? 'oculta' : 'publicada' });
+            u.toast(nowHidden ? 'Propiedad oculta' : 'Propiedad visible de nuevo');
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo actualizar la propiedad');
           }
         });
       });

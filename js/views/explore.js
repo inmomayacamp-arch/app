@@ -21,7 +21,7 @@
     var boundsOnly = false;
 
     function visibleProperties() {
-      var base = state.properties.all();
+      var base = state.properties.publicList();
       var filtered = u.applyFilters(base, filters);
       if (filters.searchText && filters.searchText.trim()) {
         var q = filters.searchText.trim().toLowerCase();
@@ -99,19 +99,8 @@
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), {});
 
-    function isDesktop() { return window.matchMedia('(min-width: 900px)').matches; }
-
     function onSelectProperty(property) {
-      if (isDesktop()) {
-        var card = u.qs('.property-card[data-property-id="' + property.id + '"]', root);
-        if (card) {
-          u.qsa('.property-card.is-highlighted', root).forEach(function (el) { el.classList.remove('is-highlighted'); });
-          card.classList.add('is-highlighted');
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      } else {
-        c.openPropertyPeek(property);
-      }
+      window.location.hash = '#/propiedad/' + property.id;
     }
 
     function refreshList() {
@@ -154,7 +143,7 @@
 
     // Búsqueda y filtros avanzados
     u.qs('[data-open-filters]', root).addEventListener('click', function () {
-      c.openFilterSheet(filters, state.properties.all(), function (applied) {
+      c.openFilterSheet(filters, state.properties.publicList(), function (applied) {
         filters = applied;
         refreshList();
       });

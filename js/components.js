@@ -95,16 +95,29 @@
     return parts.map(function (part) { return '<span>' + part + '</span>'; }).join('');
   }
 
+  function propertyPriceLabel(p) {
+    var currency = p.currency && p.currency !== 'MXN' ? ' ' + p.currency : ' MXN';
+    if (p.operation === 'venta_renta') {
+      var parts = [];
+      if (p.price) parts.push(u.formatPrice(p.price) + currency + ' venta');
+      if (p.priceRent) parts.push(u.formatPrice(p.priceRent) + currency + '/mes renta');
+      return parts.join(' · ') || (u.formatPrice(p.price) + currency);
+    }
+    if (p.operation === 'renta') return u.formatPrice(p.priceRent || p.price) + currency + '/mes';
+    return u.formatPrice(p.price) + currency;
+  }
+
   function propertyCardHTML(p, opts) {
     opts = opts || {};
     var variant = opts.variant || 'grid';
     var isFav = state.favorites.has(p.id);
-    var priceLabel = u.formatPrice(p.price) + (p.operation === 'renta' ? ' MXN/mes' : ' MXN');
+    var priceLabel = propertyPriceLabel(p);
     return (
       '<a class="property-card property-card--' + variant + (opts.highlight ? ' is-highlighted' : '') + '" href="#/propiedad/' + p.id + '" data-property-id="' + p.id + '">' +
       '<div class="property-card__media">' +
       '<img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
-      '<span class="property-card__badge badge badge--' + (p.type === 'terreno' ? 'terreno' : (p.type === 'local' || p.type === 'oficina' ? 'otro' : p.operation)) + '">' + u.operationLabel(p.operation) + '</span>' +
+      '<span class="property-card__badge badge badge--' + u.badgeClassFor(p.type, p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
+      (p.tags && p.tags.length ? '<span class="property-card__tag">' + u.escapeHtml((u.SPECIAL_TAGS.filter(function (t) { return t.value === p.tags[0]; })[0] || {}).label || '') + '</span>' : '') +
       (opts.showFavorite === false ? '' : '<button type="button" class="property-card__fav' + (isFav ? ' is-active' : '') + '" data-fav-id="' + p.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +
       '</div>' +
       '<div class="property-card__body">' +
@@ -448,6 +461,7 @@
     mountChrome: mountChrome,
     refreshFavoriteUI: refreshFavoriteUI,
     propertyCardHTML: propertyCardHTML,
+    propertyPriceLabel: propertyPriceLabel,
     bindFavoriteButtons: bindFavoriteButtons,
     openSheet: openSheet,
     closeSheet: closeSheet,

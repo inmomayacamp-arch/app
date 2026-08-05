@@ -197,21 +197,42 @@
       type: row.type,
       operation: row.operation,
       price: row.price,
+      priceRent: row.price_rent,
+      currency: row.currency || "MXN",
+      creditsAccepted: row.credits_accepted || [],
       city: row.city || "",
       neighborhood: row.neighborhood || "",
       addressNote: row.address_note || "",
+      state: row.state || "",
+      municipality: row.municipality || "",
+      street: row.street || "",
+      extNumber: row.ext_number || "",
+      postalCode: row.postal_code || "",
+      locationPrivacy: row.location_privacy || "exacta",
       coords: row.coords || window.APP_CONFIG.DEFAULT_CENTER,
       bedrooms: row.bedrooms,
       bathrooms: row.bathrooms,
+      halfBathrooms: row.half_bathrooms,
+      hasLivingRoom: !!row.has_living_room,
+      hasLibrary: !!row.has_library,
+      levels: row.levels,
+      age: row.age,
       builtArea: row.built_area,
       lotArea: row.lot_area,
+      frontage: row.frontage,
+      depth: row.depth,
       parking: row.parking,
       description: row.description || "",
       privateNotes: row.private_notes || "",
       features: row.features || [],
       photos: row.photos && row.photos.length ? row.photos : [FALLBACK_PHOTO],
+      videoUrl: row.video_url || "",
+      virtualTourUrl: row.virtual_tour_url || "",
+      tags: row.tags || [],
       featured: !!row.featured,
       status: row.status || "disponible",
+      publishStatus: row.publish_status || "publicada",
+      scheduledAt: row.scheduled_at || null,
       sharing: row.sharing || null,
       createdAt: row.created_at
     };
@@ -219,11 +240,17 @@
 
   function propertyFieldsToRow(fields) {
     var map = {
-      title: "title", type: "type", operation: "operation", price: "price", city: "city",
-      neighborhood: "neighborhood", addressNote: "address_note", coords: "coords",
-      bedrooms: "bedrooms", bathrooms: "bathrooms", builtArea: "built_area", lotArea: "lot_area",
+      title: "title", type: "type", operation: "operation", price: "price", priceRent: "price_rent",
+      currency: "currency", creditsAccepted: "credits_accepted", city: "city",
+      neighborhood: "neighborhood", addressNote: "address_note", state: "state", municipality: "municipality",
+      street: "street", extNumber: "ext_number", postalCode: "postal_code", locationPrivacy: "location_privacy",
+      coords: "coords", bedrooms: "bedrooms", bathrooms: "bathrooms", halfBathrooms: "half_bathrooms",
+      hasLivingRoom: "has_living_room", hasLibrary: "has_library", levels: "levels", age: "age",
+      builtArea: "built_area", lotArea: "lot_area", frontage: "frontage", depth: "depth",
       parking: "parking", description: "description", privateNotes: "private_notes",
-      features: "features", photos: "photos", featured: "featured", status: "status", sharing: "sharing"
+      features: "features", photos: "photos", videoUrl: "video_url", virtualTourUrl: "virtual_tour_url",
+      tags: "tags", featured: "featured", status: "status", publishStatus: "publish_status",
+      scheduledAt: "scheduled_at", sharing: "sharing"
     };
     var row = {};
     Object.keys(fields).forEach(function (key) {
@@ -252,6 +279,15 @@
   }
   function propertiesByAgent(slug) {
     return allProperties().filter(function (p) { return p.agentSlug === slug; });
+  }
+  function isPubliclyVisible(p) {
+    var status = p.publishStatus || "publicada";
+    if (status === "borrador" || status === "oculta") return false;
+    if (status === "programada") return !!p.scheduledAt && new Date(p.scheduledAt) <= new Date();
+    return true;
+  }
+  function publicProperties() {
+    return allProperties().filter(isPubliclyVisible);
   }
   async function publishProperty(payload) {
     if (!supabaseClient) throw new Error("Supabase no está configurado");
@@ -392,6 +428,7 @@
     properties: {
       bootstrap: bootstrapProperties,
       all: allProperties,
+      publicList: publicProperties,
       get: getProperty,
       byAgent: propertiesByAgent,
       publish: publishProperty,

@@ -20,7 +20,8 @@
 
     var agent = window.App.data.getAgent(property.agentSlug);
     var isFav = state.favorites.has(property.id);
-    var priceLabel = u.formatPrice(property.price) + (property.operation === 'renta' ? ' MXN/mes' : ' MXN');
+    var priceLabel = c.propertyPriceLabel(property);
+    var youtubeUrl = u.youtubeEmbedUrl(property.videoUrl);
 
     root.innerHTML =
       '<div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
@@ -35,20 +36,43 @@
       '<div class="detail-body">' +
       '  <div class="detail-title-row">' +
       '    <div>' +
-      '      <span class="badge badge--' + (property.type === 'terreno' ? 'terreno' : (property.type === 'local' || property.type === 'oficina' ? 'otro' : property.operation)) + '">' + u.operationLabel(property.operation) + '</span>' +
+      '      <span class="badge badge--' + u.badgeClassFor(property.type, property.operation) + '">' + u.operationLabel(property.operation) + '</span>' +
+      (property.tags && property.tags.length ? property.tags.map(function (v) {
+        var t = u.SPECIAL_TAGS.filter(function (s) { return s.value === v; })[0];
+        return t ? '<span class="badge badge--otro" style="margin-left:6px">' + u.escapeHtml(t.label) + '</span>' : '';
+      }).join('') : '') +
       '      <div class="detail-price">' + priceLabel + '</div>' +
       '      <div class="detail-title">' + u.escapeHtml(property.title) + '</div>' +
-      '      <div class="detail-location">' + u.icon('pin', { size: 14 }) + ' ' + u.escapeHtml(property.neighborhood) + ', ' + u.escapeHtml(property.city) + (property.addressNote ? ' · ' + u.escapeHtml(property.addressNote) : '') + '</div>' +
+      '      <div class="detail-location">' + u.icon('pin', { size: 14 }) + ' ' + u.escapeHtml(property.neighborhood) + ', ' + u.escapeHtml(property.city) + (property.addressNote ? ' · ' + u.escapeHtml(property.addressNote) : '') +
+      (property.locationPrivacy === 'aproximada' ? ' <span class="text-muted" style="font-size:0.76rem">(ubicación aproximada)</span>' : '') +
+      '      </div>' +
       '    </div>' +
       '  </div>' +
 
       '  <div class="specs-grid">' +
       (property.bedrooms ? '<div class="specs-grid__item">' + u.icon('bed', { size: 18 }) + '<strong>' + property.bedrooms + '</strong><span>Recámaras</span></div>' : '') +
       (property.bathrooms ? '<div class="specs-grid__item">' + u.icon('bath', { size: 18 }) + '<strong>' + property.bathrooms + '</strong><span>Baños</span></div>' : '') +
+      (property.halfBathrooms ? '<div class="specs-grid__item">' + u.icon('bath', { size: 18 }) + '<strong>' + property.halfBathrooms + '</strong><span>Medios baños</span></div>' : '') +
+      (property.parking ? '<div class="specs-grid__item">' + u.icon('car', { size: 18 }) + '<strong>' + property.parking + '</strong><span>Estacionamiento</span></div>' : '') +
       (property.builtArea ? '<div class="specs-grid__item">' + u.icon('ruler', { size: 18 }) + '<strong>' + property.builtArea + ' m²</strong><span>Construcción</span></div>' : '') +
       (property.lotArea ? '<div class="specs-grid__item">' + u.icon('ruler', { size: 18 }) + '<strong>' + property.lotArea + ' m²</strong><span>Terreno</span></div>' : '') +
-      (property.parking ? '<div class="specs-grid__item">' + u.icon('car', { size: 18 }) + '<strong>' + property.parking + '</strong><span>Estacionamiento</span></div>' : '') +
+      (property.levels ? '<div class="specs-grid__item">' + u.icon('layers', { size: 18 }) + '<strong>' + property.levels + '</strong><span>Niveles</span></div>' : '') +
+      (property.age != null && property.age !== '' ? '<div class="specs-grid__item">' + u.icon('clock', { size: 18 }) + '<strong>' + property.age + '</strong><span>Años de antigüedad</span></div>' : '') +
+      (property.frontage ? '<div class="specs-grid__item">' + u.icon('ruler', { size: 18 }) + '<strong>' + property.frontage + ' m</strong><span>Frente</span></div>' : '') +
+      (property.depth ? '<div class="specs-grid__item">' + u.icon('ruler', { size: 18 }) + '<strong>' + property.depth + ' m</strong><span>Fondo</span></div>' : '') +
+      (property.hasLivingRoom ? '<div class="specs-grid__item">' + u.icon('home', { size: 18 }) + '<strong>Sí</strong><span>Sala</span></div>' : '') +
+      (property.hasLibrary ? '<div class="specs-grid__item">' + u.icon('briefcase', { size: 18 }) + '<strong>Sí</strong><span>Biblioteca</span></div>' : '') +
       '  </div>' +
+
+      (property.creditsAccepted && property.creditsAccepted.length ? (
+        '  <div class="detail-desc">' +
+        '    <h2 class="section-title" style="margin-top:0">Créditos aceptados</h2>' +
+        '    <div class="feature-tags">' + property.creditsAccepted.map(function (v) {
+          var cr = u.CREDIT_TYPES.filter(function (x) { return x.value === v; })[0];
+          return '<span class="feature-tag feature-tag--credit">' + u.icon('dollar', { size: 12 }) + ' ' + u.escapeHtml(cr ? cr.label : v) + '</span>';
+        }).join('') + '</div>' +
+        '  </div>'
+      ) : '') +
 
       '  <div class="detail-desc">' +
       '    <h2 class="section-title" style="margin-top:0">Descripción</h2>' +
@@ -57,10 +81,30 @@
       (property.features && property.features.length ? '<div class="feature-tags">' + property.features.map(function (f) { return '<span class="feature-tag">' + u.escapeHtml(f) + '</span>'; }).join('') + '</div>' : '') +
       '  </div>' +
 
+      (youtubeUrl ? (
+        '  <div class="detail-desc">' +
+        '    <h2 class="section-title" style="margin-top:0">Video</h2>' +
+        '    <div class="embed-frame"><iframe src="' + youtubeUrl + '" title="Video de la propiedad" allowfullscreen loading="lazy"></iframe></div>' +
+        '  </div>'
+      ) : '') +
+
+      (property.virtualTourUrl ? (
+        '  <div class="detail-desc">' +
+        '    <h2 class="section-title" style="margin-top:0">Recorrido virtual</h2>' +
+        '    <div class="embed-frame"><iframe src="' + u.escapeHtml(property.virtualTourUrl) + '" title="Recorrido virtual" allowfullscreen loading="lazy"></iframe></div>' +
+        '  </div>'
+      ) : '') +
+
+      '  <div class="detail-desc" data-poi-section style="display:none">' +
+      '    <h2 class="section-title" style="margin-top:0">Puntos de interés cercanos</h2>' +
+      '    <div data-poi-list class="poi-grid"></div>' +
+      '  </div>' +
+
       '  <div class="contact-actions">' +
       '    <a class="btn btn--whatsapp btn--block" target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--outline btn--block" href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
+      '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
 
       (agent ? (
         '<h2 class="section-title" style="margin-top:0">Asesor</h2>' +
@@ -106,6 +150,29 @@
         navigator.clipboard.writeText(url).then(function () { u.toast('Enlace copiado'); });
       }
     });
+
+    var pdfBtn = u.qs('[data-download-pdf]', root);
+    pdfBtn.addEventListener('click', async function () {
+      pdfBtn.disabled = true;
+      try { await window.App.pdfFicha.generate(property, agent); }
+      catch (err) { u.toast('No se pudo generar el PDF'); }
+      finally { pdfBtn.disabled = false; }
+    });
+
+    if (property.coords && window.App.poi) {
+      window.App.poi.fetchNearby(property.coords).then(function (categories) {
+        if (!categories.length) return;
+        var section = u.qs('[data-poi-section]', root);
+        if (!section) return;
+        section.style.display = 'block';
+        u.qs('[data-poi-list]', root).innerHTML = categories.map(function (cat) {
+          return '<div class="poi-item">' +
+            '<span class="poi-item__icon">' + u.icon(cat.icon, { size: 16 }) + '</span>' +
+            '<div><strong>' + u.escapeHtml(cat.label) + '</strong><span>' + u.escapeHtml(cat.items.join(', ')) + '</span></div>' +
+            '</div>';
+        }).join('');
+      });
+    }
   }
 
   window.App.views = window.App.views || {};
