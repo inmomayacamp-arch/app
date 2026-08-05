@@ -460,7 +460,8 @@
       viewsForProperty: viewsForProperty,
       topPropertiesForAgent: topPropertiesForAgent,
       contactsForAgent: contactsForAgent,
-      dailyViewsForAgent: dailyViewsForAgent
+      dailyViewsForAgent: dailyViewsForAgent,
+      weeklyTrendForAgent: weeklyTrendForAgent
     }
   };
 
@@ -710,6 +711,26 @@
     var whatsapp = contacts.filter(function (e) { return !e.meta || e.meta.channel !== 'call'; }).length;
     var call = contacts.filter(function (e) { return e.meta && e.meta.channel === 'call'; }).length;
     return { whatsapp: whatsapp, call: call, total: contacts.length };
+  }
+
+  function weeklyTrendForAgent(slug) {
+    var agentId = agentIdForSlug(slug);
+    var now = Date.now();
+    var weekMs = 7 * 24 * 60 * 60 * 1000;
+    function countInWindow(list, fromMs, toMs) {
+      return list.filter(function (e) { var t = new Date(e.createdAt).getTime(); return t >= fromMs && t < toMs; }).length;
+    }
+    var views = cachedEvents.filter(function (e) { return e.eventType === 'property_view' && e.agentId === agentId; });
+    var contacts = cachedEvents.filter(function (e) { return e.eventType === 'contact_click' && e.agentId === agentId; });
+    var viewsThisWeek = countInWindow(views, now - weekMs, now);
+    var viewsPrevWeek = countInWindow(views, now - 2 * weekMs, now - weekMs);
+    var contactsThisWeek = countInWindow(contacts, now - weekMs, now);
+    var contactsPrevWeek = countInWindow(contacts, now - 2 * weekMs, now - weekMs);
+    function delta(curr, prev) { return prev ? Math.round(((curr - prev) / prev) * 100) : (curr ? 100 : 0); }
+    return {
+      viewsThisWeek: viewsThisWeek, viewsDelta: delta(viewsThisWeek, viewsPrevWeek),
+      contactsThisWeek: contactsThisWeek, contactsDelta: delta(contactsThisWeek, contactsPrevWeek)
+    };
   }
 
   function dailyViewsForAgent(slug, days) {

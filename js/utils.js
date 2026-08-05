@@ -55,7 +55,8 @@
     exchange: '<polyline points="7,4 3,8 7,12"/><line x1="3" y1="8" x2="21" y2="8"/><polyline points="17,12 21,16 17,20"/><line x1="21" y1="16" x2="3" y2="16"/>',
     crown: '<polygon points="3,8 8,11 12,4 16,11 21,8 19,18 5,18"/><line x1="5" y1="18" x2="19" y2="18"/>',
     sparkles: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l0.7 2 2 0.7-2 0.7-0.7 2-0.7-2-2-0.7 2-0.7 0.7-2z" fill="currentColor" stroke="none"/>',
-    infinity: '<path d="M6 9a3.5 3.5 0 1 0 0 6c2.5 0 3.5-6 6-6a3.5 3.5 0 1 1 0 6c-2.5 0-3.5-6-6-6z"/>'
+    infinity: '<path d="M6 9a3.5 3.5 0 1 0 0 6c2.5 0 3.5-6 6-6a3.5 3.5 0 1 1 0 6c-2.5 0-3.5-6-6-6z"/>',
+    more: '<circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/>'
   };
 
   function icon(name, opts) {

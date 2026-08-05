@@ -40,7 +40,7 @@
 
     u.qs('[data-logout]', root).addEventListener('click', async function () {
       await state.agents.logout();
-      window.location.hash = '#/dashboard/login';
+      window.location.hash = '#/';
     });
   }
 

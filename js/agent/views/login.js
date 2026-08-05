@@ -16,8 +16,6 @@
       return;
     }
 
-    var tab = 'login';
-
     function renderCard() {
       root.innerHTML =
         '<div class="admin-login">' +
@@ -25,10 +23,10 @@
         '    <div class="admin-login__logo">' + u.icon('pin', { size: 22 }) + ' InmoMap Asesores</div>' +
         '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Tu panel de trabajo como asesor inmobiliario</p>' +
         '    <div class="tabs" style="padding:0 0 16px;justify-content:center">' +
-        '      <button type="button" class="tab' + (tab === 'login' ? ' is-active' : '') + '" data-tab="login">Iniciar sesión</button>' +
-        '      <button type="button" class="tab' + (tab === 'register' ? ' is-active' : '') + '" data-tab="register">Crear cuenta</button>' +
+        '      <span class="tab is-active">Iniciar sesión</span>' +
+        '      <a class="tab" href="#/planes">Crear cuenta</a>' +
         '    </div>' +
-        (tab === 'login' ? loginFormHTML() : registerFormHTML()) +
+        loginFormHTML() +
         '  </div>' +
         '</div>';
       wire();
@@ -42,25 +40,7 @@
       );
     }
 
-    function registerFormHTML() {
-      return (
-        '<div class="form-field"><label>Nombre completo</label><input type="text" data-name placeholder="Tu nombre" /></div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Correo</label><input type="text" data-reg-email placeholder="tu@correo.com" /></div>' +
-        '<div class="form-field"><label>Teléfono</label><input type="text" data-phone placeholder="9811234567" /></div>' +
-        '</div>' +
-        '<div class="form-field"><label>Ciudad</label><input type="text" data-city placeholder="Campeche" /></div>' +
-        '<div class="form-field"><label>Contraseña</label><input type="password" data-reg-password placeholder="Crea una contraseña" /></div>' +
-        '<button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta de asesor</button>' +
-        '<div class="admin-login__hint">Al registrarte obtienes acceso inmediato a tu panel: propiedades, clientes, enlaces y estadísticas.</div>'
-      );
-    }
-
     function wire() {
-      u.qsa('[data-tab]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { tab = btn.getAttribute('data-tab'); renderCard(); });
-      });
-
       var loginBtn = u.qs('[data-login]', root);
       if (loginBtn) loginBtn.addEventListener('click', async function () {
         var email = u.qs('[data-email]', root).value;
@@ -74,27 +54,6 @@
           u.toast(err.message || 'No se pudo iniciar sesión');
         } finally {
           loginBtn.disabled = false;
-        }
-      });
-
-      var registerBtn = u.qs('[data-register]', root);
-      if (registerBtn) registerBtn.addEventListener('click', async function () {
-        var name = u.qs('[data-name]', root).value.trim();
-        var email = u.qs('[data-reg-email]', root).value.trim();
-        var phone = u.qs('[data-phone]', root).value.trim();
-        var city = u.qs('[data-city]', root).value.trim();
-        var password = u.qs('[data-reg-password]', root).value;
-        if (!name || !email || !password) { u.toast('Completa nombre, correo y contraseña'); return; }
-        if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
-        registerBtn.disabled = true;
-        try {
-          await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password });
-          u.toast('Cuenta creada, ¡bienvenido a InmoMap!', { tone: 'success' });
-          window.location.hash = '#/dashboard';
-        } catch (err) {
-          u.toast(err.message || 'No se pudo crear la cuenta');
-        } finally {
-          registerBtn.disabled = false;
         }
       });
     }

@@ -127,127 +127,143 @@
     });
   }
 
+  function dealBadgeHTML(p) {
+    var status = p.status || 'disponible';
+    if (status === 'disponible') return '';
+    var tone = (status === 'vendida' || status === 'rentada') ? 'aprobada' : (status === 'apartada' ? 'pendiente' : 'inactivo');
+    var label = (STATUS_OPTIONS.filter(function (s) { return s.value === status; })[0] || {}).label || status;
+    return '<span class="status-pill status-pill--' + tone + '">' + label + '</span>';
+  }
+
+  function cardHTML(p) {
+    var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
+    return (
+      '<div class="property-card admin-property-card">' +
+      '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
+      '    <img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
+      '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.type, p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
+      '    <div class="admin-property-card__pills">' +
+      '      <span class="status-pill status-pill--' + pubStatus.tone + '">' + pubStatus.label + '</span>' +
+      dealBadgeHTML(p) +
+      '    </div>' +
+      (p.featured ? '<span class="admin-property-card__featured">' + u.icon('starFilled', { size: 11 }) + ' Destacada</span>' : '') +
+      '  </a>' +
+      '  <div class="property-card__body">' +
+      '    <div class="property-card__price">' + c.propertyPriceLabel(p) + '</div>' +
+      '    <div class="property-card__title">' + u.escapeHtml(p.title) + '</div>' +
+      '    <div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div>' +
+      '    <div class="property-card__specs">' + c.specsRowHTML(p) + '</div>' +
+      '    <div class="admin-property-card__footer">' +
+      '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) + '</span>' +
+      '      <button type="button" class="btn btn--icon" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
+      '    </div>' +
+      '  </div>' +
+      '</div>'
+    );
+  }
+
+  function actionsSheet(p, agent, allowFeatured, refresh) {
+    var isHidden = (p.publishStatus || 'publicada') === 'oculta';
+    var canPublishNow = p.publishStatus && p.publishStatus !== 'publicada' && p.publishStatus !== 'oculta';
+    var otherStatuses = STATUS_OPTIONS.filter(function (s) { return s.value !== (p.status || 'disponible'); });
+
+    c.openSheet({
+      title: p.title,
+      body:
+        '<div class="stack gap-2">' +
+        '<a class="btn btn--outline btn--block" target="_blank" rel="noopener" href="#/propiedad/' + p.id + '">' + u.icon('eye', { size: 15 }) + ' Ver ficha pública</a>' +
+        '<button type="button" class="btn btn--outline btn--block" data-act="edit">' + u.icon('edit', { size: 15 }) + ' Editar</button>' +
+        (p.status !== 'vendida' ? '<button type="button" class="btn btn--outline btn--block" data-act="status" data-status="vendida">' + u.icon('check', { size: 15 }) + ' Marcar como vendida</button>' : '') +
+        '<button type="button" class="btn btn--outline btn--block" data-act="toggle-hide">' + u.icon('eye', { size: 15 }) + (isHidden ? ' Mostrar' : ' Ocultar') + '</button>' +
+        (canPublishNow ? '<button type="button" class="btn btn--outline btn--block" data-act="publish-now">' + u.icon('check', { size: 15 }) + ' Publicar ahora</button>' : '') +
+        '<button type="button" class="btn btn--outline btn--block" data-act="duplicate">' + u.icon('copy', { size: 15 }) + ' Duplicar</button>' +
+        (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="feature">' + u.icon('starFilled', { size: 15 }) + (p.featured ? ' Quitar destacado' : ' Destacar') + '</button>' : '') +
+        (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="share">' + u.icon('exchange', { size: 15 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida con asesores' : 'Compartir con asesores') + '</button>' : '') +
+        (otherStatuses.length ? '<div class="text-muted" style="font-size:0.76rem;font-weight:700;margin:6px 0 -2px">Otro estado</div><div class="row gap-2" style="flex-wrap:wrap">' +
+          otherStatuses.map(function (s) { return '<button type="button" class="btn btn--sm btn--outline" data-act="status" data-status="' + s.value + '">' + s.label + '</button>'; }).join('') + '</div>' : '') +
+        '<button type="button" class="btn btn--outline btn--block" data-act="delete" style="color:var(--color-primary);border-color:var(--color-primary);margin-top:4px">' + u.icon('x', { size: 15 }) + ' Eliminar</button>' +
+        '</div>'
+    });
+
+    var sheetRoot = u.qs('#sheet-root');
+    function afterAction() { c.closeSheet(); refresh(); }
+
+    var editBtn = u.qs('[data-act="edit"]', sheetRoot);
+    if (editBtn) editBtn.addEventListener('click', function () { c.closeSheet(); editSheet(p, refresh); });
+
+    var shareBtn = u.qs('[data-act="share"]', sheetRoot);
+    if (shareBtn) shareBtn.addEventListener('click', function () { c.closeSheet(); shareSheet(p, agent, refresh); });
+
+    var duplicateBtn = u.qs('[data-act="duplicate"]', sheetRoot);
+    if (duplicateBtn) duplicateBtn.addEventListener('click', async function () {
+      try { await state.properties.duplicate(p.id); u.toast('Propiedad duplicada', { tone: 'success' }); afterAction(); }
+      catch (err) { u.toast(err.message || 'No se pudo duplicar la propiedad'); }
+    });
+
+    var hideBtn = u.qs('[data-act="toggle-hide"]', sheetRoot);
+    if (hideBtn) hideBtn.addEventListener('click', async function () {
+      try {
+        await state.properties.update(p.id, { publishStatus: isHidden ? 'publicada' : 'oculta' });
+        u.toast(isHidden ? 'Propiedad visible de nuevo' : 'Propiedad oculta');
+        afterAction();
+      } catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
+    });
+
+    var publishBtn = u.qs('[data-act="publish-now"]', sheetRoot);
+    if (publishBtn) publishBtn.addEventListener('click', async function () {
+      try {
+        await state.properties.update(p.id, { publishStatus: 'publicada', scheduledAt: null });
+        u.toast('Propiedad publicada', { tone: 'success' });
+        afterAction();
+      } catch (err) { u.toast(err.message || 'No se pudo publicar la propiedad'); }
+    });
+
+    var featureBtn = u.qs('[data-act="feature"]', sheetRoot);
+    if (featureBtn) featureBtn.addEventListener('click', async function () {
+      try { await state.properties.update(p.id, { featured: !p.featured }); afterAction(); }
+      catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
+    });
+
+    u.qsa('[data-act="status"]', sheetRoot).forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        try {
+          await state.properties.update(p.id, { status: btn.getAttribute('data-status') });
+          u.toast('Estado actualizado', { tone: 'success' });
+          afterAction();
+        } catch (err) { u.toast(err.message || 'No se pudo actualizar el estado'); }
+      });
+    });
+
+    var deleteBtn = u.qs('[data-act="delete"]', sheetRoot);
+    if (deleteBtn) deleteBtn.addEventListener('click', async function () {
+      if (!window.confirm('¿Eliminar esta propiedad? Ya no aparecerá en InmoMap.')) return;
+      try { await state.properties.remove(p.id); u.toast('Propiedad eliminada'); afterAction(); }
+      catch (err) { u.toast(err.message || 'No se pudo eliminar la propiedad'); }
+    });
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
     var allowFeatured = canFeature(agent.slug);
 
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);
-
-      var rows = properties.map(function (p) {
-        var status = p.status || 'disponible';
-        var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
-        var isHidden = (p.publishStatus || 'publicada') === 'oculta';
-        return '<tr>' +
-          '<td><img src="' + p.photos[0] + '" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover" /></td>' +
-          '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.propertyTypeLabel(p.type) + ' · ' + u.escapeHtml(p.city) + '</div></td>' +
-          '<td>' + window.App.components.propertyPriceLabel(p) + '</td>' +
-          '<td class="admin-table__meta">' + u.icon('eye', { size: 13 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) + '</td>' +
-          '<td><select data-status="' + p.id + '" style="border:1px solid var(--color-border-strong);border-radius:8px;padding:6px 8px;font-size:0.8rem">' +
-          STATUS_OPTIONS.map(function (s) { return '<option value="' + s.value + '"' + (status === s.value ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') +
-          '</select></td>' +
-          '<td><span class="status-pill status-pill--' + pubStatus.tone + '">' + pubStatus.label + '</span>' +
-          (p.publishStatus && p.publishStatus !== 'publicada'
-            ? '<button type="button" class="btn btn--sm btn--outline" style="margin-top:6px" data-publish-now="' + p.id + '">Publicar ahora</button>'
-            : '<button type="button" class="btn btn--sm btn--outline" style="margin-top:6px" data-toggle-hide="' + p.id + '">' + (isHidden ? 'Mostrar' : 'Ocultar') + '</button>') +
-          '</td>' +
-          '<td>' + (allowFeatured
-            ? '<button type="button" class="btn btn--sm btn--outline" data-feature="' + p.id + '">' + (p.featured ? '★ Destacada' : 'Destacar') + '</button>'
-            : '<span class="text-muted" style="font-size:0.76rem">Plan Profesional</span>') + '</td>' +
-          '<td class="actions"><div class="icon-btn-row">' +
-          '<a class="btn btn--sm btn--outline" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">Ver</a>' +
-          '<button type="button" class="btn btn--sm btn--outline" data-edit="' + p.id + '">Editar</button>' +
-          '<button type="button" class="btn btn--sm btn--outline" data-duplicate="' + p.id + '">Duplicar</button>' +
-          (allowFeatured ? '<button type="button" class="btn btn--sm btn--outline" data-share="' + p.id + '">' + u.icon('exchange', { size: 13 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida' : 'Compartir') + '</button>' : '') +
-          '<button type="button" class="btn btn--sm btn--outline" data-remove="' + p.id + '">Eliminar</button>' +
-          '</div></td></tr>';
-      }).join('');
+      var cards = properties.map(cardHTML).join('');
 
       var content =
         '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
         '  <a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
         '</div>' +
-        '<div class="admin-section">' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Propiedad</th><th>Precio</th><th>Vistas</th><th>Estado</th><th>Publicación</th><th>Destacada</th><th></th></tr></thead>' +
-        '  <tbody>' + (rows || '<tr><td colspan="8" class="admin-table__meta">Aún no tienes propiedades publicadas.</td></tr>') + '</tbody></table></div>' +
-        '</div>';
+        (properties.length
+          ? '<div class="stack gap-3">' + cards + '</div>'
+          : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('home', { size: 30 }) + '</span><h3>Aún no tienes propiedades publicadas</h3><a class="btn btn--primary" href="#/dashboard/publicar">Publicar tu primera propiedad</a></div>');
 
       ac.mount('propiedades', 'Mis propiedades', content, root);
 
-      u.qsa('[data-status]', root).forEach(function (sel) {
-        sel.addEventListener('change', async function () {
-          try {
-            await state.properties.update(sel.getAttribute('data-status'), { status: sel.value });
-            u.toast('Estado actualizado');
-          } catch (err) {
-            u.toast(err.message || 'No se pudo actualizar el estado');
-          }
-        });
-      });
-      u.qsa('[data-publish-now]', root).forEach(function (btn) {
-        btn.addEventListener('click', async function () {
-          try {
-            await state.properties.update(btn.getAttribute('data-publish-now'), { publishStatus: 'publicada', scheduledAt: null });
-            u.toast('Propiedad publicada', { tone: 'success' });
-            refresh();
-          } catch (err) {
-            u.toast(err.message || 'No se pudo publicar la propiedad');
-          }
-        });
-      });
-      u.qsa('[data-toggle-hide]', root).forEach(function (btn) {
-        btn.addEventListener('click', async function () {
-          var id = btn.getAttribute('data-toggle-hide');
-          var p = properties.filter(function (x) { return x.id === id; })[0];
-          var nowHidden = (p.publishStatus || 'publicada') !== 'oculta';
-          try {
-            await state.properties.update(id, { publishStatus: nowHidden ? 'oculta' : 'publicada' });
-            u.toast(nowHidden ? 'Propiedad oculta' : 'Propiedad visible de nuevo');
-            refresh();
-          } catch (err) {
-            u.toast(err.message || 'No se pudo actualizar la propiedad');
-          }
-        });
-      });
-      u.qsa('[data-feature]', root).forEach(function (btn) {
-        btn.addEventListener('click', async function () {
-          var id = btn.getAttribute('data-feature');
-          var p = properties.filter(function (x) { return x.id === id; })[0];
-          try {
-            await state.properties.update(id, { featured: !p.featured });
-            refresh();
-          } catch (err) {
-            u.toast(err.message || 'No se pudo actualizar la propiedad');
-          }
-        });
-      });
-      u.qsa('[data-edit]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { editSheet(properties.filter(function (p) { return p.id === btn.getAttribute('data-edit'); })[0], refresh); });
-      });
-      u.qsa('[data-share]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { shareSheet(properties.filter(function (p) { return p.id === btn.getAttribute('data-share'); })[0], agent, refresh); });
-      });
-      u.qsa('[data-duplicate]', root).forEach(function (btn) {
-        btn.addEventListener('click', async function () {
-          try {
-            await state.properties.duplicate(btn.getAttribute('data-duplicate'));
-            u.toast('Propiedad duplicada', { tone: 'success' });
-            refresh();
-          } catch (err) {
-            u.toast(err.message || 'No se pudo duplicar la propiedad');
-          }
-        });
-      });
-      u.qsa('[data-remove]', root).forEach(function (btn) {
-        btn.addEventListener('click', async function () {
-          if (!window.confirm('¿Eliminar esta propiedad? Ya no aparecerá en InmoMap.')) return;
-          try {
-            await state.properties.remove(btn.getAttribute('data-remove'));
-            u.toast('Propiedad eliminada');
-            refresh();
-          } catch (err) {
-            u.toast(err.message || 'No se pudo eliminar la propiedad');
-          }
+      u.qsa('[data-actions]', root).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var p = properties.filter(function (x) { return x.id === btn.getAttribute('data-actions'); })[0];
+          actionsSheet(p, agent, allowFeatured, refresh);
         });
       });
     }

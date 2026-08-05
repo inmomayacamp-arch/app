@@ -3,6 +3,7 @@
   "use strict";
 
   var u = window.App.utils;
+  var c = window.App.components;
   var state = window.App.state;
   var agentState = window.App.agent.state;
   var ac = window.App.agent.components;
@@ -31,15 +32,10 @@
 
     function statusOf(p) { return p.status || 'disponible'; }
     var active = myProperties.filter(function (p) { return statusOf(p) === 'disponible' || statusOf(p) === 'apartada'; }).length;
-    var sold = myProperties.filter(function (p) { return statusOf(p) === 'vendida'; }).length;
-    var rented = myProperties.filter(function (p) { return statusOf(p) === 'rentada'; }).length;
-    var pending = myProperties.filter(function (p) { return statusOf(p) === 'pausada'; }).length;
-
-    var totalViews = myLinks.reduce(function (sum, l) { return sum + state.tracking.statsForLink(l.id).views; }, 0);
-    var totalFavorites = myLinks.reduce(function (sum, l) { return sum + state.tracking.statsForLink(l.id).favoritePropertyIds.length; }, 0);
-    var activeClients = myClients.filter(function (c) { return c.status !== 'cerrado' && c.status !== 'perdido'; }).length;
-    var newRequests = myClients.filter(function (c) { return (Date.now() - new Date(c.createdAt)) / 86400000 < 14; }).length;
-    var whatsappClicks = state.tracking.contactsForAgent(agent.slug).whatsapp;
+    var closedDeals = myProperties.filter(function (p) { return statusOf(p) === 'vendida' || statusOf(p) === 'rentada'; }).length;
+    var activeClients = myClients.filter(function (cl) { return cl.status !== 'cerrado' && cl.status !== 'perdido'; }).length;
+    var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
+    var trend = state.tracking.weeklyTrendForAgent(agent.slug);
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
 
@@ -55,28 +51,31 @@
       '  <a class="agent-greeting__bell" href="#/dashboard/notificaciones" aria-label="Notificaciones">' + u.icon('bell', { size: 19 }) + (unread ? '<span class="badge-count">' + unread + '</span>' : '') + '</a>' +
       '</div>' +
 
-      '<div class="dashboard-hero">' +
-      '  <div><div class="dashboard-hero__title">¿Tienes una propiedad nueva?</div><div class="dashboard-hero__subtitle">Publícala en minutos y empieza a recibir contactos hoy mismo.</div></div>' +
-      '  <a class="btn btn--lg dashboard-hero__cta" href="#/dashboard/publicar">' + u.icon('plus', { size: 18 }) + ' Publicar propiedad</a>' +
-      '</div>' +
+      (uncontacted
+        ? '<a class="attention-card" href="#/dashboard/clientes">' +
+          '  <span class="attention-card__icon">' + u.icon('bell', { size: 18 }) + '</span>' +
+          '  <div class="attention-card__text"><strong>Tienes ' + uncontacted + (uncontacted === 1 ? ' cliente nuevo' : ' clientes nuevos') + ' sin contactar</strong><span>Contáctalos pronto para no perder la oportunidad</span></div>' +
+          u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
+          '</a>'
+        : '') +
 
-      '<div class="dashboard-grid" style="margin-top:18px">' +
+      '<div class="dashboard-grid">' +
       '  <a class="dashboard-card" href="#/dashboard/perfil-profesional"><span class="dashboard-card__icon dashboard-card__icon--renta">' + u.icon('user', { size: 18 }) + '</span><strong>Editar perfil</strong><span>Tu información pública</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/enlaces/nuevo"><span class="dashboard-card__icon dashboard-card__icon--terreno">' + u.icon('link', { size: 18 }) + '</span><strong>Crear enlace</strong><span>Comparte propiedades con un cliente</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/calendario"><span class="dashboard-card__icon dashboard-card__icon--otro">' + u.icon('calendar', { size: 18 }) + '</span><strong>Calendario</strong><span>Citas, visitas y tareas</span></a>' +
       '</div>' +
 
-      '<div class="admin-kpi-grid" style="margin-top:20px">' +
+      '<div class="admin-section__head" style="margin-top:20px"><div><div class="admin-section__title">Esta semana</div><div class="admin-section__subtitle">Comparado con la semana anterior</div></div></div>' +
+      '<div class="stat-grid">' +
+      c.statCardHTML('Visitas a tus propiedades', u.formatNumber(trend.viewsThisWeek), trend.viewsDelta) +
+      c.statCardHTML('Contactos (WhatsApp/llamada)', u.formatNumber(trend.contactsThisWeek), trend.contactsDelta) +
+      '</div>' +
+
+      '<div class="admin-kpi-grid" style="margin-top:14px">' +
       ac.kpiCardHTML('home', active, 'Propiedades activas') +
-      ac.kpiCardHTML('check', sold, 'Vendidas') +
-      ac.kpiCardHTML('link', rented, 'Rentadas') +
-      ac.kpiCardHTML('clock', pending, 'Pausadas') +
-      ac.kpiCardHTML('eye', u.formatNumber(totalViews), 'Visitas recibidas') +
-      ac.kpiCardHTML('heart', totalFavorites, 'Propiedades favoritas') +
+      ac.kpiCardHTML('check', closedDeals, 'Ventas y rentas cerradas') +
       ac.kpiCardHTML('users', activeClients, 'Clientes activos') +
-      ac.kpiCardHTML('briefcase', newRequests, 'Solicitudes nuevas') +
-      ac.kpiCardHTML('chat', whatsappClicks, 'Clics en WhatsApp') +
       '</div>' +
 
       '<div class="admin-section">' +
