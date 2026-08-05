@@ -45,7 +45,8 @@
     await window.App.state.agents.bootstrap();
     await Promise.all([
       window.App.state.properties.bootstrap(),
-      window.App.state.links.bootstrap()
+      window.App.state.links.bootstrap(),
+      window.App.state.leads.bootstrap()
     ]);
     window.App.router.init();
 

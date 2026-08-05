@@ -8,11 +8,11 @@
   var data = window.App.data;
 
   var CATEGORIES = [
-    { type: "casa", label: "Casas", icon: "home" },
-    { type: "departamento", label: "Deptos.", icon: "layers" },
-    { type: "terreno", label: "Terrenos", icon: "map" },
-    { type: "local", label: "Locales", icon: "store" },
-    { type: "oficina", label: "Oficinas", icon: "briefcase" }
+    { type: "casa", label: "Casas", icon: "home", color: "var(--color-primary)", bg: "var(--color-primary-light)" },
+    { type: "departamento", label: "Deptos.", icon: "layers", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
+    { type: "terreno", label: "Terrenos", icon: "map", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
+    { type: "local", label: "Locales", icon: "store", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
+    { type: "oficina", label: "Oficinas", icon: "briefcase", color: "var(--color-venta)", bg: "var(--color-venta-bg)" }
   ];
 
   function render(params, root) {
@@ -73,19 +73,23 @@
       '  <div class="explore-discover">' +
       '    <div class="container">' +
       '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
-      '      <div class="dashboard-grid" style="margin-top:0" data-categories>' +
+      '      <div class="category-grid" data-categories>' +
       CATEGORIES.map(function (cat) {
-        return '<button type="button" class="dashboard-card" data-category="' + cat.type + '"><span class="dashboard-card__icon">' + u.icon(cat.icon, { size: 18 }) + '</span><strong>' + cat.label + '</strong></button>';
+        return '<button type="button" class="category-card" data-category="' + cat.type + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
+          '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
       }).join('') +
       '      </div>' +
-      '      <div class="promo-card">' +
-      '        <span class="promo-card__icon">' + u.icon('lasso', { size: 28 }) + '</span>' +
+
+      '      <div class="promo-card" style="margin-top:20px">' +
+      '        <span class="promo-card__icon">' + u.icon('search', { size: 28 }) + '</span>' +
       '        <div class="promo-card__body">' +
-      '          <strong>Dibuja tu búsqueda</strong>' +
-      '          <p>Selecciona un área en el mapa para ver solo las propiedades dentro de ella.</p>' +
-      '          <button type="button" class="btn btn--primary btn--sm" data-draw-search>Dibujar área</button>' +
+      '          <strong>¿No encontraste la propiedad que buscabas?</strong>' +
+      '          <p>Cuéntanos qué necesitas y te avisamos en cuanto se publique algo parecido.</p>' +
+      '          <a class="btn btn--primary btn--sm" href="#/solicitud">' + u.icon('chat', { size: 14 }) + ' Dejar mi solicitud</a>' +
       '        </div>' +
       '      </div>' +
+
+      '      <p class="explore-discover__support">' + u.icon('flag', { size: 13 }) + ' ¿Necesitas ayuda o quieres reportar un problema? <a href="#/soporte">Contactar al administrador</a></p>' +
       '    </div>' +
       '  </div>' +
       '</div>';
@@ -164,11 +168,6 @@
         refreshList();
         u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-    });
-
-    var drawBtn = u.qs('[data-draw-search]', root);
-    if (drawBtn) drawBtn.addEventListener('click', function () {
-      u.toast('Dibujar el área es una función de próxima versión. Por ahora usa los filtros.');
     });
 
     // Buscar en esta área (al mover el mapa)

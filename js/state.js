@@ -405,6 +405,57 @@
       byAgent: linksByAgent,
       get: getLink,
       create: createLink
+    },
+    leads: {
+      bootstrap: bootstrapLeads,
+      all: allLeads,
+      create: createLead,
+      updateStatus: updateLeadStatus
     }
   };
+
+  // --- Solicitudes de propiedad y mensajes de soporte (leads) ---
+  // Cualquier visitante puede crear uno (sin cuenta); solo el admin puede leerlos y actualizarlos.
+  var cachedLeads = [];
+
+  function mapLeadRow(row) {
+    return {
+      id: row.id, kind: row.kind, name: row.name, phone: row.phone || "", email: row.email || "",
+      message: row.message || "", details: row.details || {}, status: row.status || "nuevo", createdAt: row.created_at
+    };
+  }
+
+  async function bootstrapLeads() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("leads").select("*").order("created_at", { ascending: false });
+      if (result.data) cachedLeads = result.data.map(mapLeadRow);
+    } catch (e) {
+      console.error("No se pudieron cargar las solicitudes", e);
+    }
+  }
+
+  function allLeads() { return cachedLeads; }
+
+  async function createLead(payload) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var row = {
+      kind: payload.kind, name: payload.name, phone: payload.phone || "", email: payload.email || "",
+      message: payload.message || "", details: payload.details || {}
+    };
+    // No se encadena .select() porque quien envía la solicitud (visitante anónimo)
+    // no tiene permiso de lectura sobre la tabla: solo el administrador puede leerla.
+    var insertResult = await supabaseClient.from("leads").insert(row);
+    if (insertResult.error) throw insertResult.error;
+    return true;
+  }
+
+  async function updateLeadStatus(id, status) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var updateResult = await supabaseClient.from("leads").update({ status: status }).eq("id", id).select().single();
+    if (updateResult.error) throw updateResult.error;
+    var lead = mapLeadRow(updateResult.data);
+    cachedLeads = cachedLeads.map(function (l) { return l.id === id ? lead : l; });
+    return lead;
+  }
 })();

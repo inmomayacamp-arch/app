@@ -15,6 +15,7 @@
     { route: "pagos", href: "#/admin/pagos", label: "Pagos", icon: "dollar" },
     { route: "estadisticas", href: "#/admin/estadisticas", label: "Estadísticas", icon: "chart" },
     { route: "moderacion", href: "#/admin/moderacion", label: "Moderación", icon: "flag", badge: function () { return s.reports.all().filter(function (r) { return r.status === 'pendiente'; }).length; } },
+    { route: "solicitudes", href: "#/admin/solicitudes", label: "Solicitudes", icon: "chat", badge: function () { return window.App.state.leads.all().filter(function (l) { return l.status === 'nuevo'; }).length; } },
     { route: "publicidad", href: "#/admin/publicidad", label: "Publicidad", icon: "megaphone" },
     { route: "notificaciones", href: "#/admin/notificaciones", label: "Notificaciones", icon: "bell" },
     { route: "configuracion", href: "#/admin/configuracion", label: "Configuración", icon: "sliders" },
