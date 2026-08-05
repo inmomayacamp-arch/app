@@ -66,7 +66,7 @@
 
   function uniqueSlug(base) {
     var slug = base || utils.uid("asesor");
-    var all = data.AGENTS.map(function (a) { return a.slug; }).concat(cachedProfiles.map(function (a) { return a.slug; }));
+    var all = cachedProfiles.map(function (a) { return a.slug; });
     var candidate = slug, i = 2;
     while (all.indexOf(candidate) !== -1) { candidate = slug + "-" + i; i++; }
     return candidate;
@@ -270,9 +270,7 @@
   }
 
   function allProperties() {
-    var registeredSlugs = cachedProfiles.map(function (a) { return a.slug; });
-    var staticOnes = data.PROPERTIES.filter(function (p) { return registeredSlugs.indexOf(p.agentSlug) === -1; });
-    return staticOnes.concat(cachedProperties);
+    return cachedProperties;
   }
   function getProperty(id) {
     return allProperties().filter(function (p) { return p.id === id; })[0] || null;
@@ -364,9 +362,7 @@
   }
 
   function allLinks() {
-    var registeredSlugs = cachedProfiles.map(function (a) { return a.slug; });
-    var staticOnes = data.CLIENT_LINKS.filter(function (l) { return registeredSlugs.indexOf(l.agentSlug) === -1; });
-    return staticOnes.concat(cachedLinks);
+    return cachedLinks;
   }
   function linksByAgent(slug) {
     return allLinks().filter(function (l) { return l.agentSlug === slug; });
