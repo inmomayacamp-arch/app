@@ -12,19 +12,14 @@
     var myLinks = state.links.byAgent(agent.slug);
     var myClients = agentState.clients.all();
 
-    var totalViews = myLinks.reduce(function (sum, l) { return sum + (l.stats.views || 0); }, 0);
-    var totalContacts = myLinks.reduce(function (sum, l) { return sum + (l.stats.contacts || 0); }, 0);
-    var avgTime = myLinks.length ? (myLinks.reduce(function (sum, l) { return sum + (l.stats.avgTimeMinutes || 0); }, 0) / myLinks.length) : 0;
+    var linkStats = myLinks.map(function (l) { return state.tracking.statsForLink(l.id); });
+    var totalViews = linkStats.reduce(function (sum, s) { return sum + s.views; }, 0);
+    var totalContacts = linkStats.reduce(function (sum, s) { return sum + s.contacts; }, 0);
+    var avgTime = linkStats.length ? (linkStats.reduce(function (sum, s) { return sum + s.avgTimeMinutes; }, 0) / linkStats.length) : 0;
     var conversion = totalViews ? ((totalContacts / totalViews) * 100).toFixed(1) : 0;
-    var whatsappClicks = 38 + myLinks.length * 6;
+    var whatsappClicks = state.tracking.contactsForAgent(agent.slug).whatsapp;
 
-    var viewsByProperty = {};
-    myLinks.forEach(function (link) {
-      (link.stats.mostViewed || []).forEach(function (row) { viewsByProperty[row.propertyId] = (viewsByProperty[row.propertyId] || 0) + row.views; });
-    });
-    var topProperties = Object.keys(viewsByProperty)
-      .map(function (id) { var p = state.properties.get(id); return p ? { label: p.title, value: viewsByProperty[id] } : null; })
-      .filter(Boolean).sort(function (a, b) { return b.value - a.value; }).slice(0, 6);
+    var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 6);
 
     var sharedByLink = myLinks.map(function (l) { return { label: l.clientLabel, value: l.propertyIds.length }; });
 

@@ -22,6 +22,8 @@
     var isFav = state.favorites.has(property.id);
     var priceLabel = c.propertyPriceLabel(property);
     var youtubeUrl = u.youtubeEmbedUrl(property.videoUrl);
+    var fromLink = fromRef ? state.links.get(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
+    state.tracking.logPropertyView(property.id, fromLink ? fromLink.id : null);
 
     root.innerHTML =
       '<div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
@@ -101,8 +103,8 @@
       '  </div>' +
 
       '  <div class="contact-actions">' +
-      '    <a class="btn btn--whatsapp btn--block" target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
-      '    <a class="btn btn--outline btn--block" href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '    <a class="btn btn--whatsapp btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--outline btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
 

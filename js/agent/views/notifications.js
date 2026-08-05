@@ -6,7 +6,7 @@
   var agentState = window.App.agent.state;
   var ac = window.App.agent.components;
 
-  var TYPE_ICONS = { visita: "pin", favorito: "heart", whatsapp: "chat", suscripcion: "dollar", mensaje: "chat" };
+  var TYPE_ICONS = { visita: "pin", favorito: "heart", whatsapp: "chat", sistema: "bell" };
 
   function render(params, root) {
     function refresh() {
@@ -31,9 +31,15 @@
       ac.mount('notificaciones', 'Notificaciones', content, root);
 
       u.qsa('[data-read]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { agentState.notifications.markRead(btn.getAttribute('data-read')); refresh(); });
+        btn.addEventListener('click', async function () {
+          try { await agentState.notifications.markRead(btn.getAttribute('data-read')); refresh(); }
+          catch (err) { u.toast(err.message || 'No se pudo marcar como leída'); }
+        });
       });
-      u.qs('[data-read-all]', root).addEventListener('click', function () { agentState.notifications.markAllRead(); refresh(); });
+      u.qs('[data-read-all]', root).addEventListener('click', async function () {
+        try { await agentState.notifications.markAllRead(); refresh(); }
+        catch (err) { u.toast(err.message || 'No se pudieron marcar como leídas'); }
+      });
     }
     refresh();
   }

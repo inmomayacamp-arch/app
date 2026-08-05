@@ -17,7 +17,7 @@
     }
 
     var url = window.location.origin + window.location.pathname + '#/' + agent.slug + '/' + link.clientSlug;
-    var stats = link.stats || {};
+    var stats = state.tracking.statsForLink(link.id);
     var properties = link.propertyIds.map(function (id) { return state.properties.get(id); }).filter(Boolean);
     var mostViewed = (stats.mostViewed || []).map(function (row) {
       var p = state.properties.get(row.propertyId);

@@ -44,7 +44,6 @@
       { pattern: "/dashboard/publicidad", view: window.App.agent.views.advertising.render, key: "dashboard" },
       { pattern: "/dashboard/notificaciones", view: window.App.agent.views.notifications.render, key: "dashboard" },
       { pattern: "/dashboard/suscripcion", view: window.App.agent.views.subscription.render, key: "dashboard" },
-      { pattern: "/dashboard/mensajes", view: window.App.agent.views.messages.render, key: "dashboard" },
       { pattern: "/admin/login", view: window.App.admin.views.login.render, key: "admin" },
       { pattern: "/admin", view: window.App.admin.views.dashboard.render, key: "admin" },
       { pattern: "/admin/usuarios", view: window.App.admin.views.users.render, key: "admin" },

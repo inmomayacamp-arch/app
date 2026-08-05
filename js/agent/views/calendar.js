@@ -24,20 +24,24 @@
         '<button type="button" class="btn btn--primary btn--block" data-save>Agregar al calendario</button>'
     });
     var sheetRoot = u.qs('#sheet-root');
-    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
+    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
       var title = u.qs('[data-f="title"]', sheetRoot).value.trim();
       var dateVal = u.qs('[data-f="date"]', sheetRoot).value;
       if (!title || !dateVal) { u.toast('Escribe un título y una fecha'); return; }
       var clientSel = u.qs('[data-f="clientId"]', sheetRoot);
-      agentState.calendar.create({
-        type: u.qs('[data-f="type"]', sheetRoot).value,
-        title: title,
-        date: new Date(dateVal).toISOString(),
-        clientId: clientSel ? (clientSel.value || null) : null
-      });
-      c.closeSheet();
-      u.toast('Agregado a tu calendario', { tone: 'success' });
-      refresh();
+      try {
+        await agentState.calendar.create({
+          type: u.qs('[data-f="type"]', sheetRoot).value,
+          title: title,
+          date: new Date(dateVal).toISOString(),
+          clientId: clientSel ? (clientSel.value || null) : null
+        });
+        c.closeSheet();
+        u.toast('Agregado a tu calendario', { tone: 'success' });
+        refresh();
+      } catch (err) {
+        u.toast(err.message || 'No se pudo agregar la actividad');
+      }
     });
   }
 
@@ -74,10 +78,16 @@
 
       u.qs('[data-new]', root).addEventListener('click', function () { newEventSheet(refresh); });
       u.qsa('[data-toggle]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { agentState.calendar.toggleDone(btn.getAttribute('data-toggle')); refresh(); });
+        btn.addEventListener('click', async function () {
+          try { await agentState.calendar.toggleDone(btn.getAttribute('data-toggle')); refresh(); }
+          catch (err) { u.toast(err.message || 'No se pudo actualizar'); }
+        });
       });
       u.qsa('[data-remove]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { agentState.calendar.remove(btn.getAttribute('data-remove')); refresh(); });
+        btn.addEventListener('click', async function () {
+          try { await agentState.calendar.remove(btn.getAttribute('data-remove')); refresh(); }
+          catch (err) { u.toast(err.message || 'No se pudo eliminar'); }
+        });
       });
     }
     refresh();

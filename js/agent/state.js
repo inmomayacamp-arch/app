@@ -1,144 +1,193 @@
-// Estado del panel del asesor: clientes (CRM), calendario, notificaciones y mensajes.
-// Todo persistido en localStorage, sembrado con datos de ejemplo para la cuenta demo.
+// Estado del panel del asesor: clientes (CRM), calendario, notificaciones y bolsa
+// compartida (Supabase real, con caché en memoria poblada en el arranque / al iniciar sesión).
 (function () {
   "use strict";
 
-  var utils = window.App.utils;
-  var d = window.App.agent.data;
+  var supabaseClient = window.App.supabase;
 
-  var KEYS = {
-    clients: "inmomap:agent:clients",
-    calendar: "inmomap:agent:calendar",
-    notifications: "inmomap:agent:notifications",
-    conversations: "inmomap:agent:conversations",
-    collaborations: "inmomap:agent:collaborations",
-    shareRequests: "inmomap:agent:shareRequests",
-    settlements: "inmomap:agent:settlements"
-  };
-
-  function readJSON(key, fallback) {
-    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
-    catch (e) { return fallback; }
-  }
-  function writeJSON(key, value) {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* no-op */ }
-  }
+  function currentAgent() { return window.App.state.agents.current(); }
   function currentSlug() { return window.App.state.agents.currentSlug(); }
 
-  var clients = readJSON(KEYS.clients, d.CLIENTS);
-  var calendarEvents = readJSON(KEYS.calendar, d.CALENDAR_EVENTS);
-  var notifications = readJSON(KEYS.notifications, d.NOTIFICATIONS);
-  var conversations = readJSON(KEYS.conversations, d.CONVERSATIONS);
-  var collaborations = readJSON(KEYS.collaborations, d.COLLABORATIONS);
-  var shareRequests = readJSON(KEYS.shareRequests, d.SHARE_REQUESTS);
-  var settlements = readJSON(KEYS.settlements, d.SETTLEMENTS);
-
   // --- Clientes (CRM) ---
-  function myClients() {
-    var slug = currentSlug();
-    return clients.filter(function (c) { return c.agentSlug === slug; });
+  var cachedClients = [];
+
+  function mapClientRow(row) {
+    return {
+      id: row.id, agentSlug: row.agent_slug, name: row.name, phone: row.phone || "", email: row.email || "",
+      budget: row.budget, notes: row.notes || "", status: row.status,
+      activity: row.activity || [], linkedClientSlug: row.linked_client_slug || null, createdAt: row.created_at
+    };
   }
-  function getClient(id) { return clients.filter(function (c) { return c.id === id; })[0] || null; }
-  function createClient(fields) {
-    var client = Object.assign({
-      id: utils.uid("c"),
-      agentSlug: currentSlug(),
-      status: "activo",
-      createdAt: new Date().toISOString(),
-      activity: [],
-      linkedClientSlug: null
-    }, fields);
-    clients = clients.concat([client]);
-    writeJSON(KEYS.clients, clients);
+  function clientFieldsToRow(fields) {
+    var map = {
+      name: "name", phone: "phone", email: "email", budget: "budget", notes: "notes",
+      status: "status", activity: "activity", linkedClientSlug: "linked_client_slug"
+    };
+    var row = {};
+    Object.keys(fields).forEach(function (key) { if (map[key]) row[map[key]] = fields[key]; });
+    return row;
+  }
+  async function bootstrapClients() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("crm_clients").select("*").order("created_at", { ascending: false });
+      if (result.data) cachedClients = result.data.map(mapClientRow);
+    } catch (e) { console.error("No se pudieron cargar los clientes", e); }
+  }
+  function myClients() { return cachedClients; }
+  function getClient(id) { return cachedClients.filter(function (c) { return c.id === id; })[0] || null; }
+  async function createClient(fields) {
+    var agent = currentAgent();
+    if (!agent) throw new Error("Debes iniciar sesión como asesor.");
+    var row = Object.assign(clientFieldsToRow(fields), { agent_id: agent.id, agent_slug: agent.slug });
+    var result = await supabaseClient.from("crm_clients").insert(row).select().single();
+    if (result.error) throw result.error;
+    var client = mapClientRow(result.data);
+    cachedClients = [client].concat(cachedClients);
     return client;
   }
-  function updateClient(id, fields) {
-    clients = clients.map(function (c) { return c.id === id ? Object.assign({}, c, fields) : c; });
-    writeJSON(KEYS.clients, clients);
+  async function updateClient(id, fields) {
+    var result = await supabaseClient.from("crm_clients").update(clientFieldsToRow(fields)).eq("id", id).select().single();
+    if (result.error) throw result.error;
+    var client = mapClientRow(result.data);
+    cachedClients = cachedClients.map(function (c) { return c.id === id ? client : c; });
+    return client;
   }
-  function removeClient(id) {
-    clients = clients.filter(function (c) { return c.id !== id; });
-    writeJSON(KEYS.clients, clients);
+  async function removeClient(id) {
+    var result = await supabaseClient.from("crm_clients").delete().eq("id", id);
+    if (result.error) throw result.error;
+    cachedClients = cachedClients.filter(function (c) { return c.id !== id; });
   }
-  function addClientActivity(id, entry) {
-    clients = clients.map(function (c) {
-      if (c.id !== id) return c;
-      var activity = [Object.assign({ date: new Date().toISOString() }, entry)].concat(c.activity || []);
-      return Object.assign({}, c, { activity: activity });
-    });
-    writeJSON(KEYS.clients, clients);
+  async function addClientActivity(id, entry) {
+    var client = getClient(id);
+    if (!client) return;
+    var activity = [Object.assign({ date: new Date().toISOString() }, entry)].concat(client.activity || []);
+    return await updateClient(id, { activity: activity });
   }
 
   // --- Calendario ---
-  function myEvents() {
-    var slug = currentSlug();
-    return calendarEvents.filter(function (e) { return e.agentSlug === slug; })
-      .sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+  var cachedCalendarEvents = [];
+
+  function mapCalendarRow(row) {
+    return { id: row.id, agentSlug: row.agent_slug, type: row.type, title: row.title, date: row.date, clientId: row.client_id, done: !!row.done, createdAt: row.created_at };
   }
-  function createEvent(fields) {
-    var event = Object.assign({ id: utils.uid("ev"), agentSlug: currentSlug(), done: false }, fields);
-    calendarEvents = calendarEvents.concat([event]);
-    writeJSON(KEYS.calendar, calendarEvents);
+  async function bootstrapCalendar() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("calendar_events").select("*").order("date", { ascending: true });
+      if (result.data) cachedCalendarEvents = result.data.map(mapCalendarRow);
+    } catch (e) { console.error("No se pudo cargar el calendario", e); }
+  }
+  function myEvents() {
+    return cachedCalendarEvents.slice().sort(function (a, b) { return new Date(a.date) - new Date(b.date); });
+  }
+  async function createEvent(fields) {
+    var agent = currentAgent();
+    if (!agent) throw new Error("Debes iniciar sesión como asesor.");
+    var row = {
+      agent_id: agent.id, agent_slug: agent.slug, type: fields.type, title: fields.title,
+      date: fields.date, client_id: fields.clientId || null, done: false
+    };
+    var result = await supabaseClient.from("calendar_events").insert(row).select().single();
+    if (result.error) throw result.error;
+    var event = mapCalendarRow(result.data);
+    cachedCalendarEvents = cachedCalendarEvents.concat([event]);
     return event;
   }
-  function toggleEventDone(id) {
-    calendarEvents = calendarEvents.map(function (e) { return e.id === id ? Object.assign({}, e, { done: !e.done }) : e; });
-    writeJSON(KEYS.calendar, calendarEvents);
+  async function toggleEventDone(id) {
+    var ev = cachedCalendarEvents.filter(function (e) { return e.id === id; })[0];
+    if (!ev) return;
+    var result = await supabaseClient.from("calendar_events").update({ done: !ev.done }).eq("id", id).select().single();
+    if (result.error) throw result.error;
+    var updated = mapCalendarRow(result.data);
+    cachedCalendarEvents = cachedCalendarEvents.map(function (e) { return e.id === id ? updated : e; });
   }
-  function removeEvent(id) {
-    calendarEvents = calendarEvents.filter(function (e) { return e.id !== id; });
-    writeJSON(KEYS.calendar, calendarEvents);
-  }
-
-  // --- Notificaciones ---
-  function myNotifications() {
-    var slug = currentSlug();
-    return notifications.filter(function (n) { return n.agentSlug === slug; })
-      .sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
-  }
-  function unreadCount() { return myNotifications().filter(function (n) { return !n.read; }).length; }
-  function markNotificationRead(id) {
-    notifications = notifications.map(function (n) { return n.id === id ? Object.assign({}, n, { read: true }) : n; });
-    writeJSON(KEYS.notifications, notifications);
-  }
-  function markAllNotificationsRead() {
-    var slug = currentSlug();
-    notifications = notifications.map(function (n) { return n.agentSlug === slug ? Object.assign({}, n, { read: true }) : n; });
-    writeJSON(KEYS.notifications, notifications);
+  async function removeEvent(id) {
+    var result = await supabaseClient.from("calendar_events").delete().eq("id", id);
+    if (result.error) throw result.error;
+    cachedCalendarEvents = cachedCalendarEvents.filter(function (e) { return e.id !== id; });
   }
 
-  // --- Mensajería (mock local, sin backend real) ---
-  function myConversations() {
-    var slug = currentSlug();
-    return conversations.filter(function (c) { return c.agentSlug === slug; });
+  // --- Notificaciones (creadas automáticamente por el flujo de seguimiento en js/state.js) ---
+  var cachedNotifications = [];
+
+  function mapNotificationRow(row) {
+    return { id: row.id, agentSlug: row.agent_slug, type: row.type, text: row.text, read: !!row.read, createdAt: row.created_at };
   }
-  function getOrCreateConversation(clientId, clientName) {
-    var slug = currentSlug();
-    var existing = conversations.filter(function (c) { return c.agentSlug === slug && c.clientId === clientId; })[0];
-    if (existing) return existing;
-    var conv = { id: utils.uid("conv"), agentSlug: slug, clientId: clientId, clientName: clientName, messages: [] };
-    conversations = conversations.concat([conv]);
-    writeJSON(KEYS.conversations, conversations);
-    return conv;
+  async function bootstrapNotifications() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("agent_notifications").select("*").order("created_at", { ascending: false });
+      if (result.data) cachedNotifications = result.data.map(mapNotificationRow);
+    } catch (e) { console.error("No se pudieron cargar las notificaciones", e); }
   }
-  function sendMessage(conversationId, from, text) {
-    conversations = conversations.map(function (c) {
-      if (c.id !== conversationId) return c;
-      return Object.assign({}, c, { messages: c.messages.concat([{ from: from, text: text, at: new Date().toISOString() }]) });
-    });
-    writeJSON(KEYS.conversations, conversations);
+  function myNotifications() { return cachedNotifications; }
+  function unreadCount() { return cachedNotifications.filter(function (n) { return !n.read; }).length; }
+  async function markNotificationRead(id) {
+    var result = await supabaseClient.from("agent_notifications").update({ read: true }).eq("id", id).select().single();
+    if (result.error) throw result.error;
+    var n = mapNotificationRow(result.data);
+    cachedNotifications = cachedNotifications.map(function (x) { return x.id === id ? n : x; });
+  }
+  async function markAllNotificationsRead() {
+    var unread = cachedNotifications.filter(function (n) { return !n.read; });
+    if (!unread.length) return;
+    var agent = currentAgent();
+    var result = await supabaseClient.from("agent_notifications").update({ read: true }).eq("agent_id", agent.id).eq("read", false);
+    if (result.error) throw result.error;
+    cachedNotifications = cachedNotifications.map(function (n) { return Object.assign({}, n, { read: true }); });
   }
 
   // --- Bolsa Inmobiliaria Compartida (solo Plan Profesional) ---
+  var cachedCollaborations = [];
+  var cachedShareRequests = [];
+  var cachedSettlements = [];
+
+  function mapCollabRow(row) {
+    return {
+      id: row.id, propertyId: row.property_id, ownerId: row.owner_id, ownerSlug: row.owner_slug,
+      collaboratorId: row.collaborator_id, collaboratorSlug: row.collaborator_slug,
+      status: row.status, requestStatus: row.request_status, clientId: row.client_id,
+      sentCount: row.sent_count, viewsCount: row.views_count, contactsCount: row.contacts_count, visitsScheduled: row.visits_scheduled,
+      history: row.history || [], createdAt: row.created_at
+    };
+  }
+  function mapShareRequestRow(row) {
+    return {
+      id: row.id, propertyId: row.property_id, ownerId: row.owner_id, ownerSlug: row.owner_slug,
+      requesterId: row.requester_id, requesterSlug: row.requester_slug,
+      collaborationId: row.collaboration_id, status: row.status, createdAt: row.created_at
+    };
+  }
+  function mapSettlementRow(row) {
+    return {
+      id: row.id, propertyId: row.property_id, collaborationId: row.collaboration_id,
+      ownerId: row.owner_id, ownerSlug: row.owner_slug, collaboratorId: row.collaborator_id, collaboratorSlug: row.collaborator_slug,
+      totalCommission: row.total_commission, ownerAmount: row.owner_amount, collaboratorAmount: row.collaborator_amount,
+      paymentStatus: row.payment_status, paymentDate: row.payment_date, createdAt: row.created_at
+    };
+  }
+  async function bootstrapSharedPool() {
+    if (!supabaseClient) return;
+    try {
+      var results = await Promise.all([
+        supabaseClient.from("pool_collaborations").select("*"),
+        supabaseClient.from("pool_share_requests").select("*"),
+        supabaseClient.from("pool_settlements").select("*")
+      ]);
+      if (results[0].data) cachedCollaborations = results[0].data.map(mapCollabRow);
+      if (results[1].data) cachedShareRequests = results[1].data.map(mapShareRequestRow);
+      if (results[2].data) cachedSettlements = results[2].data.map(mapSettlementRow);
+    } catch (e) { console.error("No se pudo cargar la bolsa compartida", e); }
+  }
+
   function isPremium(slug) {
     var info = window.App.admin.state.agents.all().filter(function (a) { return a.slug === slug; })[0];
     return !info || info.plan === 'profesional';
   }
-
   function isExpired(sharing) {
     return sharing.expiresAt && new Date(sharing.expiresAt) < new Date();
   }
-
   function visibleToAgent(property, viewerSlug) {
     var s = property.sharing;
     if (!s || !s.enabled || isExpired(s)) return false;
@@ -153,11 +202,9 @@
     if (s.visibility === 'invitacion') return true; // visible en la bolsa, pero requiere solicitud para agregarse
     return false;
   }
-
   function requiresRequest(property) {
     return property.sharing && property.sharing.visibility === 'invitacion';
   }
-
   function poolResults(filters) {
     filters = filters || {};
     var viewerSlug = currentSlug();
@@ -173,12 +220,10 @@
     if (filters.priceMax) all = all.filter(function (p) { return p.price <= filters.priceMax; });
     return all;
   }
-
   function mySharedProperties() {
     var slug = currentSlug();
     return window.App.state.properties.byAgent(slug).filter(function (p) { return p.sharing && p.sharing.enabled; });
   }
-
   async function setSharing(propertyId, sharingFields) {
     var prop = window.App.state.properties.get(propertyId);
     var sharing = Object.assign({
@@ -190,17 +235,16 @@
   }
 
   function collaborationsForOwnedProperty(propertyId) {
-    return collaborations.filter(function (c) { return c.propertyId === propertyId && c.status === 'activa'; });
+    return cachedCollaborations.filter(function (c) { return c.propertyId === propertyId && c.status === 'activa'; });
   }
   function collaboratorsForMyProperties() {
     var slug = currentSlug();
     var myPropertyIds = window.App.state.properties.byAgent(slug).map(function (p) { return p.id; });
-    return collaborations.filter(function (c) { return myPropertyIds.indexOf(c.propertyId) !== -1 && c.status === 'activa'; });
+    return cachedCollaborations.filter(function (c) { return myPropertyIds.indexOf(c.propertyId) !== -1 && c.status === 'activa'; });
   }
-
   function myCatalogCollaborations() {
     var slug = currentSlug();
-    return collaborations.filter(function (c) { return c.collaboratorSlug === slug && c.status === 'activa'; });
+    return cachedCollaborations.filter(function (c) { return c.collaboratorSlug === slug && c.status === 'activa'; });
   }
   function myCatalog() {
     return myCatalogCollaborations().map(function (c) {
@@ -209,95 +253,120 @@
   }
   function isInMyCatalog(propertyId) {
     var slug = currentSlug();
-    return collaborations.some(function (c) { return c.propertyId === propertyId && c.collaboratorSlug === slug && c.status === 'activa'; });
+    return cachedCollaborations.some(function (c) { return c.propertyId === propertyId && c.collaboratorSlug === slug && c.status === 'activa'; });
   }
 
-  function addToCatalog(propertyId) {
-    var slug = currentSlug();
+  async function addToCatalog(propertyId) {
+    var agent = currentAgent();
     var property = window.App.state.properties.get(propertyId);
-    var collab = {
-      id: utils.uid("col"), propertyId: propertyId, ownerSlug: property.agentSlug, collaboratorSlug: slug,
-      status: requiresRequest(property) ? "pendiente" : "activa",
-      requestStatus: requiresRequest(property) ? "pendiente" : "aprobada",
-      clientId: null, createdAt: new Date().toISOString(),
-      sentCount: 0, viewsCount: 0, contactsCount: 0, visitsScheduled: 0,
-      history: [{ action: requiresRequest(property) ? "Solicitud enviada" : "Agregada al catálogo", date: new Date().toISOString() }]
+    if (!agent || !property) throw new Error("No se pudo agregar la propiedad al catálogo.");
+    var owner = window.App.data.getAgent(property.agentSlug);
+    if (!owner) throw new Error("No se encontró al asesor dueño de esta propiedad.");
+    var needsRequest = requiresRequest(property);
+    var row = {
+      property_id: propertyId, owner_id: owner.id, owner_slug: property.agentSlug,
+      collaborator_id: agent.id, collaborator_slug: agent.slug,
+      status: needsRequest ? "pendiente" : "activa", request_status: needsRequest ? "pendiente" : "aprobada",
+      history: [{ action: needsRequest ? "Solicitud enviada" : "Agregada al catálogo", date: new Date().toISOString() }]
     };
-    collaborations = collaborations.concat([collab]);
-    writeJSON(KEYS.collaborations, collaborations);
+    var result = await supabaseClient.from("pool_collaborations").insert(row).select().single();
+    if (result.error) throw result.error;
+    var collab = mapCollabRow(result.data);
+    cachedCollaborations = cachedCollaborations.concat([collab]);
 
-    if (requiresRequest(property)) {
-      shareRequests = shareRequests.concat([{
-        id: utils.uid("req"), propertyId: propertyId, ownerSlug: property.agentSlug, requesterSlug: slug,
-        collaborationId: collab.id, status: "pendiente", createdAt: new Date().toISOString()
-      }]);
-      writeJSON(KEYS.shareRequests, shareRequests);
+    if (needsRequest) {
+      var reqRow = {
+        property_id: propertyId, owner_id: owner.id, owner_slug: property.agentSlug,
+        requester_id: agent.id, requester_slug: agent.slug, collaboration_id: collab.id, status: "pendiente"
+      };
+      var reqResult = await supabaseClient.from("pool_share_requests").insert(reqRow).select().single();
+      if (!reqResult.error) cachedShareRequests = cachedShareRequests.concat([mapShareRequestRow(reqResult.data)]);
     }
     return collab;
   }
-
-  function removeFromCatalog(collaborationId) {
-    collaborations = collaborations.map(function (c) {
-      return c.id === collaborationId
-        ? Object.assign({}, c, { status: "retirada", history: c.history.concat([{ action: "Retirada del catálogo", date: new Date().toISOString() }]) })
-        : c;
-    });
-    writeJSON(KEYS.collaborations, collaborations);
+  async function removeFromCatalog(collaborationId) {
+    var existing = cachedCollaborations.filter(function (c) { return c.id === collaborationId; })[0];
+    var history = (existing ? existing.history : []).concat([{ action: "Retirada del catálogo", date: new Date().toISOString() }]);
+    var result = await supabaseClient.from("pool_collaborations").update({ status: "retirada", history: history }).eq("id", collaborationId).select().single();
+    if (result.error) throw result.error;
+    var updated = mapCollabRow(result.data);
+    cachedCollaborations = cachedCollaborations.map(function (c) { return c.id === collaborationId ? updated : c; });
   }
 
   function pendingRequestsForMe() {
     var slug = currentSlug();
-    return shareRequests.filter(function (r) { return r.ownerSlug === slug && r.status === 'pendiente'; });
+    return cachedShareRequests.filter(function (r) { return r.ownerSlug === slug && r.status === 'pendiente'; });
   }
-  function resolveRequest(requestId, approve) {
-    var request = shareRequests.filter(function (r) { return r.id === requestId; })[0];
+  async function resolveRequest(requestId, approve) {
+    var request = cachedShareRequests.filter(function (r) { return r.id === requestId; })[0];
     if (!request) return;
-    shareRequests = shareRequests.map(function (r) { return r.id === requestId ? Object.assign({}, r, { status: approve ? 'aprobada' : 'rechazada' }) : r; });
-    writeJSON(KEYS.shareRequests, shareRequests);
-    collaborations = collaborations.map(function (c) {
-      if (c.id !== request.collaborationId) return c;
-      return Object.assign({}, c, {
-        status: approve ? 'activa' : 'retirada',
-        requestStatus: approve ? 'aprobada' : 'rechazada',
-        history: c.history.concat([{ action: approve ? 'Solicitud aprobada' : 'Solicitud rechazada', date: new Date().toISOString() }])
-      });
-    });
-    writeJSON(KEYS.collaborations, collaborations);
+    var reqResult = await supabaseClient.from("pool_share_requests").update({ status: approve ? 'aprobada' : 'rechazada' }).eq("id", requestId).select().single();
+    if (reqResult.error) throw reqResult.error;
+    cachedShareRequests = cachedShareRequests.map(function (r) { return r.id === requestId ? mapShareRequestRow(reqResult.data) : r; });
+
+    var collab = cachedCollaborations.filter(function (c) { return c.id === request.collaborationId; })[0];
+    var history = (collab ? collab.history : []).concat([{ action: approve ? 'Solicitud aprobada' : 'Solicitud rechazada', date: new Date().toISOString() }]);
+    var collabResult = await supabaseClient.from("pool_collaborations").update({
+      status: approve ? 'activa' : 'retirada', request_status: approve ? 'aprobada' : 'rechazada', history: history
+    }).eq("id", request.collaborationId).select().single();
+    if (collabResult.error) throw collabResult.error;
+    cachedCollaborations = cachedCollaborations.map(function (c) { return c.id === request.collaborationId ? mapCollabRow(collabResult.data) : c; });
   }
 
   function mySettlements() {
     var slug = currentSlug();
-    return settlements.filter(function (s) { return s.ownerSlug === slug || s.collaboratorSlug === slug; });
+    return cachedSettlements.filter(function (s) { return s.ownerSlug === slug || s.collaboratorSlug === slug; });
   }
-  function createSettlement(fields) {
-    var settlement = Object.assign({
-      id: utils.uid("liq"), paymentStatus: "pendiente", paymentDate: null, createdAt: new Date().toISOString()
-    }, fields);
-    settlements = settlements.concat([settlement]);
-    writeJSON(KEYS.settlements, settlements);
+  async function createSettlement(fields) {
+    var agent = currentAgent();
+    var collaborator = window.App.data.getAgent(fields.collaboratorSlug);
+    var row = {
+      property_id: fields.propertyId, collaboration_id: fields.collaborationId,
+      owner_id: agent.id, owner_slug: fields.ownerSlug,
+      collaborator_id: collaborator ? collaborator.id : null, collaborator_slug: fields.collaboratorSlug,
+      total_commission: fields.totalCommission, owner_amount: fields.ownerAmount, collaborator_amount: fields.collaboratorAmount
+    };
+    var result = await supabaseClient.from("pool_settlements").insert(row).select().single();
+    if (result.error) throw result.error;
+    var settlement = mapSettlementRow(result.data);
+    cachedSettlements = cachedSettlements.concat([settlement]);
     return settlement;
   }
-  function markSettlementPaid(id) {
-    settlements = settlements.map(function (s) { return s.id === id ? Object.assign({}, s, { paymentStatus: 'pagada', paymentDate: new Date().toISOString() }) : s; });
-    writeJSON(KEYS.settlements, settlements);
+  async function markSettlementPaid(id) {
+    var result = await supabaseClient.from("pool_settlements").update({ payment_status: 'pagada', payment_date: new Date().toISOString() }).eq("id", id).select().single();
+    if (result.error) throw result.error;
+    var updated = mapSettlementRow(result.data);
+    cachedSettlements = cachedSettlements.map(function (s) { return s.id === id ? updated : s; });
   }
 
+  function clearCaches() {
+    cachedClients = [];
+    cachedCalendarEvents = [];
+    cachedNotifications = [];
+    cachedCollaborations = [];
+    cachedShareRequests = [];
+    cachedSettlements = [];
+  }
+
+  window.App.agent = window.App.agent || {};
   window.App.agent.state = {
+    clearCaches: clearCaches,
     clients: {
+      bootstrap: bootstrapClients,
       all: myClients, get: getClient, create: createClient, update: updateClient,
       remove: removeClient, addActivity: addClientActivity
     },
     calendar: {
+      bootstrap: bootstrapCalendar,
       all: myEvents, create: createEvent, toggleDone: toggleEventDone, remove: removeEvent
     },
     notifications: {
+      bootstrap: bootstrapNotifications,
       all: myNotifications, unreadCount: unreadCount,
       markRead: markNotificationRead, markAllRead: markAllNotificationsRead
     },
-    messages: {
-      all: myConversations, getOrCreate: getOrCreateConversation, send: sendMessage
-    },
     sharedPool: {
+      bootstrap: bootstrapSharedPool,
       isPremium: isPremium,
       search: poolResults,
       mine: mySharedProperties,

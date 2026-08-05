@@ -48,8 +48,8 @@
       '    <div class="agent-hero__stat"><strong>' + agent.yearsExperience + '</strong><span>Años</span></div>' +
       '  </div>' +
       '  <div class="agent-hero__actions">' +
-      '    <a class="btn btn--whatsapp" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
-      '    <a class="btn btn--outline" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--outline" data-track-agent="' + agent.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <p class="agent-hero__bio">' + u.escapeHtml(agent.bio) + '</p>' +
       '  <div style="max-width:420px;margin:16px auto 0">' + c.shareBarHTML(profileUrl) + '</div>' +

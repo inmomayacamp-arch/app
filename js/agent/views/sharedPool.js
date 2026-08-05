@@ -51,7 +51,7 @@
 
     function buscarHTML() {
       var results = sp.search(filters);
-      var cities = Array.from(new Set(window.App.data.PROPERTIES.map(function (p) { return p.city; })));
+      var cities = Array.from(new Set(window.App.state.properties.all().map(function (p) { return p.city; }))).filter(Boolean);
 
       var cards = results.map(function (p) {
         var owner = window.App.data.getAgent(p.agentSlug);
@@ -203,42 +203,75 @@
         var commissionEl = u.qs('[data-f-commission]', root);
         if (commissionEl) commissionEl.addEventListener('input', u.debounce(function () { filters.minCommission = Number(commissionEl.value) || 0; refresh(); }, 250));
         u.qsa('[data-add-catalog]', root).forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            sp.addToCatalog(btn.getAttribute('data-add-catalog'));
-            u.toast('Solicitud/registro enviado', { tone: 'success' });
-            refresh();
+          btn.addEventListener('click', async function () {
+            try {
+              await sp.addToCatalog(btn.getAttribute('data-add-catalog'));
+              u.toast('Solicitud/registro enviado', { tone: 'success' });
+              refresh();
+            } catch (err) {
+              u.toast(err.message || 'No se pudo agregar al catálogo');
+            }
           });
         });
       }
 
       if (activeTab === 'compartidas') {
-        u.qsa('[data-approve]', root).forEach(function (btn) { btn.addEventListener('click', function () { sp.resolveRequest(btn.getAttribute('data-approve'), true); u.toast('Solicitud aprobada'); refresh(); }); });
-        u.qsa('[data-reject]', root).forEach(function (btn) { btn.addEventListener('click', function () { sp.resolveRequest(btn.getAttribute('data-reject'), false); u.toast('Solicitud rechazada'); refresh(); }); });
-        u.qsa('[data-revoke]', root).forEach(function (btn) { btn.addEventListener('click', function () { sp.removeFromCatalog(btn.getAttribute('data-revoke')); u.toast('Colaborador retirado'); refresh(); }); });
+        u.qsa('[data-approve]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            try { await sp.resolveRequest(btn.getAttribute('data-approve'), true); u.toast('Solicitud aprobada'); refresh(); }
+            catch (err) { u.toast(err.message || 'No se pudo aprobar la solicitud'); }
+          });
+        });
+        u.qsa('[data-reject]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            try { await sp.resolveRequest(btn.getAttribute('data-reject'), false); u.toast('Solicitud rechazada'); refresh(); }
+            catch (err) { u.toast(err.message || 'No se pudo rechazar la solicitud'); }
+          });
+        });
+        u.qsa('[data-revoke]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            try { await sp.removeFromCatalog(btn.getAttribute('data-revoke')); u.toast('Colaborador retirado'); refresh(); }
+            catch (err) { u.toast(err.message || 'No se pudo retirar al colaborador'); }
+          });
+        });
       }
 
       if (activeTab === 'catalogo') {
-        u.qsa('[data-remove-catalog]', root).forEach(function (btn) { btn.addEventListener('click', function () { sp.removeFromCatalog(btn.getAttribute('data-remove-catalog')); u.toast('Quitada de tu catálogo'); refresh(); }); });
+        u.qsa('[data-remove-catalog]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            try { await sp.removeFromCatalog(btn.getAttribute('data-remove-catalog')); u.toast('Quitada de tu catálogo'); refresh(); }
+            catch (err) { u.toast(err.message || 'No se pudo quitar la propiedad'); }
+          });
+        });
       }
 
       if (activeTab === 'liquidaciones') {
         var createBtn = u.qs('[data-create-settlement]', root);
-        if (createBtn) createBtn.addEventListener('click', function () {
+        if (createBtn) createBtn.addEventListener('click', async function () {
           var collabId = u.qs('[data-settle-collab]', root).value;
           var collab = sp.collaboratorsForMyProperties().filter(function (c2) { return c2.id === collabId; })[0];
           var total = Number(u.qs('[data-settle-total]', root).value) || 0;
           var pct = Number(u.qs('[data-settle-pct]', root).value) || 0;
           if (!collab || !total) { u.toast('Completa el monto total'); return; }
           var collaboratorAmount = Math.round(total * (pct / 100));
-          sp.createSettlement({
-            propertyId: collab.propertyId, collaborationId: collab.id,
-            ownerSlug: collab.ownerSlug, collaboratorSlug: collab.collaboratorSlug,
-            totalCommission: total, collaboratorAmount: collaboratorAmount, ownerAmount: total - collaboratorAmount
-          });
-          u.toast('Liquidación registrada', { tone: 'success' });
-          refresh();
+          try {
+            await sp.createSettlement({
+              propertyId: collab.propertyId, collaborationId: collab.id,
+              ownerSlug: collab.ownerSlug, collaboratorSlug: collab.collaboratorSlug,
+              totalCommission: total, collaboratorAmount: collaboratorAmount, ownerAmount: total - collaboratorAmount
+            });
+            u.toast('Liquidación registrada', { tone: 'success' });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo registrar la liquidación');
+          }
         });
-        u.qsa('[data-mark-paid]', root).forEach(function (btn) { btn.addEventListener('click', function () { sp.markSettlementPaid(btn.getAttribute('data-mark-paid')); refresh(); }); });
+        u.qsa('[data-mark-paid]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            try { await sp.markSettlementPaid(btn.getAttribute('data-mark-paid')); refresh(); }
+            catch (err) { u.toast(err.message || 'No se pudo marcar como pagada'); }
+          });
+        });
       }
     }
 

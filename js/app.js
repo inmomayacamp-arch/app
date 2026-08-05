@@ -19,6 +19,7 @@
 
     // Delegación global: funciona sin importar qué vista esté montada.
     c.bindFavoriteButtons(document.body);
+    c.bindContactButtons(document.body);
     c.bindCopyButtons(document.body);
 
     // Ícono central del nav inferior: abre el panel de búsqueda y filtros
@@ -48,6 +49,28 @@
       window.App.state.links.bootstrap(),
       window.App.state.leads.bootstrap()
     ]);
+
+    async function bootstrapAgentPanel() {
+      await Promise.all([
+        window.App.state.tracking.bootstrap(),
+        window.App.agent.state.clients.bootstrap(),
+        window.App.agent.state.calendar.bootstrap(),
+        window.App.agent.state.notifications.bootstrap(),
+        window.App.agent.state.sharedPool.bootstrap()
+      ]);
+    }
+    window.App.state.on("agent:session", function (profile) {
+      if (profile) {
+        bootstrapAgentPanel().catch(function () { /* se ignora: las vistas reintentan al navegar */ });
+      } else {
+        window.App.agent.state.clearCaches();
+        window.App.state.tracking.clear();
+      }
+    });
+    if (window.App.state.agents.isLoggedIn()) {
+      await bootstrapAgentPanel();
+    }
+
     window.App.router.init();
 
     if ("serviceWorker" in navigator) {

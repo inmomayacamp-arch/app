@@ -142,6 +142,7 @@
           '<td><img src="' + p.photos[0] + '" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.propertyTypeLabel(p.type) + ' · ' + u.escapeHtml(p.city) + '</div></td>' +
           '<td>' + window.App.components.propertyPriceLabel(p) + '</td>' +
+          '<td class="admin-table__meta">' + u.icon('eye', { size: 13 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) + '</td>' +
           '<td><select data-status="' + p.id + '" style="border:1px solid var(--color-border-strong);border-radius:8px;padding:6px 8px;font-size:0.8rem">' +
           STATUS_OPTIONS.map(function (s) { return '<option value="' + s.value + '"' + (status === s.value ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') +
           '</select></td>' +
@@ -167,8 +168,8 @@
         '  <a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
         '</div>' +
         '<div class="admin-section">' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Propiedad</th><th>Precio</th><th>Estado</th><th>Publicación</th><th>Destacada</th><th></th></tr></thead>' +
-        '  <tbody>' + (rows || '<tr><td colspan="7" class="admin-table__meta">Aún no tienes propiedades publicadas.</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Propiedad</th><th>Precio</th><th>Vistas</th><th>Estado</th><th>Publicación</th><th>Destacada</th><th></th></tr></thead>' +
+        '  <tbody>' + (rows || '<tr><td colspan="8" class="admin-table__meta">Aún no tienes propiedades publicadas.</td></tr>') + '</tbody></table></div>' +
         '</div>';
 
       ac.mount('propiedades', 'Mis propiedades', content, root);

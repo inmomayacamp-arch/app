@@ -1,4 +1,4 @@
-// Vistas "Clientes" (CRM básico del asesor): listado, alta y detalle con seguimiento.
+// Vistas "Clientes" (CRM del asesor): pipeline en tablero (kanban), alta y detalle con seguimiento.
 (function () {
   "use strict";
 
@@ -10,6 +10,18 @@
 
   var ACTIVITY_LABELS = { llamada: "Llamada", visita: "Visita", seguimiento: "Seguimiento" };
   var ACTIVITY_ICONS = { llamada: "phone", visita: "pin", seguimiento: "clock" };
+
+  var STAGES = [
+    { value: "nuevo", label: "Nuevo" },
+    { value: "contactado", label: "Contactado" },
+    { value: "visita", label: "Visita agendada" },
+    { value: "negociacion", label: "Negociación" },
+    { value: "cerrado", label: "Cerrado" },
+    { value: "perdido", label: "Perdido" }
+  ];
+  var STAGE_LABELS = {};
+  var STAGE_TONE = { nuevo: "pendiente", contactado: "pendiente", visita: "activo", negociacion: "activo", cerrado: "aprobada", perdido: "rechazada" };
+  STAGES.forEach(function (s) { STAGE_LABELS[s.value] = s.label; });
 
   function newClientSheet(refresh, onCreated) {
     c.openSheet({
@@ -25,19 +37,23 @@
         '<button type="button" class="btn btn--primary btn--block" data-save>Crear cliente</button>'
     });
     var sheetRoot = u.qs('#sheet-root');
-    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
+    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
       var name = u.qs('[data-f="name"]', sheetRoot).value.trim();
       if (!name) { u.toast('Escribe el nombre del cliente'); return; }
-      var client = agentState.clients.create({
-        name: name,
-        phone: u.qs('[data-f="phone"]', sheetRoot).value.trim(),
-        email: u.qs('[data-f="email"]', sheetRoot).value.trim(),
-        budget: Number(u.qs('[data-f="budget"]', sheetRoot).value) || 0,
-        notes: u.qs('[data-f="notes"]', sheetRoot).value.trim()
-      });
-      c.closeSheet();
-      u.toast('Cliente creado', { tone: 'success' });
-      if (onCreated) onCreated(client); else refresh();
+      try {
+        var client = await agentState.clients.create({
+          name: name,
+          phone: u.qs('[data-f="phone"]', sheetRoot).value.trim(),
+          email: u.qs('[data-f="email"]', sheetRoot).value.trim(),
+          budget: Number(u.qs('[data-f="budget"]', sheetRoot).value) || 0,
+          notes: u.qs('[data-f="notes"]', sheetRoot).value.trim()
+        });
+        c.closeSheet();
+        u.toast('Cliente creado', { tone: 'success' });
+        if (onCreated) onCreated(client); else refresh();
+      } catch (err) {
+        u.toast(err.message || 'No se pudo crear el cliente');
+      }
     });
   }
 
@@ -51,51 +67,87 @@
         '<div class="form-field"><label>Correo</label><input type="text" data-f="email" value="' + u.escapeHtml(client.email || '') + '" /></div>' +
         '</div>' +
         '<div class="form-field"><label>Presupuesto (MXN)</label><input type="number" data-f="budget" value="' + (client.budget || 0) + '" /></div>' +
-        '<div class="form-field"><label>Estado</label><select data-f="status"><option value="activo"' + (client.status === 'activo' ? ' selected' : '') + '>Activo</option><option value="cerrado"' + (client.status === 'cerrado' ? ' selected' : '') + '>Cerrado</option></select></div>' +
         '<div class="form-field"><label>Notas privadas</label><textarea rows="3" data-f="notes">' + u.escapeHtml(client.notes || '') + '</textarea></div>' +
         '<button type="button" class="btn btn--primary btn--block" data-save>Guardar cambios</button>'
     });
     var sheetRoot = u.qs('#sheet-root');
-    u.qs('[data-save]', sheetRoot).addEventListener('click', function () {
-      agentState.clients.update(client.id, {
-        name: u.qs('[data-f="name"]', sheetRoot).value,
-        phone: u.qs('[data-f="phone"]', sheetRoot).value,
-        email: u.qs('[data-f="email"]', sheetRoot).value,
-        budget: Number(u.qs('[data-f="budget"]', sheetRoot).value) || 0,
-        status: u.qs('[data-f="status"]', sheetRoot).value,
-        notes: u.qs('[data-f="notes"]', sheetRoot).value
-      });
-      c.closeSheet();
-      u.toast('Cliente actualizado', { tone: 'success' });
-      refresh();
+    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
+      try {
+        await agentState.clients.update(client.id, {
+          name: u.qs('[data-f="name"]', sheetRoot).value,
+          phone: u.qs('[data-f="phone"]', sheetRoot).value,
+          email: u.qs('[data-f="email"]', sheetRoot).value,
+          budget: Number(u.qs('[data-f="budget"]', sheetRoot).value) || 0,
+          notes: u.qs('[data-f="notes"]', sheetRoot).value
+        });
+        c.closeSheet();
+        u.toast('Cliente actualizado', { tone: 'success' });
+        refresh();
+      } catch (err) {
+        u.toast(err.message || 'No se pudo actualizar el cliente');
+      }
     });
+  }
+
+  function cardHTML(cl, stage) {
+    var idx = STAGES.indexOf(stage);
+    var prev = STAGES[idx - 1];
+    var next = (stage.value === 'negociacion') ? STAGES.filter(function (s) { return s.value === 'cerrado'; })[0] : STAGES[idx + 1];
+    var lastActivity = (cl.activity && cl.activity[0]) ? u.relativeTime(cl.activity[0].date) : 'Sin actividad';
+
+    var moveRow = '';
+    if (stage.value !== 'perdido' && stage.value !== 'cerrado') {
+      moveRow = '<div class="kanban-card__move">' +
+        (prev ? '<button type="button" class="btn btn--sm btn--outline" data-move="' + cl.id + '" data-move-to="' + prev.value + '" aria-label="Mover a ' + prev.label + '">' + u.icon('chevronLeft', { size: 13 }) + '</button>' : '') +
+        (next ? '<button type="button" class="btn btn--sm btn--outline" data-move="' + cl.id + '" data-move-to="' + next.value + '" style="flex:1">' + next.label + ' ' + u.icon('chevronRight', { size: 13 }) + '</button>' : '') +
+        '</div>';
+    }
+    var lostRow = (stage.value !== 'cerrado' && stage.value !== 'perdido')
+      ? '<button type="button" class="btn btn--sm btn--ghost" data-move="' + cl.id + '" data-move-to="perdido" style="color:var(--color-ink-muted);padding:2px 0;justify-content:flex-start">Marcar como perdido</button>'
+      : '';
+
+    return '<div class="kanban-card">' +
+      '<a href="#/dashboard/clientes/' + cl.id + '" style="text-decoration:none;color:inherit;display:block">' +
+      '<strong>' + u.escapeHtml(cl.name) + '</strong>' +
+      (cl.budget ? '<div class="kanban-card__meta">' + u.formatPrice(cl.budget) + '</div>' : '') +
+      (cl.phone ? '<div class="kanban-card__meta">' + u.escapeHtml(cl.phone) + '</div>' : '') +
+      '<div class="kanban-card__meta">' + lastActivity + '</div>' +
+      '</a>' +
+      moveRow + lostRow +
+      '</div>';
   }
 
   function renderList(params, root) {
     function refresh() {
       var clients = agentState.clients.all();
-      var rows = clients.map(function (cl) {
-        var lastActivity = (cl.activity && cl.activity[0]) ? u.relativeTime(cl.activity[0].date) : "Sin actividad";
-        return '<tr>' +
-          '<td><a href="#/dashboard/clientes/' + cl.id + '" class="admin-table__name">' + u.escapeHtml(cl.name) + '</a><div class="admin-table__meta">' + u.escapeHtml(cl.phone || '') + '</div></td>' +
-          '<td>' + (cl.budget ? u.formatPrice(cl.budget) : '—') + '</td>' +
-          '<td>' + ac.statusPill(cl.status === 'activo' ? 'activo' : 'inactivo') + '</td>' +
-          '<td class="admin-table__meta">' + lastActivity + '</td>' +
-          '<td class="actions"><a class="btn btn--sm btn--outline" href="#/dashboard/clientes/' + cl.id + '">Ver</a></td></tr>';
+      var columns = STAGES.map(function (stage) {
+        var items = clients.filter(function (cl) { return cl.status === stage.value; });
+        return '<div class="kanban-column">' +
+          '<div class="kanban-column__head"><span>' + stage.label + '</span><span class="kanban-column__count">' + items.length + '</span></div>' +
+          (items.map(function (cl) { return cardHTML(cl, stage); }).join('') || '<p class="text-muted" style="font-size:0.78rem;padding:4px">Sin clientes</p>') +
+          '</div>';
       }).join('');
 
       var content =
         '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
         '  <button type="button" class="btn btn--primary btn--sm" data-new-client>' + u.icon('plus', { size: 14 }) + ' Nuevo cliente</button>' +
         '</div>' +
-        '<div class="admin-section">' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Cliente</th><th>Presupuesto</th><th>Estado</th><th>Última actividad</th><th></th></tr></thead>' +
-        '  <tbody>' + (rows || '<tr><td colspan="5" class="admin-table__meta">Aún no tienes clientes registrados.</td></tr>') + '</tbody></table></div>' +
-        '</div>';
+        '<div class="kanban-board">' + (clients.length ? columns : '') + '</div>' +
+        (clients.length ? '' : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('users', { size: 30 }) + '</span><h3>Aún no tienes clientes</h3><p>Crea tu primer cliente para empezar a darle seguimiento.</p></div>');
 
       ac.mount('clientes', 'Clientes', content, root);
       u.qs('[data-new-client]', root).addEventListener('click', function () {
         newClientSheet(refresh, function (client) { window.location.hash = '#/dashboard/clientes/' + client.id; });
+      });
+      u.qsa('[data-move]', root).forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          try {
+            await agentState.clients.update(btn.getAttribute('data-move'), { status: btn.getAttribute('data-move-to') });
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo mover el cliente');
+          }
+        });
       });
     }
     refresh();
@@ -122,10 +174,12 @@
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">' + u.escapeHtml(client.name) + '</div><div class="admin-section__subtitle">' + u.escapeHtml(client.phone || '') + (client.email ? ' · ' + u.escapeHtml(client.email) : '') + '</div></div>' +
         '  <button type="button" class="btn btn--outline btn--sm" data-edit>Editar</button></div>' +
-        '  <div class="row gap-2" style="flex-wrap:wrap">' +
+        '  <div class="row gap-2" style="flex-wrap:wrap;align-items:center">' +
         (client.phone ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(client.phone, 'Hola ' + client.name + ', te escribo de parte de tu asesor en InmoMap.') + '">' + u.icon('chat', { size: 14 }) + ' WhatsApp</a>' : '') +
         (client.budget ? '<span class="badge badge--venta">Presupuesto: ' + u.formatPrice(client.budget) + '</span>' : '') +
-        ac.statusPill(client.status === 'activo' ? 'activo' : 'inactivo') +
+        '  <select data-status style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:6px 12px;font-size:0.78rem;font-weight:800">' +
+        STAGES.map(function (s) { return '<option value="' + s.value + '"' + (client.status === s.value ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') +
+        '  </select>' +
         '  </div>' +
         (client.notes ? '<p class="text-secondary" style="margin-top:12px;font-size:0.86rem">' + u.escapeHtml(client.notes) + '</p>' : '') +
         '</div>' +
@@ -133,7 +187,7 @@
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div class="admin-section__title">Enlace personalizado</div></div>' +
         (link
-          ? '<a class="ranked-row" href="#/dashboard/enlaces/' + link.clientSlug + '"><span class="dashboard-card__icon">' + u.icon('link', { size: 16 }) + '</span><div class="ranked-row__info"><strong>Ver estadísticas del enlace</strong><span>' + link.propertyIds.length + ' propiedades · ' + (link.stats.views || 0) + ' vistas</span></div>' + u.icon('chevronRight', { size: 16 }) + '</a>'
+          ? '<a class="ranked-row" href="#/dashboard/enlaces/' + link.clientSlug + '"><span class="dashboard-card__icon">' + u.icon('link', { size: 16 }) + '</span><div class="ranked-row__info"><strong>Ver estadísticas del enlace</strong><span>' + link.propertyIds.length + ' propiedades · ' + state.tracking.statsForLink(link.id).views + ' vistas</span></div>' + u.icon('chevronRight', { size: 16 }) + '</a>'
           : '<a class="btn btn--outline btn--sm" href="#/dashboard/enlaces/nuevo">' + u.icon('plus', { size: 14 }) + ' Crear enlace para este cliente</a>') +
         '</div>' +
 
@@ -156,21 +210,38 @@
       ac.mount('clientes', client.name, content, root);
 
       u.qs('[data-edit]', root).addEventListener('click', function () { editClientSheet(client, refresh); });
+      u.qs('[data-status]', root).addEventListener('change', async function (e) {
+        try {
+          await agentState.clients.update(client.id, { status: e.target.value });
+          u.toast('Etapa actualizada', { tone: 'success' });
+          refresh();
+        } catch (err) {
+          u.toast(err.message || 'No se pudo actualizar la etapa');
+        }
+      });
       u.qsa('[data-log]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', async function () {
           var type = btn.getAttribute('data-log');
           var note = window.prompt('Nota sobre esta ' + (ACTIVITY_LABELS[type] || type).toLowerCase() + ':', '');
           if (note === null) return;
-          agentState.clients.addActivity(client.id, { type: type, note: note || (ACTIVITY_LABELS[type] + ' registrada') });
-          u.toast('Actividad registrada');
-          refresh();
+          try {
+            await agentState.clients.addActivity(client.id, { type: type, note: note || (ACTIVITY_LABELS[type] + ' registrada') });
+            u.toast('Actividad registrada');
+            refresh();
+          } catch (err) {
+            u.toast(err.message || 'No se pudo registrar la actividad');
+          }
         });
       });
-      u.qs('[data-delete]', root).addEventListener('click', function () {
+      u.qs('[data-delete]', root).addEventListener('click', async function () {
         if (!window.confirm('¿Eliminar a ' + client.name + ' de tu CRM?')) return;
-        agentState.clients.remove(client.id);
-        u.toast('Cliente eliminado');
-        window.location.hash = '#/dashboard/clientes';
+        try {
+          await agentState.clients.remove(client.id);
+          u.toast('Cliente eliminado');
+          window.location.hash = '#/dashboard/clientes';
+        } catch (err) {
+          u.toast(err.message || 'No se pudo eliminar el cliente');
+        }
       });
     }
     refresh();

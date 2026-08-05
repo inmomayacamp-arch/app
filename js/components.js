@@ -118,7 +118,7 @@
       '<img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
       '<span class="property-card__badge badge badge--' + u.badgeClassFor(p.type, p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
       (p.tags && p.tags.length ? '<span class="property-card__tag">' + u.escapeHtml((u.SPECIAL_TAGS.filter(function (t) { return t.value === p.tags[0]; })[0] || {}).label || '') + '</span>' : '') +
-      (opts.showFavorite === false ? '' : '<button type="button" class="property-card__fav' + (isFav ? ' is-active' : '') + '" data-fav-id="' + p.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +
+      (opts.showFavorite === false ? '' : '<button type="button" class="property-card__fav' + (isFav ? ' is-active' : '') + '" data-fav-id="' + p.id + '"' + (opts.linkId ? ' data-track-link="' + opts.linkId + '"' : '') + ' aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +
       '</div>' +
       '<div class="property-card__body">' +
       '<div class="property-card__price">' + priceLabel + '</div>' +
@@ -136,9 +136,27 @@
       e.preventDefault();
       e.stopPropagation();
       var id = btn.getAttribute('data-fav-id');
-      var nowActive = state.favorites.toggle(id);
+      var linkId = btn.getAttribute('data-track-link') || null;
+      var nowActive = state.favorites.toggle(id, { linkId: linkId });
       u.toast(nowActive ? 'Guardado en favoritos' : 'Se quitó de favoritos');
       refreshFavoriteUI();
+    });
+  }
+
+  function bindContactButtons(root) {
+    (root || document).addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-track-property],[data-track-link],[data-track-agent]');
+      if (!btn) return;
+      var href = btn.getAttribute('href') || '';
+      var isWhatsapp = btn.classList.contains('btn--whatsapp');
+      var isCall = href.indexOf('tel:') === 0;
+      if (!isWhatsapp && !isCall) return;
+      state.tracking.logContactClick({
+        propertyId: btn.getAttribute('data-track-property'),
+        linkId: btn.getAttribute('data-track-link'),
+        agentId: btn.getAttribute('data-track-agent'),
+        channel: isWhatsapp ? 'whatsapp' : 'call'
+      });
     });
   }
 
@@ -463,6 +481,7 @@
     propertyCardHTML: propertyCardHTML,
     propertyPriceLabel: propertyPriceLabel,
     bindFavoriteButtons: bindFavoriteButtons,
+    bindContactButtons: bindContactButtons,
     openSheet: openSheet,
     closeSheet: closeSheet,
     openPropertyPeek: openPropertyPeek,

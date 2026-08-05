@@ -12,7 +12,6 @@
     var myProperties = state.properties.byAgent(agent.slug);
     var myLinks = state.links.byAgent(agent.slug);
     var myClients = agentState.clients.all();
-    var myConversations = agentState.messages.all();
 
     function statusOf(p) { return p.status || 'disponible'; }
     var active = myProperties.filter(function (p) { return statusOf(p) === 'disponible' || statusOf(p) === 'apartada'; }).length;
@@ -20,22 +19,20 @@
     var rented = myProperties.filter(function (p) { return statusOf(p) === 'rentada'; }).length;
     var pending = myProperties.filter(function (p) { return statusOf(p) === 'pausada'; }).length;
 
-    var totalViews = myLinks.reduce(function (sum, l) { return sum + (l.stats ? l.stats.views : 0); }, 0);
-    var totalFavorites = myLinks.reduce(function (sum, l) { return sum + ((l.stats && l.stats.favoritePropertyIds) ? l.stats.favoritePropertyIds.length : 0); }, 0);
-    var totalMessages = myConversations.reduce(function (sum, c) { return sum + c.messages.filter(function (m) { return m.from === 'cliente'; }).length; }, 0);
-    var activeClients = myClients.filter(function (c) { return c.status === 'activo'; }).length;
+    var totalViews = myLinks.reduce(function (sum, l) { return sum + state.tracking.statsForLink(l.id).views; }, 0);
+    var totalFavorites = myLinks.reduce(function (sum, l) { return sum + state.tracking.statsForLink(l.id).favoritePropertyIds.length; }, 0);
+    var activeClients = myClients.filter(function (c) { return c.status !== 'cerrado' && c.status !== 'perdido'; }).length;
     var newRequests = myClients.filter(function (c) { return (Date.now() - new Date(c.createdAt)) / 86400000 < 14; }).length;
-    var whatsappClicks = 38 + myLinks.length * 6;
+    var whatsappClicks = state.tracking.contactsForAgent(agent.slug).whatsapp;
 
-    var viewsByProperty = {};
-    myLinks.forEach(function (link) {
-      (link.stats.mostViewed || []).forEach(function (row) { viewsByProperty[row.propertyId] = (viewsByProperty[row.propertyId] || 0) + row.views; });
-    });
-    var topProperties = Object.keys(viewsByProperty)
-      .map(function (id) { var p = state.properties.get(id); return p ? { label: p.title, value: viewsByProperty[id] } : null; })
-      .filter(Boolean).sort(function (a, b) { return b.value - a.value; }).slice(0, 5);
+    var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
 
     var content =
+      '<div class="dashboard-hero">' +
+      '  <div><div class="dashboard-hero__title">¿Tienes una propiedad nueva?</div><div class="dashboard-hero__subtitle">Publícala en minutos y empieza a recibir contactos hoy mismo.</div></div>' +
+      '  <a class="btn btn--lg dashboard-hero__cta" href="#/dashboard/publicar">' + u.icon('plus', { size: 18 }) + ' Publicar propiedad</a>' +
+      '</div>' +
+
       '<div class="admin-kpi-grid">' +
       ac.kpiCardHTML('home', active, 'Propiedades activas') +
       ac.kpiCardHTML('check', sold, 'Vendidas') +
@@ -43,7 +40,6 @@
       ac.kpiCardHTML('clock', pending, 'Pausadas') +
       ac.kpiCardHTML('eye', u.formatNumber(totalViews), 'Visitas recibidas') +
       ac.kpiCardHTML('heart', totalFavorites, 'Propiedades favoritas') +
-      ac.kpiCardHTML('chat', totalMessages, 'Mensajes recibidos') +
       ac.kpiCardHTML('users', activeClients, 'Clientes activos') +
       ac.kpiCardHTML('briefcase', newRequests, 'Solicitudes nuevas') +
       ac.kpiCardHTML('chat', whatsappClicks, 'Clics en WhatsApp') +
@@ -52,10 +48,10 @@
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Accesos rápidos</div></div>' +
       '  <div class="dashboard-grid">' +
-      '    <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
+      '    <a class="dashboard-card" href="#/dashboard/propiedades"><span class="dashboard-card__icon">' + u.icon('home', { size: 18 }) + '</span><strong>Mis propiedades</strong><span>' + myProperties.length + ' publicadas</span></a>' +
       '    <a class="dashboard-card" href="#/dashboard/clientes"><span class="dashboard-card__icon">' + u.icon('users', { size: 18 }) + '</span><strong>Clientes</strong><span>' + myClients.length + ' en tu CRM</span></a>' +
       '    <a class="dashboard-card" href="#/dashboard/enlaces/nuevo"><span class="dashboard-card__icon">' + u.icon('link', { size: 18 }) + '</span><strong>Nuevo enlace</strong><span>Comparte propiedades seleccionadas</span></a>' +
-      '    <a class="dashboard-card" href="#/' + agent.slug + '"><span class="dashboard-card__icon">' + u.icon('home', { size: 18 }) + '</span><strong>Mi perfil público</strong><span>' + myProperties.length + ' propiedades</span></a>' +
+      '    <a class="dashboard-card" href="#/' + agent.slug + '"><span class="dashboard-card__icon">' + u.icon('share', { size: 18 }) + '</span><strong>Mi perfil público</strong><span>Ver cómo te ven tus clientes</span></a>' +
       '  </div>' +
       '</div>' +
 

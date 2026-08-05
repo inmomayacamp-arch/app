@@ -38,6 +38,7 @@
 
     var properties = link.propertyIds.map(function (id) { return state.properties.get(id); }).filter(Boolean);
     var mapCtrl = null;
+    state.tracking.logLinkVisit(link.id);
 
     root.innerHTML =
       headerHTML() +
@@ -58,8 +59,8 @@
       '      <div class="agent-hero__title">' + u.escapeHtml(agent.title) + '</div>' +
       '      <div class="agent-hero__rating">' + u.icon('starFilled', { size: 14 }) + ' ' + agent.rating + ' <span class="text-muted" style="font-weight:500">(' + agent.reviews + ' reseñas)</span></div>' +
       '      <div class="agent-hero__actions">' +
-      '        <a class="btn btn--whatsapp" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
-      '        <a class="btn btn--outline" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '        <a class="btn btn--whatsapp" data-track-link="' + link.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
+      '        <a class="btn btn--outline" data-track-link="' + link.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '      </div>' +
       '      <a class="text-muted" style="display:inline-block;margin-top:16px;font-weight:700;font-size:0.82rem" href="#/' + agent.slug + '">Ver perfil completo y todas sus propiedades</a>' +
       '    </div>' +
@@ -72,7 +73,7 @@
     var backRef = '?from=' + encodeURIComponent(agent.slug + '/' + link.clientSlug);
 
     u.qs('[data-list]', root).innerHTML = properties.length
-      ? properties.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
+      ? properties.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid', linkId: link.id }); }).join('')
       : '<div class="empty-state"><h3>Esta selección aún no tiene propiedades</h3></div>';
     u.qsa('.property-card[data-property-id]', root).forEach(function (card) {
       card.setAttribute('href', card.getAttribute('href') + backRef);
