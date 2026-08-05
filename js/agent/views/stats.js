@@ -20,11 +20,17 @@
     var whatsappClicks = state.tracking.contactsForAgent(agent.slug).whatsapp;
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 6);
+    var dailyViews = state.tracking.dailyViewsForAgent(agent.slug, 14);
+    var hasAnyView = dailyViews.some(function (d) { return d.value > 0; });
 
     var sharedByLink = myLinks.map(function (l) { return { label: l.clientLabel, value: l.propertyIds.length }; });
 
     var content =
-      '<div class="admin-kpi-grid">' +
+      '<div class="admin-section"><div class="admin-section__head"><div><div class="admin-section__title">Vistas de propiedades</div><div class="admin-section__subtitle">Últimos 14 días</div></div></div>' +
+      (hasAnyView ? ac.barChartHTML(dailyViews) : '<p class="text-muted" style="font-size:0.85rem">Aún no hay vistas registradas en este periodo.</p>') +
+      '</div>' +
+
+      '<div class="admin-kpi-grid" style="margin-top:20px">' +
       ac.kpiCardHTML('eye', u.formatNumber(totalViews), 'Número de visitas') +
       ac.kpiCardHTML('link', myLinks.length, 'Propiedades compartidas (enlaces)') +
       ac.kpiCardHTML('users', myClients.length, 'Número de clientes') +

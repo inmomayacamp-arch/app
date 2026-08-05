@@ -613,17 +613,69 @@ body.is-admin .site-header { display: none; }
 
 .page-wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 32px; }
 
+/* ---- Panel del asesor: mismo header/bottom-nav adaptativo del sitio público ---- */
+.agent-content { max-width: 960px; margin: 0 auto; padding: 16px 16px 40px; }
+.agent-topbar { margin-bottom: 16px; }
+.agent-topbar__title { font-size: 1.2rem; font-weight: 800; }
+.badge-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-primary); color: #fff; font-size: 0.68rem; font-weight: 800;
+  min-width: 17px; height: 17px; padding: 0 5px; border-radius: var(--radius-full); line-height: 1;
+}
+
 .dashboard-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); margin-top: 16px; }
 @media (min-width: 640px) { .dashboard-grid { grid-template-columns: repeat(4, 1fr); } }
 
 .dashboard-card {
-  display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: var(--radius-md);
+  position: relative; display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: var(--radius-md);
   background: var(--color-surface); border: 1px solid var(--color-border); text-align: left;
 }
+.dashboard-card__badge { position: absolute; top: 12px; right: 12px; }
 .dashboard-card__icon {
   width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
   background: var(--color-primary-light); color: var(--color-primary);
 }
+.dashboard-card__icon--renta { background: var(--color-renta-bg); color: var(--color-renta); }
+.dashboard-card__icon--terreno { background: var(--color-terreno-bg); color: var(--color-terreno); }
+.dashboard-card__icon--otro { background: var(--color-otro-bg); color: var(--color-otro); }
+
+.agent-greeting { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.agent-greeting img { border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.agent-greeting__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.agent-greeting__text strong { font-size: 1rem; }
+.agent-greeting__text span { font-size: 0.8rem; color: var(--color-ink-muted); }
+.agent-greeting__bell { position: relative; width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: var(--color-ink-secondary); }
+.agent-greeting__bell .badge-count { position: absolute; top: -4px; right: -4px; }
+
+.crm-pipeline-bar { display: flex; gap: 2px; height: 8px; border-radius: var(--radius-full); overflow: hidden; background: var(--color-bg); }
+.crm-pipeline-bar span { display: block; background: var(--color-primary); }
+.crm-pipeline-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 0.76rem; color: var(--color-ink-secondary); }
+.crm-pipeline-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary); margin-right: 5px; vertical-align: middle; }
+
+.calendar-month { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px; }
+.calendar-month__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-weight: 800; font-size: 0.9rem; text-transform: capitalize; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.calendar-grid__dow { font-size: 0.66rem; font-weight: 700; color: var(--color-ink-muted); padding-bottom: 6px; }
+.calendar-day {
+  position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 0.82rem; font-weight: 600; background: none; border: none; color: var(--color-ink); cursor: pointer;
+}
+.calendar-day:hover { background: var(--color-bg); }
+.calendar-day--today { color: var(--color-primary); font-weight: 800; }
+.calendar-day.is-selected { background: var(--color-primary); color: #fff; }
+.calendar-day__dot { position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--color-primary); }
+.calendar-day.is-selected .calendar-day__dot { background: #fff; }
+
+.agenda-card {
+  padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-surface);
+  border: 1px solid var(--color-border); border-left: 3px solid var(--color-border-strong);
+}
+.agenda-card--cita { border-left-color: var(--color-venta); }
+.agenda-card--visita { border-left-color: var(--color-renta); }
+.agenda-card--recordatorio { border-left-color: var(--color-otro); }
+.agenda-card--tarea { border-left-color: var(--color-terreno); }
+.agenda-card--llamada { border-left-color: var(--color-primary); }
+.agenda-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.74rem; color: var(--color-ink-muted); margin-bottom: 4px; }
 .dashboard-card strong { font-size: 0.92rem; }
 .dashboard-card span { font-size: 0.78rem; color: var(--color-ink-muted); }
 

@@ -459,7 +459,8 @@
       statsForLink: statsForLink,
       viewsForProperty: viewsForProperty,
       topPropertiesForAgent: topPropertiesForAgent,
-      contactsForAgent: contactsForAgent
+      contactsForAgent: contactsForAgent,
+      dailyViewsForAgent: dailyViewsForAgent
     }
   };
 
@@ -709,5 +710,24 @@
     var whatsapp = contacts.filter(function (e) { return !e.meta || e.meta.channel !== 'call'; }).length;
     var call = contacts.filter(function (e) { return e.meta && e.meta.channel === 'call'; }).length;
     return { whatsapp: whatsapp, call: call, total: contacts.length };
+  }
+
+  function dailyViewsForAgent(slug, days) {
+    var agentId = agentIdForSlug(slug);
+    var views = cachedEvents.filter(function (e) { return e.eventType === 'property_view' && e.agentId === agentId; });
+    var counts = {};
+    views.forEach(function (e) {
+      var d = new Date(e.createdAt);
+      var key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    var out = [];
+    var now = new Date();
+    for (var i = days - 1; i >= 0; i--) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      var key = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+      out.push({ label: d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }), shortLabel: String(d.getDate()), value: counts[key] || 0 });
+    }
+    return out;
   }
 })();
