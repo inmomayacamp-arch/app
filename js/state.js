@@ -80,6 +80,7 @@
       name: row.name,
       email: row.email,
       photo: row.photo || "",
+      logoUrl: row.logo_url || "",
       title: row.title || "Asesor inmobiliario",
       bio: row.bio || "",
       whatsapp: row.whatsapp || "",
