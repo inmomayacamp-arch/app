@@ -26,6 +26,13 @@
     var activeTab = "todas";
     var mapCtrl = null;
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+    var social = agent.social || {};
+    var SOCIAL_LINKS = [
+      { key: "facebook", icon: "facebook", label: "Facebook" },
+      { key: "instagram", icon: "instagram", label: "Instagram" },
+      { key: "tiktok", icon: "tiktok", label: "TikTok" },
+      { key: "website", icon: "globe", label: "Sitio web" }
+    ].filter(function (s) { return social[s.key]; });
 
     function filteredProps() {
       if (activeTab === 'todas') return allProps;
@@ -41,16 +48,13 @@
       '  <img class="avatar agent-hero__photo" src="' + agent.photo + '" width="88" height="88" alt="" />' +
       '  <div class="agent-hero__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 16 }) + '</span></div>' +
       '  <div class="agent-hero__title">' + u.escapeHtml(agent.title) + '</div>' +
-      '  <div class="agent-hero__rating">' + u.icon('starFilled', { size: 15 }) + ' ' + agent.rating + ' <span class="text-muted" style="font-weight:500">(' + agent.reviews + ' reseñas)</span></div>' +
-      '  <div class="agent-hero__stats">' +
-      '    <div class="agent-hero__stat"><strong>' + allProps.length + '</strong><span>Propiedades</span></div>' +
-      '    <div class="agent-hero__stat"><strong>' + agent.clientsCount + '</strong><span>Clientes</span></div>' +
-      '    <div class="agent-hero__stat"><strong>' + agent.yearsExperience + '</strong><span>Años</span></div>' +
-      '  </div>' +
       '  <div class="agent-hero__actions">' +
       '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--outline" data-track-agent="' + agent.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
+      (SOCIAL_LINKS.length ? '<div class="agent-hero__social">' + SOCIAL_LINKS.map(function (s) {
+        return '<a class="agent-hero__social-link" target="_blank" rel="noopener" href="' + u.escapeHtml(social[s.key]) + '" aria-label="' + s.label + '">' + u.icon(s.icon, { size: 17 }) + '</a>';
+      }).join('') + '</div>' : '') +
       '  <p class="agent-hero__bio">' + u.escapeHtml(agent.bio) + '</p>' +
       '  <div style="max-width:420px;margin:16px auto 0">' + c.shareBarHTML(profileUrl) + '</div>' +
       '</div>' +

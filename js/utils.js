@@ -56,7 +56,11 @@
     crown: '<polygon points="3,8 8,11 12,4 16,11 21,8 19,18 5,18"/><line x1="5" y1="18" x2="19" y2="18"/>',
     sparkles: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l0.7 2 2 0.7-2 0.7-0.7 2-0.7-2-2-0.7 2-0.7 0.7-2z" fill="currentColor" stroke="none"/>',
     infinity: '<path d="M6 9a3.5 3.5 0 1 0 0 6c2.5 0 3.5-6 6-6a3.5 3.5 0 1 1 0 6c-2.5 0-3.5-6-6-6z"/>',
-    more: '<circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/>'
+    more: '<circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+    facebook: '<path d="M14 21v-8h2.7l.4-3.3H14V7.6c0-.96.27-1.6 1.64-1.6H17V3.1C16.7 3.07 15.7 3 14.5 3 12 3 10.3 4.5 10.3 7.3v2.4H7.6V13h2.7v8z"/>',
+    instagram: '<rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="16.6" cy="7.4" r="1" fill="currentColor" stroke="none"/>',
+    tiktok: '<path d="M14 3v11.2a3.3 3.3 0 1 1-2.6-3.23" fill="none"/><path d="M14 3a4.8 4.8 0 0 0 4.8 4.8" fill="none"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/>'
   };
 
   function icon(name, opts) {

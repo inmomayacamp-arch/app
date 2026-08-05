@@ -33,7 +33,6 @@
       '  <input type="file" accept="image/*" data-avatar-input style="display:none" />' +
       '  <div style="flex:1;min-width:220px">' +
       '    <p class="text-muted" style="font-size:0.78rem;margin-top:4px">Toca tu foto para cambiarla.</p>' +
-      '    <div class="form-field"><label>URL de tu logo (opcional)</label><input type="text" data-f="logoUrl" placeholder="https://..." value="' + u.escapeHtml(agent.logoUrl || '') + '" /></div>' +
       '  </div></div>' +
       '  <div class="form-row">' +
       '  <div class="form-field"><label>Nombre</label><input type="text" data-f="name" value="' + u.escapeHtml(agent.name) + '" /></div>' +
@@ -53,8 +52,12 @@
       '  <div class="form-field"><label>Horario de atención</label><input type="text" data-f="schedule" placeholder="Lun-Sáb 9:00-19:00" value="' + u.escapeHtml(agent.schedule || '') + '" /></div>' +
       '  </div>' +
       '  <div class="form-row">' +
-      '  <div class="form-field"><label>Facebook</label><input type="text" data-f="facebook" value="' + u.escapeHtml((agent.social && agent.social.facebook) || '') + '" /></div>' +
-      '  <div class="form-field"><label>Instagram</label><input type="text" data-f="instagram" value="' + u.escapeHtml((agent.social && agent.social.instagram) || '') + '" /></div>' +
+      '  <div class="form-field"><label>Facebook</label><input type="text" data-f="facebook" placeholder="https://facebook.com/tu-pagina" value="' + u.escapeHtml((agent.social && agent.social.facebook) || '') + '" /></div>' +
+      '  <div class="form-field"><label>Instagram</label><input type="text" data-f="instagram" placeholder="https://instagram.com/tu-usuario" value="' + u.escapeHtml((agent.social && agent.social.instagram) || '') + '" /></div>' +
+      '  </div>' +
+      '  <div class="form-row">' +
+      '  <div class="form-field"><label>TikTok</label><input type="text" data-f="tiktok" placeholder="https://tiktok.com/@tu-usuario" value="' + u.escapeHtml((agent.social && agent.social.tiktok) || '') + '" /></div>' +
+      '  <div class="form-field"><label>Sitio web (opcional)</label><input type="text" data-f="website" placeholder="https://tu-sitio.com" value="' + u.escapeHtml((agent.social && agent.social.website) || '') + '" /></div>' +
       '  </div>' +
       '</div>' +
 
@@ -87,7 +90,6 @@
       try {
         await state.agents.updateProfile(agent.slug, {
           photo: photoUrl,
-          logoUrl: u.qs('[data-f="logoUrl"]', root).value,
           name: u.qs('[data-f="name"]', root).value,
           company: u.qs('[data-f="company"]', root).value,
           specialty: u.qs('[data-f="specialty"]', root).value,
@@ -97,7 +99,9 @@
           schedule: u.qs('[data-f="schedule"]', root).value,
           social: {
             facebook: u.qs('[data-f="facebook"]', root).value,
-            instagram: u.qs('[data-f="instagram"]', root).value
+            instagram: u.qs('[data-f="instagram"]', root).value,
+            tiktok: u.qs('[data-f="tiktok"]', root).value,
+            website: u.qs('[data-f="website"]', root).value
           }
         });
         u.toast('Perfil actualizado', { tone: 'success' });
