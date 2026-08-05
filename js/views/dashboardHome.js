@@ -25,19 +25,15 @@
 
   function render(params, root) {
     var agent = state.agents.current();
-    var myProperties = state.properties.byAgent(agent.slug);
     var myLinks = state.links.byAgent(agent.slug);
     var myClients = agentState.clients.all();
     var unread = agentState.notifications.unreadCount();
-
-    function statusOf(p) { return p.status || 'disponible'; }
-    var active = myProperties.filter(function (p) { return statusOf(p) === 'disponible' || statusOf(p) === 'apartada'; }).length;
-    var closedDeals = myProperties.filter(function (p) { return statusOf(p) === 'vendida' || statusOf(p) === 'rentada'; }).length;
-    var activeClients = myClients.filter(function (cl) { return cl.status !== 'cerrado' && cl.status !== 'perdido'; }).length;
     var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
-    var trend = state.tracking.weeklyTrendForAgent(agent.slug);
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
+    var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+    var poolPremium = agentState.sharedPool.isPremium(agent.slug);
+    var poolCount = poolPremium ? agentState.sharedPool.search({}).length : 0;
 
     var pipeline = PIPELINE_STAGES.map(function (s, i) {
       return { label: s.label, value: myClients.filter(function (c) { return c.status === s.value; }).length, opacity: (0.35 + i * 0.16).toFixed(2) };
@@ -66,17 +62,19 @@
       '  <a class="dashboard-card" href="#/dashboard/calendario"><span class="dashboard-card__icon dashboard-card__icon--otro">' + u.icon('calendar', { size: 18 }) + '</span><strong>Calendario</strong><span>Citas, visitas y tareas</span></a>' +
       '</div>' +
 
-      '<div class="admin-section__head" style="margin-top:20px"><div><div class="admin-section__title">Esta semana</div><div class="admin-section__subtitle">Comparado con la semana anterior</div></div></div>' +
-      '<div class="stat-grid">' +
-      c.statCardHTML('Visitas a tus propiedades', u.formatNumber(trend.viewsThisWeek), trend.viewsDelta) +
-      c.statCardHTML('Contactos (WhatsApp/llamada)', u.formatNumber(trend.contactsThisWeek), trend.contactsDelta) +
+      '<div class="admin-section" style="margin-top:20px">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu perfil</div></div>' +
+      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMap con tus clientes y en tus redes.</p>' +
+      c.shareBarHTML(profileUrl) +
       '</div>' +
 
-      '<div class="admin-kpi-grid" style="margin-top:14px">' +
-      ac.kpiCardHTML('home', active, 'Propiedades activas') +
-      ac.kpiCardHTML('check', closedDeals, 'Ventas y rentas cerradas') +
-      ac.kpiCardHTML('users', activeClients, 'Clientes activos') +
-      '</div>' +
+      '<a class="dashboard-hero" href="#/dashboard/bolsa" style="margin-top:16px">' +
+      '  <div><div class="dashboard-hero__title">' + u.icon('exchange', { size: 17 }) + ' Bolsa Inmobiliaria Compartida</div>' +
+      '  <div class="dashboard-hero__subtitle">' + (poolPremium
+        ? (poolCount ? poolCount + (poolCount === 1 ? ' propiedad de otros asesores disponible' : ' propiedades de otros asesores disponibles') + ' para compartir comisión' : 'Descubre propiedades de otros asesores y gana comisión al compartir clientes')
+        : 'Colabora con otros asesores: comparte y descubre propiedades, y gana comisión por cada operación cerrada en conjunto') + '</div></div>' +
+      '  <span class="btn btn--lg dashboard-hero__cta">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '</a>' +
 
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div><div class="admin-section__title">Pipeline de clientes</div><div class="admin-section__subtitle">' + myClients.length + ' clientes en tu CRM</div></div><a href="#/dashboard/clientes" class="btn btn--outline btn--sm">Ver tablero</a></div>' +
