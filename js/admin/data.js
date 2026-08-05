@@ -36,8 +36,24 @@
   ];
 
   var PLANS = [
-    { id: "basico", name: "Plan Básico", price: 299, period: "mensual", limit: 10, features: ["Hasta 10 propiedades activas", "Perfil profesional", "Compartir enlaces", "WhatsApp", "Favoritos", "Estadísticas básicas"] },
-    { id: "profesional", name: "Plan Profesional", price: 499, period: "mensual", limit: null, features: ["Propiedades ilimitadas", "Publicaciones destacadas", "Estadísticas completas", "Enlaces privados ilimitados", "Perfil Premium", "Prioridad en búsquedas"] }
+    {
+      id: "basico", name: "Plan Básico", price: 299, period: "mensual", limit: 10,
+      tagline: "Todo lo que necesitas para comenzar y profesionalizar tu negocio.",
+      features: [
+        "Hasta 10 propiedades activas", "Perfil profesional del agente", "Enlaces personalizados ilimitados",
+        "Estadísticas de tus enlaces", "Clientes y seguimiento (CRM básico)", "Calendario de visitas y recordatorios",
+        "Notificaciones en tiempo real", "Contacto directo por WhatsApp"
+      ]
+    },
+    {
+      id: "profesional", name: "Plan Profesional", price: 499, period: "mensual", limit: null,
+      tagline: "Potencia total para llevar tu negocio al siguiente nivel.",
+      features: [
+        "Propiedades ilimitadas", "Bolsa Compartida entre agentes", "Compartir comisión con otros agentes",
+        "Publicaciones destacadas", "Aparecer primero en búsquedas", "Estadísticas completas y detalladas",
+        "Publicidad y promociones de propiedades", "Soporte prioritario"
+      ]
+    }
   ];
 
   var COUPONS = [

@@ -25,12 +25,13 @@
       '    <a class="dashboard-card" href="#/propiedades"><span class="dashboard-card__icon">' + u.icon('list', { size: 18 }) + '</span><strong>Propiedades</strong><span>Ver todas</span></a>' +
       '  </div>' +
 
-      '  <div class="promo-card" style="margin-top:28px">' +
+      '  <div class="promo-card promo-card--agent" style="margin-top:28px">' +
       '    <span class="promo-card__icon">' + u.icon('briefcase', { size: 28 }) + '</span>' +
       '    <div class="promo-card__body">' +
       '      <strong>¿Eres asesor inmobiliario?</strong>' +
-      '      <p>Publica propiedades, comparte enlaces personalizados con tus clientes y revisa tus estadísticas desde tu propio panel.</p>' +
-      '      <a class="btn btn--primary btn--sm" href="#/dashboard">Acceder a mi cuenta de asesor</a>' +
+      '      <p>¿Quieres que tus propiedades aparezcan aquí? Publícalas, comparte enlaces personalizados con tus clientes y revisa tus estadísticas desde tu propio panel.</p>' +
+      '      <a class="btn btn--primary btn--sm" href="#/planes">' + u.icon('crown', { size: 14 }) + ' Ver planes para agentes</a>' +
+      '      <a class="promo-card__login-link" href="#/dashboard/login">¿Ya tienes cuenta? Inicia sesión</a>' +
       '    </div>' +
       '  </div>' +
 

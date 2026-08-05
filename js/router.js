@@ -22,6 +22,8 @@
       { pattern: "/propiedad/:id", view: v.propertyDetail.render, key: "explore" },
       { pattern: "/favoritos", view: v.favorites.render, key: "favorites" },
       { pattern: "/perfil", view: v.account.render, key: "perfil" },
+      { pattern: "/planes", view: v.plans.render, key: "perfil" },
+      { pattern: "/registro-agente/:plan", view: window.App.agent.views.registerPlan.render, key: "dashboard" },
       { pattern: "/dashboard/login", view: window.App.agent.views.login.render, key: "dashboard" },
       { pattern: "/dashboard", view: v.dashboardHome.render, key: "dashboard" },
       { pattern: "/dashboard/publicar", view: v.publishWizard.render, key: "publish" },

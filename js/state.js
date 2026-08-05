@@ -142,7 +142,8 @@
 
     var row = {
       id: signUpResult.data.user.id, role: "agent", slug: slug, name: fields.name, email: email,
-      photo: "https://i.pravatar.cc/160?u=" + slug, whatsapp: fields.phone || "", phone: fields.phone || "", city: fields.city || ""
+      photo: "https://i.pravatar.cc/160?u=" + slug, whatsapp: fields.phone || "", phone: fields.phone || "", city: fields.city || "",
+      plan: fields.plan === "profesional" ? "profesional" : "basico"
     };
     var insertResult = await supabaseClient.from("profiles").insert(row).select().single();
     if (insertResult.error) throw insertResult.error;
