@@ -42,6 +42,7 @@
       c.carouselHTML(property.photos) +
       '</div>' +
       '<div class="detail-float-contact" data-float-contact>' +
+      (property.coords ? '  <a class="detail-float-contact__btn detail-float-contact__btn--directions" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '" aria-label="Cómo llegar">' + u.brandMark({ size: 20, style: 'color:#fff' }) + '</a>' : '') +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--whatsapp" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '" aria-label="Escribir por WhatsApp">' + u.icon('chat', { size: 20 }) + '</a>' +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--call" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
       '</div>' +
@@ -117,7 +118,7 @@
         '    <h2 class="section-title" style="margin-top:0">Ubicación</h2>' +
         (property.locationPrivacy === 'aproximada' ? '    <p class="text-muted" style="font-size:0.82rem;margin:-6px 0 10px">La ubicación exacta se comparte al contactar al asesor.</p>' : '') +
         '    <div class="detail-map"><div class="map-canvas" data-detail-map></div></div>' +
-        '    <a class="btn btn--outline btn--block" style="margin-top:10px" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '">' + u.icon('navigation', { size: 16 }) + ' Cómo llegar</a>' +
+        '    <a class="btn btn--directions btn--block" style="margin-top:10px" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '">' + u.icon('navigation', { size: 16 }) + ' Cómo llegar</a>' +
         '  </div>'
       ) : '') +
 
