@@ -8,8 +8,7 @@
 
   function render(params, root) {
     var agent = state.agents.current();
-    var adminInfo = window.App.admin.state.agents.all().filter(function (a) { return a.slug === agent.slug; })[0];
-    var allowed = !adminInfo || adminInfo.plan === 'profesional';
+    var allowed = agent.plan === 'profesional';
 
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);

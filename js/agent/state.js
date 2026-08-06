@@ -182,8 +182,8 @@
   }
 
   function isPremium(slug) {
-    var info = window.App.admin.state.agents.all().filter(function (a) { return a.slug === slug; })[0];
-    return !info || info.plan === 'profesional';
+    var agent = window.App.data.getAgent(slug);
+    return !!agent && agent.plan === 'profesional';
   }
   function isExpired(sharing) {
     return sharing.expiresAt && new Date(sharing.expiresAt) < new Date();

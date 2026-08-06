@@ -22,9 +22,8 @@
     oculta: { label: "Oculta", tone: "rechazada" }
   };
 
-  function canFeature(agentSlug) {
-    var info = window.App.admin.state.agents.all().filter(function (a) { return a.slug === agentSlug; })[0];
-    return !info || info.plan === 'profesional';
+  function canFeature(agent) {
+    return agent.plan === 'profesional';
   }
 
   function shareSheet(p, agent, refresh) {
@@ -206,7 +205,7 @@
 
   function render(params, root) {
     var agent = state.agents.current();
-    var allowFeatured = canFeature(agent.slug);
+    var allowFeatured = canFeature(agent);
 
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);

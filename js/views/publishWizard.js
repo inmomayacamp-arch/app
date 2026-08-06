@@ -63,8 +63,7 @@
 
   function render(params, root) {
     var agent = state.agents.current();
-    var adminInfo = window.App.admin.state.agents.all().filter(function (a) { return a.slug === agent.slug; })[0];
-    var isPremium = !adminInfo || adminInfo.plan === "profesional";
+    var isPremium = agent.plan === "profesional";
 
     var editingId = params.id || null;
     var existing = editingId ? state.properties.get(editingId) : null;
