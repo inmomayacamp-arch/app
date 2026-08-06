@@ -182,12 +182,13 @@
       var href = btn.getAttribute('href') || '';
       var isWhatsapp = btn.classList.contains('btn--whatsapp');
       var isCall = href.indexOf('tel:') === 0;
-      if (!isWhatsapp && !isCall) return;
+      var isDirections = btn.hasAttribute('data-directions');
+      if (!isWhatsapp && !isCall && !isDirections) return;
       state.tracking.logContactClick({
         propertyId: btn.getAttribute('data-track-property'),
         linkId: btn.getAttribute('data-track-link'),
         agentId: btn.getAttribute('data-track-agent'),
-        channel: isWhatsapp ? 'whatsapp' : 'call'
+        channel: isWhatsapp ? 'whatsapp' : (isCall ? 'call' : 'directions')
       });
     });
   }

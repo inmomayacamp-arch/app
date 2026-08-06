@@ -45,6 +45,7 @@
     dollar: '<line x1="12" y1="2" x2="12" y2="22"/><text x="12" y="16.5" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor" stroke="none">$</text>',
     chart: '<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="11" y="8" width="3" height="12"/><rect x="16" y="14" width="3" height="6"/>',
     flag: '<line x1="5" y1="21" x2="5" y2="3"/><polyline points="5,4 18,4 15,8 18,12 5,12"/>',
+    navigation: '<polygon points="3,11 22,2 13,21 11,13 3,11"/>',
     megaphone: '<polygon points="3,10 3,14 8,14 15,19 15,5 8,10"/><line x1="17" y1="7" x2="19" y2="5"/><line x1="17" y1="17" x2="19" y2="19"/>',
     bell: '<polygon points="7,16 7,10 9,6 15,6 17,10 17,16 19,18 5,18"/><path d="M10 20a2 2 0 0 0 4 0" fill="none"/>',
     download: '<line x1="12" y1="3" x2="12" y2="15"/><polyline points="7,10 12,15 17,10"/><line x1="4" y1="20" x2="20" y2="20"/>',
@@ -264,6 +265,12 @@
     return 'https://wa.me/' + digits + (message ? '?text=' + encodeURIComponent(message) : '');
   }
 
+  // coords viene como [lng, lat] (convención de Mapbox); Google Maps espera "lat,lng".
+  function directionsLink(coords) {
+    if (!coords) return '';
+    return 'https://www.google.com/maps/dir/?api=1&destination=' + coords[1] + ',' + coords[0] + '&travelmode=driving';
+  }
+
   var PRICE_MAX = 5000000;
 
   // Las propiedades solo en renta guardan su precio en priceRent (price queda en
@@ -316,6 +323,7 @@
     typeColorVar: typeColorVar,
     toast: toast,
     whatsappLink: whatsappLink,
+    directionsLink: directionsLink,
     youtubeEmbedUrl: youtubeEmbedUrl,
     badgeClassFor: badgeClassFor,
     PRICE_MAX: PRICE_MAX,

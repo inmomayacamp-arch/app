@@ -117,6 +117,7 @@
         '    <h2 class="section-title" style="margin-top:0">Ubicación</h2>' +
         (property.locationPrivacy === 'aproximada' ? '    <p class="text-muted" style="font-size:0.82rem;margin:-6px 0 10px">La ubicación exacta se comparte al contactar al asesor.</p>' : '') +
         '    <div class="detail-map"><div class="map-canvas" data-detail-map></div></div>' +
+        '    <a class="btn btn--outline btn--block" style="margin-top:10px" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '">' + u.icon('navigation', { size: 16 }) + ' Cómo llegar</a>' +
         '  </div>'
       ) : '') +
 
