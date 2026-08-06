@@ -27,44 +27,6 @@
     return !info || info.plan === 'profesional';
   }
 
-  function editSheet(p, refresh) {
-    c.openSheet({
-      title: "Editar propiedad",
-      body:
-        '<div class="form-field"><label>Título</label><input type="text" data-f="title" value="' + u.escapeHtml(p.title) + '" /></div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Precio (MXN)</label><input type="number" data-f="price" value="' + p.price + '" /></div>' +
-        '<div class="form-field"><label>Operación</label><select data-f="operation"><option value="venta"' + (p.operation === 'venta' ? ' selected' : '') + '>Venta</option><option value="renta"' + (p.operation === 'renta' ? ' selected' : '') + '>Renta</option></select></div>' +
-        '</div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Recámaras</label><input type="number" min="0" data-f="bedrooms" value="' + (p.bedrooms || '') + '" /></div>' +
-        '<div class="form-field"><label>Baños</label><input type="number" min="0" step="0.5" data-f="bathrooms" value="' + (p.bathrooms || '') + '" /></div>' +
-        '</div>' +
-        '<div class="form-field"><label>Descripción</label><textarea rows="4" data-f="description">' + u.escapeHtml(p.description || '') + '</textarea></div>' +
-        '<div class="form-field"><label>Observaciones privadas</label><textarea rows="2" data-f="privateNotes" placeholder="Solo visibles para ti">' + u.escapeHtml(p.privateNotes || '') + '</textarea></div>' +
-        '<button type="button" class="btn btn--primary btn--block" data-save>Guardar cambios</button>'
-    });
-    var sheetRoot = u.qs('#sheet-root');
-    u.qs('[data-save]', sheetRoot).addEventListener('click', async function () {
-      try {
-        await state.properties.update(p.id, {
-          title: u.qs('[data-f="title"]', sheetRoot).value,
-          price: Number(u.qs('[data-f="price"]', sheetRoot).value) || p.price,
-          operation: u.qs('[data-f="operation"]', sheetRoot).value,
-          bedrooms: Number(u.qs('[data-f="bedrooms"]', sheetRoot).value) || null,
-          bathrooms: Number(u.qs('[data-f="bathrooms"]', sheetRoot).value) || null,
-          description: u.qs('[data-f="description"]', sheetRoot).value,
-          privateNotes: u.qs('[data-f="privateNotes"]', sheetRoot).value
-        });
-        c.closeSheet();
-        u.toast('Propiedad actualizada', { tone: 'success' });
-        refresh();
-      } catch (err) {
-        u.toast(err.message || 'No se pudo actualizar la propiedad');
-      }
-    });
-  }
-
   function shareSheet(p, agent, refresh) {
     var s = Object.assign({ enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: '', expiresAt: null, visibility: 'todos', selectedAgentSlugs: [] }, p.sharing);
     var otherAgents = window.App.data.getAllAgents().filter(function (a) { return a.slug !== agent.slug; });
@@ -189,7 +151,7 @@
     function afterAction() { c.closeSheet(); refresh(); }
 
     var editBtn = u.qs('[data-act="edit"]', sheetRoot);
-    if (editBtn) editBtn.addEventListener('click', function () { c.closeSheet(); editSheet(p, refresh); });
+    if (editBtn) editBtn.addEventListener('click', function () { c.closeSheet(); window.location.hash = '#/dashboard/publicar/' + p.id; });
 
     var shareBtn = u.qs('[data-act="share"]', sheetRoot);
     if (shareBtn) shareBtn.addEventListener('click', function () { c.closeSheet(); shareSheet(p, agent, refresh); });

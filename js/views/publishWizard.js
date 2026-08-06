@@ -6,6 +6,38 @@
   var u = window.App.utils;
   var c = window.App.components;
   var state = window.App.state;
+  var ac = window.App.agent.components;
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function toLocalDatetimeValue(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function numOrEmpty(v) { return v === null || v === undefined || v === '' ? '' : String(v); }
+
+  function existingToPayload(p) {
+    return {
+      title: p.title || "", operation: p.operation || "venta", type: p.type || "casa",
+      price: numOrEmpty(p.price), priceRent: numOrEmpty(p.priceRent), currency: p.currency || "MXN",
+      creditsAccepted: (p.creditsAccepted || []).slice(),
+      state: p.state || "", municipality: p.municipality || "", city: p.city || "", neighborhood: p.neighborhood || "",
+      street: p.street || "", extNumber: p.extNumber || "", postalCode: p.postalCode || "", addressNote: p.addressNote || "",
+      coords: (p.coords || window.APP_CONFIG.DEFAULT_CENTER).slice(), locationPrivacy: p.locationPrivacy || "exacta",
+      bedrooms: numOrEmpty(p.bedrooms), hasLivingRoom: !!p.hasLivingRoom, hasLibrary: !!p.hasLibrary,
+      bathrooms: numOrEmpty(p.bathrooms), halfBathrooms: numOrEmpty(p.halfBathrooms), parking: numOrEmpty(p.parking),
+      levels: numOrEmpty(p.levels), age: numOrEmpty(p.age), lotArea: numOrEmpty(p.lotArea), builtArea: numOrEmpty(p.builtArea),
+      frontage: numOrEmpty(p.frontage), depth: numOrEmpty(p.depth),
+      features: (p.features || []).slice(),
+      description: p.description || "",
+      privateNotes: p.privateNotes || "",
+      photos: (p.photos || []).map(function (url) { return { url: url }; }),
+      videoUrl: p.videoUrl || "", virtualTourUrl: p.virtualTourUrl || "",
+      sharing: Object.assign({ enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "todos", selectedAgentSlugs: [] }, p.sharing || {}),
+      publishStatus: p.publishStatus || "publicada", scheduledAt: toLocalDatetimeValue(p.scheduledAt), featured: !!p.featured,
+      tags: (p.tags || []).slice()
+    };
+  }
 
   var OPERATIONS = [
     { value: "venta", label: "Venta" },
@@ -34,10 +66,17 @@
     var adminInfo = window.App.admin.state.agents.all().filter(function (a) { return a.slug === agent.slug; })[0];
     var isPremium = !adminInfo || adminInfo.plan === "profesional";
 
+    var editingId = params.id || null;
+    var existing = editingId ? state.properties.get(editingId) : null;
+    if (editingId && (!existing || existing.agentSlug !== agent.slug)) {
+      ac.mount('propiedades', 'Propiedad no encontrada', '<div class="empty-state"><h3>Propiedad no encontrada</h3><a class="btn btn--primary" href="#/dashboard/propiedades">Volver</a></div>', root);
+      return;
+    }
+
     var stepIndex = 0;
     var published = null;
     var uploadingCount = 0;
-    var payload = {
+    var payload = existing ? existingToPayload(existing) : {
       title: "", operation: "venta", type: "casa",
       price: "", priceRent: "", currency: "MXN",
       creditsAccepted: [],
@@ -47,6 +86,7 @@
       levels: "", age: "", lotArea: "", builtArea: "", frontage: "", depth: "",
       features: [],
       description: "",
+      privateNotes: "",
       photos: [],
       videoUrl: "", virtualTourUrl: "",
       sharing: { enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "todos", selectedAgentSlugs: [] },
@@ -219,6 +259,7 @@
         '<textarea rows="6" data-field="description" placeholder="Describe los acabados, ubicación y puntos fuertes de la propiedad.">' + u.escapeHtml(payload.description) + '</textarea>' +
         '<p class="text-muted" style="font-size:0.76rem;margin-top:6px">Generamos un borrador automático con los datos que ya capturaste; siempre puedes editarlo.</p>' +
         '</div>' +
+        '<div class="form-field"><label>Observaciones privadas</label><textarea rows="2" data-field="privateNotes" placeholder="Solo visibles para ti">' + u.escapeHtml(payload.privateNotes) + '</textarea></div>' +
         '</div>'
       );
     }
@@ -375,7 +416,7 @@
         progressHTML() +
         STEP_RENDERERS[key]() +
         '<div class="wizard-footer">' +
-        (stepIndex > 0 ? '<button type="button" class="btn btn--outline" data-prev>Atrás</button>' : '<a class="btn btn--outline" href="#/dashboard">Cancelar</a>') +
+        (stepIndex > 0 ? '<button type="button" class="btn btn--outline" data-prev>Atrás</button>' : '<a class="btn btn--outline" href="' + (editingId ? '#/dashboard/propiedades' : '#/dashboard') + '">Cancelar</a>') +
         '<button type="button" class="btn btn--primary btn--block" data-next' + (uploadingCount > 0 ? ' disabled' : '') + '>' + (isLast ? publishButtonLabel() : 'Siguiente') + '</button>' +
         '</div>';
 
@@ -389,7 +430,7 @@
       if (payload.publishStatus === 'borrador') return 'Guardar borrador';
       if (payload.publishStatus === 'programada') return 'Programar publicación';
       if (payload.publishStatus === 'oculta') return 'Guardar (oculta)';
-      return 'Publicar';
+      return editingId ? 'Guardar cambios' : 'Publicar';
     }
 
     function readField(name) {
@@ -403,7 +444,7 @@
       if (key === 'precio') { payload.price = readField('price'); payload.priceRent = readField('priceRent'); payload.currency = readField('currency') || payload.currency; }
       if (key === 'ubicacion') ['state', 'municipality', 'city', 'neighborhood', 'street', 'extNumber', 'postalCode', 'addressNote'].forEach(function (n) { payload[n] = readField(n); });
       if (key === 'caracteristicas') ['bedrooms', 'bathrooms', 'halfBathrooms', 'parking', 'levels', 'age', 'builtArea', 'lotArea', 'frontage', 'depth'].forEach(function (n) { payload[n] = readField(n); });
-      if (key === 'descripcion') { payload.description = readField('description'); }
+      if (key === 'descripcion') { payload.description = readField('description'); payload.privateNotes = readField('privateNotes'); }
       if (key === 'video') { payload.videoUrl = readField('videoUrl'); payload.virtualTourUrl = readField('virtualTourUrl'); }
       if (key === 'compartir' && payload.sharing.enabled) {
         payload.sharing.totalCommission = Number(readField('totalCommission')) || 0;
@@ -430,7 +471,7 @@
     }
 
     function wireStep(key) {
-      u.qs('[data-back]', root).addEventListener('click', function () { window.location.hash = '#/dashboard'; });
+      u.qs('[data-back]', root).addEventListener('click', function () { window.location.hash = editingId ? '#/dashboard/propiedades' : '#/dashboard'; });
 
       if (key === 'general') {
         u.qsa('[data-op]', root).forEach(function (btn) { btn.addEventListener('click', function () { collectStepFields(); payload.operation = btn.getAttribute('data-op'); renderStep(); }); });
@@ -597,7 +638,7 @@
       nextBtn.disabled = true;
       try {
         var scheduledIso = payload.scheduledAt ? new Date(payload.scheduledAt).toISOString() : null;
-        published = await state.properties.publish({
+        var row = {
           title: payload.title,
           type: payload.type,
           operation: payload.operation,
@@ -621,6 +662,7 @@
           depth: payload.depth ? Number(payload.depth) : null,
           parking: payload.parking ? Number(payload.parking) : null,
           description: payload.description,
+          privateNotes: payload.privateNotes,
           features: payload.features,
           photos: payload.photos.map(function (p) { return p.url; }),
           videoUrl: payload.videoUrl, virtualTourUrl: payload.virtualTourUrl,
@@ -629,27 +671,28 @@
           scheduledAt: scheduledIso,
           featured: isPremium && payload.featured,
           tags: payload.tags
-        });
+        };
+        published = editingId ? await state.properties.update(editingId, row) : await state.properties.publish(row);
         renderConfirmation();
-        u.toast(payload.publishStatus === 'borrador' ? 'Borrador guardado' : 'Propiedad publicada', { tone: 'success' });
+        u.toast(editingId ? 'Cambios guardados' : (payload.publishStatus === 'borrador' ? 'Borrador guardado' : 'Propiedad publicada'), { tone: 'success' });
       } catch (err) {
         nextBtn.disabled = false;
-        u.toast(err.message || 'No se pudo publicar la propiedad');
+        u.toast(err.message || (editingId ? 'No se pudieron guardar los cambios' : 'No se pudo publicar la propiedad'));
       }
     }
 
     function renderConfirmation() {
-      var statusNote = {
+      var statusNote = editingId ? 'Tu propiedad se actualizó correctamente.' : {
         publicada: '¡Tu propiedad ha sido publicada correctamente!',
         borrador: 'Tu propiedad se guardó como borrador. Podrás publicarla cuando quieras desde Mis propiedades.',
         programada: 'Tu propiedad se publicará automáticamente en la fecha programada.',
         oculta: 'Tu propiedad se guardó oculta. Actívala cuando quieras desde Mis propiedades.'
       }[payload.publishStatus];
       root.innerHTML =
-        '<div class="page-header"><h1 class="page-header__title">Publicar propiedad</h1></div>' +
+        '<div class="page-header"><h1 class="page-header__title">' + (editingId ? 'Editar propiedad' : 'Publicar propiedad') + '</h1></div>' +
         '<div class="empty-state" style="padding-top:64px">' +
         '<span class="empty-state__icon" style="color:var(--color-venta)">' + u.icon('check', { size: 40 }) + '</span>' +
-        '<h3>¡Listo!</h3>' +
+        '<h3>' + (editingId ? '¡Cambios guardados!' : '¡Listo!') + '</h3>' +
         '<p>' + statusNote + '</p>' +
         '<div class="stack gap-2" style="width:100%;max-width:280px;margin-top:8px">' +
         '<a class="btn btn--primary btn--block" href="#/propiedad/' + published.id + '">Ver mi publicación</a>' +
@@ -661,7 +704,7 @@
     }
 
     renderStep();
-    document.title = 'Publicar propiedad — InmoMap';
+    document.title = (editingId ? 'Editar propiedad' : 'Publicar propiedad') + ' — InmoMap';
   }
 
   window.App.views = window.App.views || {};

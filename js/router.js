@@ -31,6 +31,7 @@
       { pattern: "/dashboard/login", view: window.App.agent.views.login.render, key: "dashboard" },
       { pattern: "/dashboard", view: v.dashboardHome.render, key: "dashboard" },
       { pattern: "/dashboard/publicar", view: v.publishWizard.render, key: "publish" },
+      { pattern: "/dashboard/publicar/:id", view: v.publishWizard.render, key: "publish" },
       { pattern: "/dashboard/propiedades", view: window.App.agent.views.properties.render, key: "dashboard" },
       { pattern: "/dashboard/clientes/:id", view: window.App.agent.views.clients.renderDetail, key: "dashboard" },
       { pattern: "/dashboard/clientes", view: window.App.agent.views.clients.renderList, key: "dashboard" },
