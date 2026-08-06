@@ -133,7 +133,6 @@
         '  <div class="agent-card__info">' +
         '    <div class="agent-card__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 14 }) + '</span></div>' +
         '    <span class="text-secondary" style="font-size:0.82rem">' + u.escapeHtml(agent.title) + '</span>' +
-        '    <div class="agent-card__rating">' + u.icon('starFilled', { size: 13, class: 'text-muted' }) + ' ' + agent.rating + ' (' + agent.reviews + ' reseñas)</div>' +
         '  </div>' +
         '  <span class="btn btn--outline btn--sm">Ver perfil</span>' +
         '</a>'

@@ -57,7 +57,6 @@
       '      <img class="avatar agent-hero__photo" style="margin-top:18px" src="' + agent.photo + '" width="76" height="76" alt="" />' +
       '      <div class="agent-hero__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 15 }) + '</span></div>' +
       '      <div class="agent-hero__title">' + u.escapeHtml(agent.title) + '</div>' +
-      '      <div class="agent-hero__rating">' + u.icon('starFilled', { size: 14 }) + ' ' + agent.rating + ' <span class="text-muted" style="font-weight:500">(' + agent.reviews + ' reseñas)</span></div>' +
       '      <div class="agent-hero__actions">' +
       '        <a class="btn btn--whatsapp" data-track-link="' + link.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
       '        <a class="btn btn--call" data-track-link="' + link.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
