@@ -22,12 +22,6 @@
   var TYPE_ICONS = { casa: "home", departamento: "layers", terreno: "map", local: "store", oficina: "briefcase" };
   var PRICE_ZOOM_THRESHOLD = 15;
 
-  var LOCALE_ES = {
-    'ScrollZoomBlocker.CtrlMessage': 'Usa Ctrl + scroll para hacer zoom',
-    'ScrollZoomBlocker.CmdMessage': 'Usa ⌘ + scroll para hacer zoom',
-    'TouchPanBlocker.Message': 'Usa dos dedos para mover el mapa'
-  };
-
   function LocateControl() {}
   LocateControl.prototype.onAdd = function (map) {
     var btn = document.createElement('button');
@@ -86,17 +80,12 @@
     }
 
     mapboxgl.accessToken = window.APP_CONFIG.MAPBOX_TOKEN;
-    // En pantallas táctiles, mover el mapa con un dedo compite con el scroll de la
-    // página. Con dos dedos se evita esa trampa; en mouse/escritorio no se toca nada.
-    var isTouchDevice = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
     var map = new mapboxgl.Map({
       container: container,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: opts.center || window.APP_CONFIG.DEFAULT_CENTER,
       zoom: opts.zoom || window.APP_CONFIG.DEFAULT_ZOOM,
-      attributionControl: true,
-      cooperativeGestures: isTouchDevice,
-      locale: LOCALE_ES
+      attributionControl: true
     });
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');
