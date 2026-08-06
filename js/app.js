@@ -72,6 +72,7 @@
     }
 
     window.App.router.init();
+    window.App.swipeNav.init();
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
