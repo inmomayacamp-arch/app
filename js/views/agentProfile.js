@@ -34,9 +34,11 @@
       '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
-      '    <div class="map-chip-overlay">' +
-      '      <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
+      '    <div class="map-top-overlay">' +
+      '      <div class="map-chip-overlay">' +
+      '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       c.quickFilterChipsHTML() +
+      '        </div>' +
       '      </div>' +
       '    </div>' +
       '  </div>' +

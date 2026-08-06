@@ -216,23 +216,17 @@ body.is-admin .site-header { display: none; }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
 .chip {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 14px 8px 10px; border-radius: var(--radius-full);
-  background: var(--color-surface); border: 1px solid var(--color-border);
+  display: inline-flex; align-items: center;
+  padding: 9px 18px; border-radius: var(--radius-full);
+  background: var(--color-surface); border: 1.5px solid var(--color-border);
   font-weight: 700; font-size: 0.85rem; color: var(--color-ink-secondary);
   white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.chip.is-active { border-color: var(--chip-color, var(--color-primary)); color: var(--color-ink); }
-.chip__check {
-  width: 15px; height: 15px; border-radius: 4px; flex-shrink: 0;
-  border: 1.5px solid var(--chip-color, var(--color-border-strong));
-  display: inline-flex; align-items: center; justify-content: center; background: var(--color-surface);
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.chip.is-active .chip__check { background: var(--chip-color, var(--color-primary)); border-color: var(--chip-color, var(--color-primary)); }
-.chip.is-active .chip__check::after {
-  content: ""; width: 6px; height: 3px; margin-bottom: 2px;
-  border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg);
+.chip.is-active {
+  background: var(--chip-color, var(--color-primary));
+  border-color: var(--chip-color, var(--color-primary));
+  color: #fff;
 }
 .chip-row {
   display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px;
@@ -268,10 +262,17 @@ body.is-admin .site-header { display: none; }
    este ícono junto a los chips solo hace falta en escritorio, que no tiene bottom-nav. */
 @media (max-width: 899.98px) { [data-open-filters] { display: none; } }
 .explore-map { grid-area: map; position: relative; height: 58vh; min-height: 360px; }
-.map-chip-overlay {
+.map-top-overlay {
   position: absolute; top: 12px; left: 12px; right: 12px; z-index: var(--z-overlay);
-  display: flex; align-items: center; gap: 8px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
 }
+.map-brand-badge {
+  background: var(--color-surface); border-radius: var(--radius-full);
+  padding: 7px 14px; box-shadow: var(--shadow-md); font-size: 1.05rem;
+}
+/* En escritorio el encabezado ya muestra el logotipo; repetirlo sobre el mapa sobra. */
+@media (min-width: 900px) { .map-brand-badge { display: none; } }
+.map-chip-overlay { display: flex; align-items: center; gap: 8px; width: 100%; }
 .map-chip-overlay .chip-row { padding: 2px 2px 2px; }
 .map-chip-overlay .chip { box-shadow: var(--shadow-md); }
 .map-chip-overlay [data-open-filters] { flex-shrink: 0; box-shadow: var(--shadow-md); }
@@ -331,23 +332,31 @@ body.is-admin .site-header { display: none; }
    (mapboxgl-ctrl-group) para que se acomode automáticamente debajo del zoom, sin encimarse. */
 .mapboxgl-ctrl-group .mapboxgl-ctrl-icon { display: flex; align-items: center; justify-content: center; color: var(--color-ink-secondary); }
 
-/* Pines de precio sobre el mapa */
+/* Pines de precio sobre el mapa: insignia con la marca (color por operación)
+   y una etiqueta de precio justo debajo, ancladas por el punto inferior. */
 .map-pin {
-  background: var(--pin-color, var(--color-venta));
-  color: #fff; border: 2px solid #fff; border-radius: var(--radius-full);
-  padding: 6px 10px; font-size: 0.72rem; font-weight: 800;
-  box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  background: none; border: none; padding: 0;
   transform-origin: bottom center;
   transition: transform 0.12s ease;
 }
 .map-pin:hover, .map-pin:focus-visible { transform: scale(1.08); z-index: 5; }
-.map-pin--selected { transform: scale(1.15); outline: 3px solid var(--color-ink); outline-offset: 2px; z-index: 6; }
-.map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--pin-color); border: 2px solid #fff; box-shadow: var(--shadow-sm); }
-.map-pin--icon { padding: 0; border-radius: 50%; background: transparent; box-shadow: none; }
-.map-pin__icon {
-  display: flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+.map-pin--selected { transform: scale(1.15); z-index: 6; }
+.map-pin--selected .map-pin__badge { outline: 3px solid var(--color-ink); outline-offset: 2px; }
+.map-pin__badge {
+  display: flex; align-items: center; justify-content: center; width: 26px; height: 26px;
   border-radius: 50%; background: var(--pin-color, var(--color-venta)); border: 2px solid #fff; box-shadow: var(--shadow-md);
 }
+.map-pin__price {
+  margin-top: -4px;
+  background: #fff; color: var(--pin-color, var(--color-venta));
+  border-radius: var(--radius-full);
+  padding: 3px 9px; font-size: 0.68rem; font-weight: 800;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.map-pin--compact { transform-origin: center; }
+.map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--pin-color); border: 2px solid #fff; box-shadow: var(--shadow-sm); }
 
 /* ==========================================================================
    Bottom sheet (vista previa de propiedad sobre el mapa)

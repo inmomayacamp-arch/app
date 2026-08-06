@@ -19,9 +19,6 @@
       '</div>';
   }
 
-  var TYPE_ICONS = { casa: "home", departamento: "layers", terreno: "map", local: "store", oficina: "briefcase" };
-  var PRICE_ZOOM_THRESHOLD = 15;
-
   function LocateControl() {}
   LocateControl.prototype.onAdd = function (map) {
     var btn = document.createElement('button');
@@ -48,20 +45,18 @@
 
   function priceBubbleEl(property, opts) {
     opts = opts || {};
-    var colorVar = utils.typeColorVar(property.type, property.operation);
+    var colorVar = utils.operationColorVar(property.operation);
     var el = document.createElement('button');
     el.type = 'button';
     el.style.setProperty('--pin-color', 'var(' + colorVar + ')');
     var label = property.operation === 'renta'
       ? utils.formatPrice(property.price) + '/mes'
       : utils.formatPrice(property.price);
-    var showPrice = !opts.compact && opts.mode !== 'icon';
-    el.className = 'map-pin' + (showPrice ? '' : ' map-pin--icon') + (opts.selected ? ' map-pin--selected' : '');
+    el.className = 'map-pin' + (opts.compact ? ' map-pin--compact' : '') + (opts.selected ? ' map-pin--selected' : '');
     el.innerHTML = opts.compact
       ? '<span class="map-pin__dot"></span>'
-      : showPrice
-        ? '<span class="map-pin__label">' + utils.escapeHtml(opts.short ? utils.formatCompact(property.price) : label) + '</span>'
-        : '<span class="map-pin__icon">' + utils.icon(TYPE_ICONS[property.type] || 'home', { size: 14 }) + '</span>';
+      : '<span class="map-pin__badge">' + utils.brandMark({ size: 13, style: 'color:#fff' }) + '</span>' +
+        '<span class="map-pin__price">' + utils.escapeHtml(label) + '</span>';
     el.setAttribute('aria-label', property.title + ', ' + label);
     return el;
   }
@@ -91,27 +86,17 @@
     if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');
 
     var markers = [];
-    var lastProperties = [];
-    var lastOnSelect = null;
 
     function clearMarkers() {
       markers.forEach(function (m) { m.remove(); });
       markers = [];
     }
 
-    function pinMode() {
-      if (opts.compactPins) return 'compact';
-      return map.getZoom() >= PRICE_ZOOM_THRESHOLD ? 'price' : 'icon';
-    }
-
     function setMarkers(properties, onSelect) {
-      lastProperties = properties;
-      lastOnSelect = onSelect;
       clearMarkers();
-      var mode = pinMode();
       properties.forEach(function (property) {
         if (!property.coords) return;
-        var el = priceBubbleEl(property, { compact: opts.compactPins, mode: mode });
+        var el = priceBubbleEl(property, { compact: opts.compactPins });
         el.addEventListener('click', function (e) {
           e.stopPropagation();
           if (onSelect) onSelect(property);
@@ -122,16 +107,6 @@
         markers.push(marker);
       });
     }
-
-    // Al cruzar el umbral de zoom, los pines cambian de ícono a precio (o viceversa).
-    var currentMode = pinMode();
-    map.on('zoomend', function () {
-      var mode = pinMode();
-      if (mode !== currentMode) {
-        currentMode = mode;
-        if (lastProperties.length) setMarkers(lastProperties, lastOnSelect);
-      }
-    });
 
     function flyTo(coords, zoom) {
       map.flyTo({ center: coords, zoom: zoom || 15, essential: true });

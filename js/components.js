@@ -87,22 +87,20 @@
   }
 
   /* ---------------------------------------------------------------------
-   * Chips rápidos de operación / tipo (Todos / Venta / Renta / Terrenos / Locales)
+   * Chips rápidos de operación (Todos / Venta / Renta). El resto de los
+   * filtros (tipo, recámaras, precio, etc.) vive en la hoja de filtros.
    * ------------------------------------------------------------------- */
 
   var QUICK_CHIPS = [
     { op: "todas", label: "Todos", color: "var(--color-primary)" },
     { op: "venta", label: "Venta", color: "var(--color-venta)" },
-    { op: "renta", label: "Renta", color: "var(--color-renta)" },
-    { type: "terreno", label: "Terrenos", color: "var(--color-terreno)" },
-    { type: "local", label: "Locales", color: "var(--color-otro)" }
+    { op: "renta", label: "Renta", color: "var(--color-renta)" }
   ];
 
   function quickFilterChipsHTML() {
     return QUICK_CHIPS.map(function (chip) {
-      var attr = chip.op ? 'data-op="' + chip.op + '"' : 'data-type-quick="' + chip.type + '"';
       var isActive = chip.op === "todas";
-      return '<button type="button" class="chip' + (isActive ? ' is-active' : '') + '" ' + attr + ' style="--chip-color:' + chip.color + '"><span class="chip__check"></span>' + chip.label + '</button>';
+      return '<button type="button" class="chip' + (isActive ? ' is-active' : '') + '" data-op="' + chip.op + '" style="--chip-color:' + chip.color + '">' + chip.label + '</button>';
     }).join('');
   }
 
@@ -110,19 +108,7 @@
     u.qsa('[data-op]', root).forEach(function (btn) {
       btn.addEventListener('click', function () {
         filters.operation = btn.getAttribute('data-op');
-        filters.types = [];
         u.qsa('[data-op]', root).forEach(function (b) { b.classList.toggle('is-active', b === btn); });
-        u.qsa('[data-type-quick]', root).forEach(function (b) { b.classList.remove('is-active'); });
-        onChange();
-      });
-    });
-    u.qsa('[data-type-quick]', root).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var type = btn.getAttribute('data-type-quick');
-        var active = btn.classList.toggle('is-active');
-        filters.types = active ? [type] : [];
-        u.qsa('[data-op]', root).forEach(function (b) { b.classList.remove('is-active'); });
-        if (!active) u.qs('[data-op="todas"]', root).classList.add('is-active');
         onChange();
       });
     });
