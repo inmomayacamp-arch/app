@@ -1,5 +1,5 @@
 // Vista "Soporte y contacto": formulario para reportar un problema o
-// contactar al administrador de InmoMap.
+// contactar al administrador de InmoMaps.
 (function () {
   "use strict";
 
@@ -21,7 +21,7 @@
         '  <h1 class="page-header__title">Soporte y contacto</h1>' +
         '</div>' +
         '<div class="page-wrap" style="max-width:560px">' +
-        '  <p class="text-secondary" style="margin-bottom:20px">¿Tienes un problema o quieres reportar algo? Escríbenos y el equipo de InmoMap te responderá.</p>' +
+        '  <p class="text-secondary" style="margin-bottom:20px">¿Tienes un problema o quieres reportar algo? Escríbenos y el equipo de InmoMaps te responderá.</p>' +
 
         '  <div class="form-field"><label>Nombre completo</label><input type="text" data-name placeholder="Tu nombre" /></div>' +
         '  <div class="form-row">' +
@@ -35,7 +35,7 @@
         '</div>';
 
       c.mountChrome('explore');
-      document.title = 'Soporte y contacto — InmoMap';
+      document.title = 'Soporte y contacto — InmoMaps';
 
       var submitBtn = u.qs('[data-submit]', root);
       submitBtn.addEventListener('click', async function () {
@@ -69,7 +69,7 @@
         '<div class="empty-state" style="padding-top:64px">' +
         '  <span class="empty-state__icon" style="color:var(--color-venta)">' + u.icon('check', { size: 40 }) + '</span>' +
         '  <h3>¡Mensaje enviado!</h3>' +
-        '  <p>El equipo de InmoMap revisará tu mensaje y te contactará si es necesario.</p>' +
+        '  <p>El equipo de InmoMaps revisará tu mensaje y te contactará si es necesario.</p>' +
         '  <a class="btn btn--primary" href="#/">Volver al mapa</a>' +
         '</div>';
       c.mountChrome('explore');

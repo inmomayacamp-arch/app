@@ -33,7 +33,7 @@
     return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
       '&text=' + encodeURIComponent(ev.title) +
       '&dates=' + fmt(start) + '/' + fmt(end) +
-      '&details=' + encodeURIComponent('Creado desde InmoMap');
+      '&details=' + encodeURIComponent('Creado desde InmoMaps');
   }
 
   function newEventSheet(refresh, presetDate) {

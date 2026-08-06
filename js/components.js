@@ -40,7 +40,7 @@
     }).join("");
 
     return (
-      '<a class="site-header__logo" href="#/">' + u.icon('pin', { size: 22 }) + ' InmoMap</a>' +
+      '<a class="site-header__logo" href="#/">' + u.logoHTML() + '</a>' +
       '<nav class="site-header__nav">' + links + '</nav>'
     );
   }
@@ -49,7 +49,7 @@
     return navItems().map(function (item) {
       if (item.fab) {
         return '<button type="button" class="bottom-nav__item" data-nav-action="' + item.action + '" aria-label="' + item.label + '">' +
-          '<span class="bottom-nav__fab">' + u.icon(item.icon, { size: 20 }) + '</span></button>';
+          '<span class="bottom-nav__fab">' + u.brandMark({ size: 22, style: 'color:#fff' }) + '</span></button>';
       }
       var cls = "bottom-nav__item" +
         (item.icon === "plus" ? " bottom-nav__item--cta" : "") +

@@ -103,7 +103,7 @@
       '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon("chevronLeft", { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon("briefcase", { size: 14 }) + ' Planes para agentes</span>' +
       '    <h2 class="plans-hero__title">Elige el plan ideal para hacer crecer <span>tu negocio</span></h2>' +
-      '    <p class="plans-hero__subtitle">Potencia tu trabajo, llega a más clientes y cierra más ventas con InmoMap.</p>' +
+      '    <p class="plans-hero__subtitle">Potencia tu trabajo, llega a más clientes y cierra más ventas con InmoMaps.</p>' +
       '    <div class="plans-trust">' + trustBarHTML() + '</div>' +
       '  </div>' +
 
@@ -120,7 +120,7 @@
       '</div>';
 
     c.mountChrome('perfil');
-    document.title = 'Planes para agentes — InmoMap';
+    document.title = 'Planes para agentes — InmoMaps';
   }
 
   window.App.views = window.App.views || {};

@@ -40,13 +40,13 @@
       '  </div>' +
 
       '  <div class="account-brand">' +
-      '    <span class="account-brand__logo">' + u.icon('pin', { size: 26 }) + ' InmoMap</span>' +
+      '    <span class="account-brand__logo">' + u.logoHTML() + '</span>' +
       '    <p>La plataforma inmobiliaria donde el mapa es el centro.</p>' +
       '  </div>' +
       '</div>';
 
     c.mountChrome('perfil');
-    document.title = 'Mi cuenta — InmoMap';
+    document.title = 'Mi cuenta — InmoMaps';
   }
 
   window.App.views = window.App.views || {};

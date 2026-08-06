@@ -1,4 +1,4 @@
-// Datos de ejemplo (mock) para el prototipo de InmoMap.
+// Datos de ejemplo (mock) para el prototipo de InmoMaps.
 // En una versión con backend real, este módulo se reemplazaría por llamadas a la API.
 (function () {
   "use strict";

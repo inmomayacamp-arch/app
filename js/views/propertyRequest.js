@@ -45,7 +45,7 @@
         '</div>';
 
       c.mountChrome('explore');
-      document.title = 'Solicitar propiedad — InmoMap';
+      document.title = 'Solicitar propiedad — InmoMaps';
 
       var submitBtn = u.qs('[data-submit]', root);
       submitBtn.addEventListener('click', async function () {

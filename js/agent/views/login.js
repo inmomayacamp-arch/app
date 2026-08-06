@@ -9,7 +9,7 @@
     document.body.classList.add('is-admin');
     u.qs('#site-header').innerHTML = '';
     u.qs('#bottom-nav').innerHTML = '';
-    document.title = 'Acceso de asesor — InmoMap';
+    document.title = 'Acceso de asesor — InmoMaps';
 
     if (state.agents.isLoggedIn()) {
       window.location.hash = '#/dashboard';
@@ -21,7 +21,7 @@
         '<div class="admin-login">' +
         '  <div class="admin-login__card" style="max-width:400px">' +
         '    <a class="signup-checkout__back" href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Volver al inicio</a>' +
-        '    <div class="admin-login__logo">' + u.icon('pin', { size: 22 }) + ' InmoMap Asesores</div>' +
+        '    <div class="admin-login__logo">' + u.logoHTML() + ' <span class="logo-tag">Asesores</span></div>' +
         '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Tu panel de trabajo como asesor inmobiliario</p>' +
         '    <div class="tabs" style="padding:0 0 16px;justify-content:center">' +
         '      <span class="tab is-active">Iniciar sesión</span>' +

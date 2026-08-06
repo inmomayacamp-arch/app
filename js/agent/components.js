@@ -73,7 +73,7 @@
     var fab = PRIMARY.filter(function (i) { return i.fab; })[0];
 
     return (
-      '<a class="site-header__logo" href="#/dashboard">' + u.icon('pin', { size: 22 }) + ' InmoMap</a>' +
+      '<a class="site-header__logo" href="#/dashboard">' + u.logoHTML() + '</a>' +
       '<nav class="site-header__nav">' + links + '</nav>' +
       '<a class="btn btn--primary btn--sm" href="' + fab.href + '">' + u.icon(fab.icon, { size: 14 }) + ' ' + fab.label + '</a>'
     );
@@ -101,7 +101,7 @@
       '  <div class="agent-topbar"><h1 class="agent-topbar__title">' + title + '</h1></div>' +
       contentHtml +
       '</div>';
-    document.title = title + ' — Panel del asesor · InmoMap';
+    document.title = title + ' — Panel del asesor · InmoMaps';
   }
 
   window.App.agent.components = {

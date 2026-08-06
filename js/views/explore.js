@@ -90,7 +90,7 @@
       '</div>';
 
     c.mountChrome('explore');
-    document.title = 'InmoMap — Explorar propiedades en el mapa';
+    document.title = 'InmoMaps — Explorar propiedades en el mapa';
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), { showLocate: true });
 

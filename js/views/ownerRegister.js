@@ -34,7 +34,7 @@
     document.body.classList.add('is-admin');
     u.qs('#site-header').innerHTML = '';
     u.qs('#bottom-nav').innerHTML = '';
-    document.title = 'Publica tu propiedad — InmoMap';
+    document.title = 'Publica tu propiedad — InmoMaps';
 
     if (state.agents.isLoggedIn()) {
       window.location.hash = '#/';

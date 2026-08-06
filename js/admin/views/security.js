@@ -17,7 +17,7 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
-    a.download = 'inmomap-respaldo-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.download = 'inmomaps-respaldo-' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a);
     a.click();
     a.remove();

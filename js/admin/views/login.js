@@ -9,7 +9,7 @@
     document.body.classList.add('is-admin');
     u.qs('#site-header').innerHTML = '';
     u.qs('#bottom-nav').innerHTML = '';
-    document.title = 'Acceso Admin — InmoMap';
+    document.title = 'Acceso Admin — InmoMaps';
 
     if (s.auth.isAuthed()) {
       window.location.hash = '#/admin';
@@ -20,8 +20,8 @@
       '<div class="admin-login">' +
       '  <div class="admin-login__card">' +
       '    <a class="signup-checkout__back" href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Volver al inicio</a>' +
-      '    <div class="admin-login__logo">' + u.icon('pin', { size: 22 }) + ' InmoMap Admin</div>' +
-      '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Panel exclusivo para el equipo de InmoMap</p>' +
+      '    <div class="admin-login__logo">' + u.logoHTML() + ' <span class="logo-tag">Admin</span></div>' +
+      '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Panel exclusivo para el equipo de InmoMaps</p>' +
       '    <div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" autocomplete="username" /></div>' +
       '    <div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Tu contraseña" autocomplete="current-password" /></div>' +
       '    <button type="button" class="btn btn--primary btn--block" data-login>Ingresar</button>' +

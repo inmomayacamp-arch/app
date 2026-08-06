@@ -43,7 +43,7 @@
       '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon('chevronLeft', { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon('home', { size: 14 }) + ' Para propietarios</span>' +
       '    <h2 class="plans-hero__title">Vende o renta tu propiedad <span>directo, sin intermediarios</span></h2>' +
-      '    <p class="plans-hero__subtitle">Publica tu propiedad en el mapa de InmoMap y recibe contactos directo a tu WhatsApp y teléfono.</p>' +
+      '    <p class="plans-hero__subtitle">Publica tu propiedad en el mapa de InmoMaps y recibe contactos directo a tu WhatsApp y teléfono.</p>' +
       '    <div class="plans-trust">' + trustBarHTML() + '</div>' +
       '  </div>' +
 
@@ -77,7 +77,7 @@
       '</div>';
 
     c.mountChrome('perfil');
-    document.title = 'Publica tu propiedad — InmoMap';
+    document.title = 'Publica tu propiedad — InmoMaps';
   }
 
   window.App.views = window.App.views || {};

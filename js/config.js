@@ -1,4 +1,4 @@
-// Configuración global de InmoMap.
+// Configuración global de InmoMaps.
 // Para ver el mapa interactivo, crea una cuenta gratuita en https://account.mapbox.com/
 // y pega tu "Default public token" aquí abajo.
 window.APP_CONFIG = {

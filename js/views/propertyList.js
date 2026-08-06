@@ -42,7 +42,7 @@
       '</div>';
 
     c.mountChrome('properties');
-    document.title = 'InmoMap — Propiedades';
+    document.title = 'InmoMaps — Propiedades';
 
     function refresh() {
       var list = u.applyFilters(state.properties.publicList(), filters);

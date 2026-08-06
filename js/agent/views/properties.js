@@ -197,7 +197,7 @@
 
     var deleteBtn = u.qs('[data-act="delete"]', sheetRoot);
     if (deleteBtn) deleteBtn.addEventListener('click', async function () {
-      if (!window.confirm('¿Eliminar esta propiedad? Ya no aparecerá en InmoMap.')) return;
+      if (!window.confirm('¿Eliminar esta propiedad? Ya no aparecerá en InmoMaps.')) return;
       try { await state.properties.remove(p.id); u.toast('Propiedad eliminada'); afterAction(); }
       catch (err) { u.toast(err.message || 'No se pudo eliminar la propiedad'); }
     });

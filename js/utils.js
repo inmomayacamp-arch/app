@@ -71,6 +71,31 @@
     return '<svg class="icon' + cls + '" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + body + '</svg>';
   }
 
+  // Marca de InmoMaps: la "o" de "Inmo" con la esquina inferior izquierda
+  // cuadrada y la contraforma abierta al centro. Geometría exacta del kit de marca.
+  var BRAND_MARK_PATH = "M0 22A22 22 0 1 1 22 44L0 44Z M22 12.5A9.5 9.5 0 1 0 22 31.5 9.5 9.5 0 0 0 22 12.5Z";
+
+  function brandMark(opts) {
+    opts = opts || {};
+    var cls = opts.class ? ' ' + opts.class : '';
+    var sizeAttr = opts.size ? ' width="' + opts.size + '" height="' + opts.size + '"' : '';
+    var style = opts.style ? ' style="' + opts.style + '"' : '';
+    return '<svg class="brand-mark' + cls + '"' + sizeAttr + style + ' viewBox="0 0 44 44" fill="currentColor" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="InmoMaps">' +
+      '<path fill-rule="evenodd" clip-rule="evenodd" d="' + BRAND_MARK_PATH + '"></path></svg>';
+  }
+
+  // Marca completa "Inm[o]Maps": el texto rodea el mismo SVG de brandMark(),
+  // dimensionado en em para que escale con el font-size del elemento que lo contiene.
+  function logoHTML(opts) {
+    opts = opts || {};
+    var light = opts.tone === 'light';
+    var markColor = light ? '#fff' : 'var(--color-primary)';
+    var textColor = light ? '#fff' : 'var(--color-ink)';
+    return '<span class="brand-logo" style="color:' + textColor + '">Inm' +
+      brandMark({ style: 'width:0.494em;height:0.494em;margin:0 0.0005em 0 0.0495em;color:' + markColor + ';flex-shrink:0' }) +
+      'Maps</span>';
+  }
+
   function formatPrice(value, opts) {
     opts = opts || {};
     var n = Math.round(value);
@@ -264,6 +289,8 @@
   window.App = window.App || {};
   window.App.utils = {
     icon: icon,
+    brandMark: brandMark,
+    logoHTML: logoHTML,
     formatPrice: formatPrice,
     formatCompact: formatCompact,
     formatNumber: formatNumber,

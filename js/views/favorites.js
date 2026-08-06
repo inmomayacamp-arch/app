@@ -20,7 +20,7 @@
 
     refresh();
     c.mountChrome('favorites');
-    document.title = 'InmoMap — Favoritos';
+    document.title = 'InmoMaps — Favoritos';
 
     var off = state.on('favorites:change', refresh);
     window.App.router.onLeave(off);

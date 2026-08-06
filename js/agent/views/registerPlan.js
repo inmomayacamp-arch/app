@@ -25,7 +25,7 @@
 
     var plans = window.App.admin.data.PLANS;
     var plan = plans.filter(function (p) { return p.id === params.plan; })[0] || plans[0];
-    document.title = 'Activar plan ' + plan.name.replace('Plan ', '') + ' — InmoMap';
+    document.title = 'Activar plan ' + plan.name.replace('Plan ', '') + ' — InmoMaps';
 
     function paymentMethodsHTML() {
       return PAYMENT_METHODS.map(function (m) {
@@ -88,7 +88,7 @@
       registerBtn.disabled = true;
       try {
         await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: plan.id });
-        u.toast('Cuenta creada, ¡bienvenido a InmoMap!', { tone: 'success' });
+        u.toast('Cuenta creada, ¡bienvenido a InmoMaps!', { tone: 'success' });
         window.location.hash = '#/dashboard';
       } catch (err) {
         u.toast(err.message || 'No se pudo crear la cuenta');

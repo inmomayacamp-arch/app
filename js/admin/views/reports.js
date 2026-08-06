@@ -30,7 +30,7 @@
     if (!win) { u.toast('Permite las ventanas emergentes para generar el PDF'); return; }
     var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>' + title + '</title>' +
       '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111} h1{font-size:18px} table{width:100%;border-collapse:collapse;margin-top:14px} th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left} th{background:#f5f5f5}</style>' +
-      '</head><body><h1>' + title + '</h1><p>InmoMap — generado el ' + new Date().toLocaleString('es-MX') + '</p>' +
+      '</head><body><h1>' + title + '</h1><p>InmoMaps — generado el ' + new Date().toLocaleString('es-MX') + '</p>' +
       '<table><thead><tr>' + columns.map(function (c) { return '<th>' + c.label + '</th>'; }).join('') + '</tr></thead><tbody>' +
       rows.map(function (row) { return '<tr>' + columns.map(function (c) { return '<td>' + (row[c.key] == null ? '' : row[c.key]) + '</td>'; }).join('') + '</tr>'; }).join('') +
       '</tbody></table></body></html>';
@@ -85,14 +85,14 @@
     u.qsa('[data-csv]', root).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var def = REPORTS_DEF.filter(function (r) { return r.key === btn.getAttribute('data-csv'); })[0];
-        downloadCSV('inmomap-' + def.key + '.csv', def.columns, def.rows());
+        downloadCSV('inmomaps-' + def.key + '.csv', def.columns, def.rows());
         u.toast('Descargando ' + def.label + '.csv');
       });
     });
     u.qsa('[data-pdf]', root).forEach(function (btn) {
       btn.addEventListener('click', function () {
         var def = REPORTS_DEF.filter(function (r) { return r.key === btn.getAttribute('data-pdf'); })[0];
-        printTable(def.label + ' — InmoMap', def.columns, def.rows());
+        printTable(def.label + ' — InmoMaps', def.columns, def.rows());
       });
     });
   }

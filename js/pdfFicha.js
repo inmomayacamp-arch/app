@@ -1,5 +1,5 @@
 // Ficha técnica en PDF: fotos, características, precio, ubicación, contacto
-// y un código QR que abre la propiedad dentro de InmoMap. Usa jsPDF y qrcode
+// y un código QR que abre la propiedad dentro de InmoMaps. Usa jsPDF y qrcode
 // (cargados por CDN) para generarla completamente en el navegador.
 (function () {
   "use strict";
@@ -76,7 +76,7 @@
     doc.addImage(qrDataUrl, "PNG", pageW - margin - qrSize, y, qrSize, qrSize);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(doc.splitTextToSize("Escanea para ver la ficha completa en InmoMap", qrSize), pageW - margin - qrSize, y + qrSize + 12);
+    doc.text(doc.splitTextToSize("Escanea para ver la ficha completa en InmoMaps", qrSize), pageW - margin - qrSize, y + qrSize + 12);
 
     if (property.description) {
       doc.setFont("helvetica", "normal");

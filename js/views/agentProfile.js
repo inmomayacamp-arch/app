@@ -49,7 +49,7 @@
       '  <div class="agent-hero__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 16 }) + '</span></div>' +
       '  <div class="agent-hero__title">' + u.escapeHtml(agent.title) + '</div>' +
       '  <div class="agent-hero__actions">' +
-      '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--outline" data-track-agent="' + agent.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       (SOCIAL_LINKS.length ? '<div class="agent-hero__social">' + SOCIAL_LINKS.map(function (s) {
@@ -60,7 +60,7 @@
       '</div>';
 
     c.mountChrome('explore');
-    document.title = agent.name + ' — Asesor inmobiliario en InmoMap';
+    document.title = agent.name + ' — Asesor inmobiliario en InmoMaps';
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), { compactPins: false });
 

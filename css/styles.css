@@ -1,5 +1,5 @@
 /* ==========================================================================
-   InmoMap — Sistema de diseño
+   InmoMaps — Sistema de diseño
    ========================================================================== */
 
 :root {
@@ -40,6 +40,7 @@
   --radius-full: 999px;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-outfit: "Outfit", var(--font-sans);
 
   --header-h: 64px;
   --bottomnav-h: 64px;
@@ -104,6 +105,13 @@ body.is-admin .view-root { padding: 0; min-height: 100dvh; }
    del todo o queda una franja en blanco flotando sobre el contenido. */
 body.is-admin .site-header { display: none; }
 
+.brand-logo {
+  display: inline-flex; align-items: baseline; line-height: 1;
+  font-family: var(--font-outfit); font-weight: 600; letter-spacing: -0.025em;
+  user-select: none;
+}
+.brand-mark { display: inline-block; vertical-align: middle; }
+
 /* ---- Header (escritorio) ---- */
 .site-header {
   display: none;
@@ -122,8 +130,8 @@ body.is-admin .site-header { display: none; }
     z-index: var(--z-header);
   }
   .site-header__logo {
-    display: flex; align-items: center; gap: 8px;
-    font-weight: 800; font-size: 1.15rem; color: var(--color-primary);
+    display: flex; align-items: center;
+    font-size: 1.25rem; color: var(--color-ink);
     white-space: nowrap;
   }
   .site-header__nav {
@@ -605,7 +613,7 @@ body.is-admin .site-header { display: none; }
   display: flex; align-items: center; justify-content: center; padding: 16px;
   border-bottom: 1px solid var(--color-border); background: var(--color-surface);
 }
-.client-exclusive__logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; color: var(--color-primary); }
+.client-exclusive__logo { display: flex; align-items: center; font-size: 1.2rem; color: var(--color-ink); }
 
 .explore-agent { grid-area: agent; padding-bottom: 32px; }
 
@@ -978,7 +986,7 @@ body.is-admin .site-header { display: none; }
   gap: 6px; padding: 48px 20px 24px; color: var(--color-ink-muted);
 }
 .account-brand__logo {
-  display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.3rem; color: var(--color-primary);
+  display: flex; align-items: center; font-size: 1.4rem; color: var(--color-ink);
 }
 .account-brand p { font-size: 0.82rem; }
 

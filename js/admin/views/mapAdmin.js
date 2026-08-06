@@ -62,7 +62,7 @@
 
       var content =
         '<div class="admin-section">' +
-        '  <div class="admin-section__head"><div><div class="admin-section__title">Ciudades y regiones</div><div class="admin-section__subtitle">Controla en qué ciudades opera InmoMap</div></div>' +
+        '  <div class="admin-section__head"><div><div class="admin-section__title">Ciudades y regiones</div><div class="admin-section__subtitle">Controla en qué ciudades opera InmoMaps</div></div>' +
         '  <button type="button" class="btn btn--primary btn--sm" data-new-city>' + u.icon('plus', { size: 14 }) + ' Nueva ciudad</button></div>' +
         '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Ciudad</th><th>Zonas / colonias</th><th>Estado</th><th></th></tr></thead>' +
         '  <tbody>' + rows + '</tbody></table></div>' +

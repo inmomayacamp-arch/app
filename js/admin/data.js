@@ -107,7 +107,7 @@
   ];
 
   var DEFAULT_SETTINGS = {
-    platformName: "InmoMap",
+    platformName: "InmoMaps",
     tagline: "La plataforma inmobiliaria donde el mapa es el centro de la experiencia.",
     logoUrl: "",
     primaryColor: "#DC2626",
@@ -115,8 +115,8 @@
     instagram: "https://instagram.com/inmomap",
     supportEmail: "soporte@inmomap.mx",
     supportPhone: "9811234567",
-    termsText: "Términos y condiciones de InmoMap (texto de ejemplo para el prototipo).",
-    privacyText: "Política de privacidad de InmoMap (texto de ejemplo para el prototipo)."
+    termsText: "Términos y condiciones de InmoMaps (texto de ejemplo para el prototipo).",
+    privacyText: "Política de privacidad de InmoMaps (texto de ejemplo para el prototipo)."
   };
 
   var ROLES = [

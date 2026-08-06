@@ -60,7 +60,7 @@
       '<div class="admin-shell" id="admin-shell">' +
       '  <div class="admin-sidebar-backdrop" data-admin-close-nav></div>' +
       '  <aside class="admin-sidebar">' +
-      '    <div class="admin-sidebar__logo">' + u.icon('pin', { size: 20 }) + ' InmoMap <span class="tag">Admin</span></div>' +
+      '    <div class="admin-sidebar__logo">' + u.logoHTML({ tone: 'light' }) + ' <span class="logo-tag">Admin</span></div>' +
       '    <nav>' + navHtml + '</nav>' +
       '    <div class="admin-sidebar__footer">' +
       '      <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
@@ -83,7 +83,7 @@
     u.qs('#site-header').innerHTML = '';
     u.qs('#bottom-nav').innerHTML = '';
     root.innerHTML = shellHTML(activeRoute, title, contentHtml);
-    document.title = title + ' — Admin InmoMap';
+    document.title = title + ' — Admin InmoMaps';
 
     var shell = u.qs('#admin-shell', root);
     u.qs('[data-admin-open-nav]', root).addEventListener('click', function () { shell.classList.add('is-nav-open'); });

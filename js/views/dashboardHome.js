@@ -64,7 +64,7 @@
 
       '<div class="admin-section" style="margin-top:20px">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu perfil</div></div>' +
-      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMap con tus clientes y en tus redes.</p>' +
+      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMaps con tus clientes y en tus redes.</p>' +
       c.shareBarHTML(profileUrl) +
       '</div>' +
 

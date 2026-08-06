@@ -111,7 +111,7 @@
       ) : '') +
 
       '  <div class="contact-actions">' +
-      '    <a class="btn btn--whatsapp btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--whatsapp btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--outline btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
@@ -137,7 +137,7 @@
     } else {
       c.mountChrome('explore');
     }
-    document.title = property.title + ' — InmoMap';
+    document.title = property.title + ' — InmoMaps';
 
     c.initCarousel(root);
 

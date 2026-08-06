@@ -703,7 +703,7 @@
     }
 
     renderStep();
-    document.title = (editingId ? 'Editar propiedad' : 'Publicar propiedad') + ' — InmoMap';
+    document.title = (editingId ? 'Editar propiedad' : 'Publicar propiedad') + ' — InmoMaps';
   }
 
   window.App.views = window.App.views || {};
