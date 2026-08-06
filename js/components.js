@@ -93,7 +93,7 @@
 
   var QUICK_CHIPS = [
     { op: "todas", label: "Todos", color: "var(--color-primary)" },
-    { op: "venta", label: "Venta", color: "var(--color-venta)" },
+    { op: "venta", label: "Venta", color: "var(--color-primary)" },
     { op: "renta", label: "Renta", color: "var(--color-renta)" }
   ];
 

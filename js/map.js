@@ -43,9 +43,15 @@
     if (this._container.parentNode) this._container.parentNode.removeChild(this._container);
   };
 
+  // En el mapa, "venta" usa el rojo de marca (no el verde de las etiquetas de
+  // propiedad) para que coincida con el chip "Todos"; "renta" conserva su azul.
+  function pinColorVar(operation) {
+    return operation === 'renta' ? '--color-renta' : '--color-primary';
+  }
+
   function priceBubbleEl(property, opts) {
     opts = opts || {};
-    var colorVar = utils.operationColorVar(property.operation);
+    var colorVar = pinColorVar(property.operation);
     var el = document.createElement('button');
     el.type = 'button';
     el.style.setProperty('--pin-color', 'var(' + colorVar + ')');

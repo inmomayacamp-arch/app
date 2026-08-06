@@ -51,7 +51,7 @@
       '    </div>' +
       '    <button type="button" class="search-this-area" data-search-area hidden>' + u.icon('search', { size: 14 }) + ' Buscar en esta área</button>' +
       '    <div class="map-legend">' +
-      '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-venta)"></span>Venta</span>' +
+      '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-primary)"></span>Venta</span>' +
       '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</span>' +
       '    </div>' +
       '  </div>' +
