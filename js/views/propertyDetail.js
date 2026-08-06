@@ -43,7 +43,7 @@
       '</div>' +
       '<div class="detail-float-contact" data-float-contact>' +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--whatsapp" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '" aria-label="Escribir por WhatsApp">' + u.icon('chat', { size: 20 }) + '</a>' +
-      '  <a class="detail-float-contact__btn" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
+      '  <a class="detail-float-contact__btn detail-float-contact__btn--call" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
       '</div>' +
       '<div class="detail-body">' +
       '  <div class="detail-title-row">' +
@@ -122,7 +122,7 @@
 
       '  <div class="contact-actions" data-contact-actions>' +
       '    <a class="btn btn--whatsapp btn--block" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
-      '    <a class="btn btn--outline btn--block" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '    <a class="btn btn--call btn--block" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
 

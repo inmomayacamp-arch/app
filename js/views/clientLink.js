@@ -60,7 +60,7 @@
       '      <div class="agent-hero__rating">' + u.icon('starFilled', { size: 14 }) + ' ' + agent.rating + ' <span class="text-muted" style="font-weight:500">(' + agent.reviews + ' reseñas)</span></div>' +
       '      <div class="agent-hero__actions">' +
       '        <a class="btn btn--whatsapp" data-track-link="' + link.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi la selección de propiedades que preparaste para mí en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
-      '        <a class="btn btn--outline" data-track-link="' + link.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '        <a class="btn btn--call" data-track-link="' + link.id + '" href="tel:' + agent.phone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '      </div>' +
       '      <a class="text-muted" style="display:inline-block;margin-top:16px;font-weight:700;font-size:0.82rem" href="#/' + agent.slug + '">Ver perfil completo y todas sus propiedades</a>' +
       '    </div>' +

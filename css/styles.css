@@ -206,6 +206,8 @@ body.is-admin .site-header { display: none; }
 .btn--ghost:hover { background: var(--color-bg); }
 .btn--whatsapp { background: var(--color-venta); color: #fff; }
 .btn--whatsapp:hover { background: #15803D; }
+.btn--call { background: var(--color-primary); color: #fff; }
+.btn--call:hover { background: var(--color-primary-dark); }
 .btn--sm { padding: 8px 14px; min-height: 36px; font-size: 0.85rem; }
 .btn--lg { padding: 14px 26px; min-height: 52px; font-size: 1rem; }
 .btn--block { width: 100%; }
@@ -535,6 +537,7 @@ body.is-admin .site-header { display: none; }
   background: var(--color-surface); color: var(--color-ink); box-shadow: var(--shadow-lg);
 }
 .detail-float-contact__btn--whatsapp { background: var(--color-venta); color: #fff; }
+.detail-float-contact__btn--call { background: var(--color-primary); color: #fff; }
 .carousel__track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel__track::-webkit-scrollbar { display: none; }
 .carousel__slide { flex: 0 0 100%; scroll-snap-align: start; height: 100%; }
