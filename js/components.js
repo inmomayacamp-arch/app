@@ -32,7 +32,9 @@
 
   function renderHeader(activeRoute) {
     var links = navItems().filter(function (i) { return !i.fab; }).map(function (item) {
-      var cls = "site-header__link" + (item.route === activeRoute ? " is-active" : "");
+      var cls = "site-header__link" +
+        (item.icon === "plus" ? " site-header__link--cta" : "") +
+        (item.route === activeRoute ? " is-active" : "");
       var badge = item.badge && state.favorites.count() ? ' (' + state.favorites.count() + ')' : '';
       return '<a class="' + cls + '" href="' + item.href + '">' + u.escapeHtml(item.label) + badge + '</a>';
     }).join("");
@@ -49,7 +51,9 @@
         return '<button type="button" class="bottom-nav__item" data-nav-action="' + item.action + '" aria-label="' + item.label + '">' +
           '<span class="bottom-nav__fab">' + u.icon(item.icon, { size: 20 }) + '</span></button>';
       }
-      var cls = "bottom-nav__item" + (item.route === activeRoute ? " is-active" : "");
+      var cls = "bottom-nav__item" +
+        (item.icon === "plus" ? " bottom-nav__item--cta" : "") +
+        (item.route === activeRoute ? " is-active" : "");
       var count = item.badge ? state.favorites.count() : 0;
       var badgeHtml = count ? '<span class="bottom-nav__badge">' + count + '</span>' : '';
       return '<a class="' + cls + '" href="' + item.href + '" aria-current="' + (item.route === activeRoute ? 'page' : 'false') + '">' +

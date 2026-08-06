@@ -19,6 +19,7 @@
     root.innerHTML =
       '<div class="admin-login">' +
       '  <div class="admin-login__card">' +
+      '    <a class="signup-checkout__back" href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Volver al inicio</a>' +
       '    <div class="admin-login__logo">' + u.icon('pin', { size: 22 }) + ' InmoMap Admin</div>' +
       '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Panel exclusivo para el equipo de InmoMap</p>' +
       '    <div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" autocomplete="username" /></div>' +

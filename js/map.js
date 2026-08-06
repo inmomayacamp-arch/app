@@ -23,9 +23,9 @@
   var PRICE_ZOOM_THRESHOLD = 15;
 
   var LOCALE_ES = {
-    'CooperativeGesturesHandler.WindowsHelpText': 'Usa Ctrl + scroll para hacer zoom',
-    'CooperativeGesturesHandler.MacHelpText': 'Usa ⌘ + scroll para hacer zoom',
-    'CooperativeGesturesHandler.MobileHelpText': 'Usa dos dedos para mover el mapa'
+    'ScrollZoomBlocker.CtrlMessage': 'Usa Ctrl + scroll para hacer zoom',
+    'ScrollZoomBlocker.CmdMessage': 'Usa ⌘ + scroll para hacer zoom',
+    'TouchPanBlocker.Message': 'Usa dos dedos para mover el mapa'
   };
 
   function LocateControl() {}

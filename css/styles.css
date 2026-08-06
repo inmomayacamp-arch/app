@@ -134,6 +134,7 @@ body.is-admin .site-header { display: none; }
     font-weight: 600; font-size: 0.92rem; color: var(--color-ink-secondary);
   }
   .site-header__link:hover { background: var(--color-bg); color: var(--color-ink); }
+  .site-header__link--cta { color: var(--color-venta); }
   .site-header__link.is-active { color: var(--color-primary); background: var(--color-primary-light); }
 }
 
@@ -159,6 +160,7 @@ body.is-admin .site-header { display: none; }
   background: none; border: none; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
 .bottom-nav__item.is-active { color: var(--color-primary); }
+.bottom-nav__item--cta { color: var(--color-venta); }
 .bottom-nav__badge {
   position: absolute; top: 2px; right: calc(50% - 18px);
   background: var(--color-primary); color: #fff;
