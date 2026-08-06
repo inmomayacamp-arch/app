@@ -372,6 +372,14 @@ body.is-admin .site-header { display: none; }
 .map-peek-popup .property-card { width: 210px; border: none; box-shadow: none; cursor: pointer; }
 .map-peek-popup .property-card__title,
 .map-peek-popup .property-card__location { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* En celular el mapa es más bajo (58vh): una tarjeta chica cabe completa
+   arriba del pin en vez de salirse de la vista. */
+@media (max-width: 899.98px) {
+  .map-peek-popup .property-card { width: 148px; }
+  .map-peek-popup .property-card__body { padding: 8px 10px 10px; gap: 2px; }
+  .map-peek-popup .property-card__price { font-size: 0.88rem; }
+  .map-peek-popup .property-card__specs { display: none; }
+}
 
 /* ==========================================================================
    Bottom sheet (vista previa de propiedad sobre el mapa)
