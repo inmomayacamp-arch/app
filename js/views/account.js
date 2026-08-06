@@ -17,7 +17,6 @@
       '      <strong>¿Eres asesor inmobiliario?</strong>' +
       '      <p>¿Quieres que tus propiedades aparezcan aquí? Publícalas, comparte enlaces personalizados con tus clientes y revisa tus estadísticas desde tu propio panel.</p>' +
       '      <a class="btn btn--primary btn--sm" href="#/planes">' + u.icon('crown', { size: 14 }) + ' Ver planes para agentes</a>' +
-      '      <a class="promo-card__login-link" href="#/dashboard/login">¿Ya tienes cuenta? Inicia sesión</a>' +
       '    </div>' +
       '  </div>' +
 
