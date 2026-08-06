@@ -32,7 +32,10 @@
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
       '    <div class="map-top-overlay">' +
-      '      <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      '      <div class="row gap-2">' +
+      '        <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
+      '      </div>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       c.quickFilterChipsHTML() +
