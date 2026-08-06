@@ -33,6 +33,9 @@
       privateNotes: p.privateNotes || "",
       photos: (p.photos || []).map(function (url) { return { url: url }; }),
       videoUrl: p.videoUrl || "", virtualTourUrl: p.virtualTourUrl || "",
+      rentalDeposit: p.rentalDeposit || "", rentalMinContract: numOrEmpty(p.rentalMinContract), rentalFurnished: p.rentalFurnished || "",
+      rentalGuarantees: (p.rentalGuarantees || []).slice(), rentalServicesIncluded: (p.rentalServicesIncluded || []).slice(),
+      rentalAvailableFrom: p.rentalAvailableFrom || "",
       sharing: Object.assign({ enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "todos", selectedAgentSlugs: [] }, p.sharing || {}),
       publishStatus: p.publishStatus || "publicada", scheduledAt: toLocalDatetimeValue(p.scheduledAt), featured: !!p.featured,
       tags: (p.tags || []).slice()
@@ -50,12 +53,9 @@
     { value: "USD", label: "USD — Dólares" }
   ];
 
-  var STEP_KEYS = [
-    "general", "precio", "creditos", "ubicacion", "caracteristicas", "amenidades",
-    "descripcion", "fotos", "video", "compartir", "publicacion", "vista_previa"
-  ];
   var STEP_TITLES = {
     general: "Información general", precio: "Precio", creditos: "Créditos aceptados",
+    condiciones_renta: "Condiciones de renta",
     ubicacion: "Ubicación", caracteristicas: "Características", amenidades: "Amenidades",
     descripcion: "Descripción", fotos: "Fotografías", video: "Video y recorrido virtual",
     compartir: "Compartir con otros agentes", publicacion: "Publicación y etiquetas", vista_previa: "Vista previa"
@@ -88,18 +88,33 @@
       privateNotes: "",
       photos: [],
       videoUrl: "", virtualTourUrl: "",
+      rentalDeposit: "", rentalMinContract: "", rentalFurnished: "",
+      rentalGuarantees: [], rentalServicesIncluded: [], rentalAvailableFrom: "",
       sharing: { enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "todos", selectedAgentSlugs: [] },
       publishStatus: "publicada", scheduledAt: "", featured: false,
       tags: []
     };
 
+    // Los pasos de crédito (para comprar) y condiciones de renta solo aplican
+    // a su operación; "venta_renta" muestra ambos. Se recalcula cada vez
+    // porque solo puede cambiar desde el paso "general" (índice 0), donde
+    // renderStep() nunca avanza stepIndex, así que nunca queda apuntando a un
+    // paso que dejó de existir.
+    function activeStepKeys() {
+      var keys = ["general", "precio"];
+      if (payload.operation === 'venta' || payload.operation === 'venta_renta') keys.push('creditos');
+      if (payload.operation === 'renta' || payload.operation === 'venta_renta') keys.push('condiciones_renta');
+      return keys.concat(["ubicacion", "caracteristicas", "amenidades", "descripcion", "fotos", "video", "compartir", "publicacion", "vista_previa"]);
+    }
+
     function progressHTML() {
+      var keys = activeStepKeys();
       var dots = "";
-      for (var i = 0; i < STEP_KEYS.length; i++) {
+      for (var i = 0; i < keys.length; i++) {
         dots += '<span class="wizard-progress__step' + (i < stepIndex ? ' is-done' : (i === stepIndex ? ' is-active' : '')) + '"></span>';
       }
       return '<div class="wizard-progress">' + dots + '</div>' +
-        '<p class="wizard-progress__label">Paso ' + (stepIndex + 1) + ' de ' + STEP_KEYS.length + '</p>';
+        '<p class="wizard-progress__label">Paso ' + (stepIndex + 1) + ' de ' + keys.length + '</p>';
     }
 
     /* ---------- Paso 1: Información general ---------- */
@@ -138,11 +153,40 @@
     function stepCreditosHTML() {
       return (
         '<div class="page-wrap">' +
-        (payload.operation === 'renta' ? '<p class="text-muted" style="font-size:0.8rem;margin-bottom:12px">Estos créditos suelen aplicar para propiedades en venta. Puedes dejar esto en blanco si tu propiedad es solo en renta.</p>' : '') +
         '<div class="form-field"><label>¿Qué créditos acepta esta propiedad?</label>' +
         '<div class="checkbox-list">' + u.CREDIT_TYPES.map(function (cr) {
           var checked = payload.creditsAccepted.indexOf(cr.value) !== -1;
           return '<label class="checkbox-list__item"><input type="checkbox" data-credit="' + cr.value + '"' + (checked ? ' checked' : '') + ' /> ' + cr.label + '</label>';
+        }).join('') + '</div></div>' +
+        '</div>'
+      );
+    }
+
+    /* ---------- Paso: Condiciones de renta ---------- */
+    function stepCondicionesRentaHTML() {
+      return (
+        '<div class="page-wrap">' +
+        '<div class="form-field"><label>Depósito en garantía</label>' +
+        '<div class="filter-options">' + u.RENTAL_DEPOSIT_OPTIONS.map(function (d) {
+          return '<button type="button" class="filter-option' + (payload.rentalDeposit === d.value ? ' is-active' : '') + '" data-deposit="' + d.value + '">' + d.label + '</button>';
+        }).join('') + '</div></div>' +
+        '<div class="form-field"><label>Amueblado</label>' +
+        '<div class="filter-options">' + u.RENTAL_FURNISHED_OPTIONS.map(function (f) {
+          return '<button type="button" class="filter-option' + (payload.rentalFurnished === f.value ? ' is-active' : '') + '" data-furnished="' + f.value + '">' + f.label + '</button>';
+        }).join('') + '</div></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Contrato mínimo (meses)</label><input type="number" min="0" data-field="rentalMinContract" value="' + u.escapeHtml(payload.rentalMinContract) + '" placeholder="12" /></div>' +
+        '<div class="form-field"><label>Disponible a partir de</label><input type="date" data-field="rentalAvailableFrom" value="' + u.escapeHtml(payload.rentalAvailableFrom) + '" /></div>' +
+        '</div>' +
+        '<div class="form-field"><label>Garantías que aceptas</label>' +
+        '<div class="checkbox-list">' + u.RENTAL_GUARANTEES.map(function (g) {
+          var checked = payload.rentalGuarantees.indexOf(g.value) !== -1;
+          return '<label class="checkbox-list__item"><input type="checkbox" data-guarantee="' + g.value + '"' + (checked ? ' checked' : '') + ' /> ' + g.label + '</label>';
+        }).join('') + '</div></div>' +
+        '<div class="form-field"><label>Servicios incluidos en la renta</label>' +
+        '<div class="checkbox-list">' + u.RENTAL_SERVICES.map(function (s) {
+          var checked = payload.rentalServicesIncluded.indexOf(s) !== -1;
+          return '<label class="checkbox-list__item"><input type="checkbox" data-service="' + u.escapeHtml(s) + '"' + (checked ? ' checked' : '') + ' /> ' + u.escapeHtml(s) + '</label>';
         }).join('') + '</div></div>' +
         '</div>'
       );
@@ -396,7 +440,8 @@
     }
 
     var STEP_RENDERERS = {
-      general: stepGeneralHTML, precio: stepPrecioHTML, creditos: stepCreditosHTML, ubicacion: stepUbicacionHTML,
+      general: stepGeneralHTML, precio: stepPrecioHTML, creditos: stepCreditosHTML,
+      condiciones_renta: stepCondicionesRentaHTML, ubicacion: stepUbicacionHTML,
       caracteristicas: stepCaracteristicasHTML, amenidades: stepAmenidadesHTML, descripcion: stepDescripcionHTML,
       fotos: stepFotosHTML, video: stepVideoHTML, compartir: stepCompartirHTML, publicacion: stepPublicacionHTML,
       vista_previa: stepVistaPreviaHTML
@@ -405,8 +450,9 @@
     var mapCtrl = null;
 
     function renderStep() {
-      var key = STEP_KEYS[stepIndex];
-      var isLast = stepIndex === STEP_KEYS.length - 1;
+      var keys = activeStepKeys();
+      var key = keys[stepIndex];
+      var isLast = stepIndex === keys.length - 1;
       root.innerHTML =
         '<div class="page-header">' +
         '  <button type="button" class="btn btn--icon" data-back aria-label="Atrás">' + u.icon('chevronLeft', { size: 18 }) + '</button>' +
@@ -438,9 +484,10 @@
     }
 
     function collectStepFields() {
-      var key = STEP_KEYS[stepIndex];
+      var key = activeStepKeys()[stepIndex];
       if (key === 'general') { payload.title = readField('title'); }
       if (key === 'precio') { payload.price = readField('price'); payload.priceRent = readField('priceRent'); payload.currency = readField('currency') || payload.currency; }
+      if (key === 'condiciones_renta') { payload.rentalMinContract = readField('rentalMinContract'); payload.rentalAvailableFrom = readField('rentalAvailableFrom'); }
       if (key === 'ubicacion') ['state', 'municipality', 'city', 'neighborhood', 'street', 'extNumber', 'postalCode', 'addressNote'].forEach(function (n) { payload[n] = readField(n); });
       if (key === 'caracteristicas') ['bedrooms', 'bathrooms', 'halfBathrooms', 'parking', 'levels', 'age', 'builtArea', 'lotArea', 'frontage', 'depth'].forEach(function (n) { payload[n] = readField(n); });
       if (key === 'descripcion') { payload.description = readField('description'); payload.privateNotes = readField('privateNotes'); }
@@ -455,7 +502,7 @@
     }
 
     function validateStep() {
-      var key = STEP_KEYS[stepIndex];
+      var key = activeStepKeys()[stepIndex];
       // Solo lo esencial es obligatorio: precio, ubicación y al menos una foto. Todo lo demás es opcional.
       if (key === 'precio') {
         var needsVenta = payload.operation === 'venta' || payload.operation === 'venta_renta';
@@ -484,6 +531,31 @@
             var idx = payload.creditsAccepted.indexOf(v);
             if (cb.checked && idx === -1) payload.creditsAccepted.push(v);
             if (!cb.checked && idx !== -1) payload.creditsAccepted.splice(idx, 1);
+          });
+        });
+      }
+
+      if (key === 'condiciones_renta') {
+        u.qsa('[data-deposit]', root).forEach(function (btn) {
+          btn.addEventListener('click', function () { collectStepFields(); payload.rentalDeposit = btn.getAttribute('data-deposit'); renderStep(); });
+        });
+        u.qsa('[data-furnished]', root).forEach(function (btn) {
+          btn.addEventListener('click', function () { collectStepFields(); payload.rentalFurnished = btn.getAttribute('data-furnished'); renderStep(); });
+        });
+        u.qsa('[data-guarantee]', root).forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            var v = cb.getAttribute('data-guarantee');
+            var idx = payload.rentalGuarantees.indexOf(v);
+            if (cb.checked && idx === -1) payload.rentalGuarantees.push(v);
+            if (!cb.checked && idx !== -1) payload.rentalGuarantees.splice(idx, 1);
+          });
+        });
+        u.qsa('[data-service]', root).forEach(function (cb) {
+          cb.addEventListener('change', function () {
+            var v = cb.getAttribute('data-service');
+            var idx = payload.rentalServicesIncluded.indexOf(v);
+            if (cb.checked && idx === -1) payload.rentalServicesIncluded.push(v);
+            if (!cb.checked && idx !== -1) payload.rentalServicesIncluded.splice(idx, 1);
           });
         });
       }
@@ -620,7 +692,7 @@
       u.qs('[data-next]', root).addEventListener('click', async function () {
         collectStepFields();
         if (!validateStep()) return;
-        if (stepIndex < STEP_KEYS.length - 1) {
+        if (stepIndex < activeStepKeys().length - 1) {
           stepIndex += 1;
           renderStep();
           return;
@@ -665,6 +737,12 @@
           features: payload.features,
           photos: payload.photos.map(function (p) { return p.url; }),
           videoUrl: payload.videoUrl, virtualTourUrl: payload.virtualTourUrl,
+          rentalDeposit: payload.rentalDeposit || null,
+          rentalMinContract: payload.rentalMinContract ? Number(payload.rentalMinContract) : null,
+          rentalFurnished: payload.rentalFurnished || null,
+          rentalGuarantees: payload.rentalGuarantees,
+          rentalServicesIncluded: payload.rentalServicesIncluded,
+          rentalAvailableFrom: payload.rentalAvailableFrom || null,
           sharing: payload.sharing.enabled ? payload.sharing : null,
           publishStatus: payload.publishStatus,
           scheduledAt: scheduledIso,

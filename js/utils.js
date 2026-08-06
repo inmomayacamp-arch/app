@@ -204,6 +204,30 @@
     "Canchas deportivas", "Área infantil", "Pet friendly", "Internet", "Gas estacionario", "Otro"
   ];
 
+  var RENTAL_DEPOSIT_OPTIONS = [
+    { value: "sin_deposito", label: "Sin depósito" },
+    { value: "1_mes", label: "1 mes de renta" },
+    { value: "2_meses", label: "2 meses de renta" },
+    { value: "3_meses", label: "3 meses de renta" }
+  ];
+
+  var RENTAL_FURNISHED_OPTIONS = [
+    { value: "sin_amueblar", label: "Sin amueblar" },
+    { value: "semi_amueblado", label: "Semi-amueblado" },
+    { value: "amueblado", label: "Amueblado" }
+  ];
+
+  var RENTAL_GUARANTEES = [
+    { value: "aval", label: "Aval (propietario con escritura)" },
+    { value: "fiador_solidario", label: "Fiador solidario" },
+    { value: "poliza_juridica", label: "Póliza jurídica de arrendamiento" },
+    { value: "sin_aval", label: "Sin aval (depósito adicional)" }
+  ];
+
+  var RENTAL_SERVICES = [
+    "Agua", "Luz", "Gas", "Internet", "Mantenimiento", "TV de paga"
+  ];
+
   var SPECIAL_TAGS = [
     { value: "oportunidad", label: "🔥 Oportunidad" },
     { value: "exclusiva", label: "⭐ Exclusiva" },
@@ -332,6 +356,10 @@
     PROPERTY_TYPES: PROPERTY_TYPES,
     CREDIT_TYPES: CREDIT_TYPES,
     AMENITIES: AMENITIES,
-    SPECIAL_TAGS: SPECIAL_TAGS
+    SPECIAL_TAGS: SPECIAL_TAGS,
+    RENTAL_DEPOSIT_OPTIONS: RENTAL_DEPOSIT_OPTIONS,
+    RENTAL_FURNISHED_OPTIONS: RENTAL_FURNISHED_OPTIONS,
+    RENTAL_GUARANTEES: RENTAL_GUARANTEES,
+    RENTAL_SERVICES: RENTAL_SERVICES
   };
 })();

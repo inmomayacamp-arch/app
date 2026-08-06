@@ -22,6 +22,10 @@
     var isFav = state.favorites.has(property.id);
     var priceLabel = c.propertyPriceLabel(property);
     var youtubeUrl = u.youtubeEmbedUrl(property.videoUrl);
+    var rentalDepositLabel = property.rentalDeposit ? ((u.RENTAL_DEPOSIT_OPTIONS.filter(function (d) { return d.value === property.rentalDeposit; })[0] || {}).label || '') : '';
+    var rentalFurnishedLabel = property.rentalFurnished ? ((u.RENTAL_FURNISHED_OPTIONS.filter(function (f) { return f.value === property.rentalFurnished; })[0] || {}).label || '') : '';
+    var rentalAvailableFromLabel = property.rentalAvailableFrom ? new Date(property.rentalAvailableFrom + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+    var hasRentalInfo = property.operation !== 'venta' && !!(rentalDepositLabel || rentalFurnishedLabel || property.rentalMinContract || rentalAvailableFromLabel || (property.rentalGuarantees && property.rentalGuarantees.length) || (property.rentalServicesIncluded && property.rentalServicesIncluded.length));
     var fromLink = fromRef ? state.links.get(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
     state.tracking.logPropertyView(property.id, fromLink ? fromLink.id : null);
 
@@ -84,6 +88,25 @@
           var cr = u.CREDIT_TYPES.filter(function (x) { return x.value === v; })[0];
           return '<span class="feature-tag feature-tag--credit">' + u.icon('dollar', { size: 12 }) + ' ' + u.escapeHtml(cr ? cr.label : v) + '</span>';
         }).join('') + '</div>' +
+        '  </div>'
+      ) : '') +
+
+      (hasRentalInfo ? (
+        '  <div class="detail-desc">' +
+        '    <h2 class="section-title" style="margin-top:0">Condiciones de renta</h2>' +
+        '    <div class="specs-grid">' +
+        (rentalDepositLabel ? '<div class="specs-grid__item">' + u.icon('dollar', { size: 18 }) + '<strong>' + u.escapeHtml(rentalDepositLabel) + '</strong><span>Depósito</span></div>' : '') +
+        (rentalFurnishedLabel ? '<div class="specs-grid__item">' + u.icon('home', { size: 18 }) + '<strong>' + u.escapeHtml(rentalFurnishedLabel) + '</strong><span>Amueblado</span></div>' : '') +
+        (property.rentalMinContract ? '<div class="specs-grid__item">' + u.icon('clock', { size: 18 }) + '<strong>' + property.rentalMinContract + ' meses</strong><span>Contrato mínimo</span></div>' : '') +
+        (rentalAvailableFromLabel ? '<div class="specs-grid__item">' + u.icon('calendar', { size: 18 }) + '<strong>' + rentalAvailableFromLabel + '</strong><span>Disponible desde</span></div>' : '') +
+        '    </div>' +
+        (property.rentalGuarantees && property.rentalGuarantees.length ? '<div class="feature-tags" style="margin-top:10px">' + property.rentalGuarantees.map(function (v) {
+          var g = u.RENTAL_GUARANTEES.filter(function (x) { return x.value === v; })[0];
+          return '<span class="feature-tag">' + u.escapeHtml(g ? g.label : v) + '</span>';
+        }).join('') + '</div>' : '') +
+        (property.rentalServicesIncluded && property.rentalServicesIncluded.length ? '<div class="feature-tags" style="margin-top:10px">' + property.rentalServicesIncluded.map(function (s) {
+          return '<span class="feature-tag">' + u.icon('check', { size: 12 }) + ' ' + u.escapeHtml(s) + '</span>';
+        }).join('') + '</div>' : '') +
         '  </div>'
       ) : '') +
 

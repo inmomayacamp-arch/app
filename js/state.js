@@ -233,6 +233,12 @@
       photos: row.photos && row.photos.length ? row.photos : [FALLBACK_PHOTO],
       videoUrl: row.video_url || "",
       virtualTourUrl: row.virtual_tour_url || "",
+      rentalDeposit: row.rental_deposit || "",
+      rentalMinContract: row.rental_min_contract,
+      rentalFurnished: row.rental_furnished || "",
+      rentalGuarantees: row.rental_guarantees || [],
+      rentalServicesIncluded: row.rental_services_included || [],
+      rentalAvailableFrom: row.rental_available_from || "",
       tags: row.tags || [],
       featured: !!row.featured,
       status: row.status || "disponible",
@@ -254,6 +260,8 @@
       builtArea: "built_area", lotArea: "lot_area", frontage: "frontage", depth: "depth",
       parking: "parking", description: "description", privateNotes: "private_notes",
       features: "features", photos: "photos", videoUrl: "video_url", virtualTourUrl: "virtual_tour_url",
+      rentalDeposit: "rental_deposit", rentalMinContract: "rental_min_contract", rentalFurnished: "rental_furnished",
+      rentalGuarantees: "rental_guarantees", rentalServicesIncluded: "rental_services_included", rentalAvailableFrom: "rental_available_from",
       tags: "tags", featured: "featured", status: "status", publishStatus: "publish_status",
       scheduledAt: "scheduled_at", sharing: "sharing"
     };
