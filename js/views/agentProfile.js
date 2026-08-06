@@ -28,13 +28,11 @@
     ].filter(function (s) { return social[s.key]; });
 
     root.innerHTML =
-      '<div class="page-header" style="border-bottom:none;background:transparent;position:static">' +
-      '  <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
-      '</div>' +
       '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
       '    <div class="map-top-overlay">' +
+      '      <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       c.quickFilterChipsHTML() +
