@@ -364,6 +364,15 @@ body.is-admin .site-header { display: none; }
 .map-pin--compact { transform-origin: center; }
 .map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--pin-color); border: 2px solid #fff; box-shadow: var(--shadow-sm); }
 
+/* Mini-ficha flotante al tocar un pin: se quita el globo blanco por defecto
+   de Mapbox y se deja que la tarjeta de propiedad (mismo estilo del resto de
+   la app) se vea directamente, con solo un triángulo pequeño como referencia. */
+.map-peek-popup .mapboxgl-popup-content { padding: 0; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); overflow: hidden; }
+.map-peek-popup .mapboxgl-popup-tip { border-top-color: var(--color-surface); }
+.map-peek-popup .property-card { width: 210px; border: none; box-shadow: none; cursor: pointer; }
+.map-peek-popup .property-card__title,
+.map-peek-popup .property-card__location { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 /* ==========================================================================
    Bottom sheet (vista previa de propiedad sobre el mapa)
    ========================================================================== */

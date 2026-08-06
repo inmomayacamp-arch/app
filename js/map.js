@@ -92,11 +92,39 @@
     if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');
 
     var markers = [];
+    var activePopup = null;
 
     function clearMarkers() {
       markers.forEach(function (m) { m.remove(); });
       markers = [];
     }
+
+    function closePeek() {
+      if (activePopup) { activePopup.remove(); activePopup = null; }
+    }
+
+    // Primer toque en un pin: mini-ficha flotando justo ahí, con la misma
+    // tarjeta que se usa en el resto de la app. Tocar la tarjeta (segundo
+    // toque) es lo que dispara onSelect y navega a la ficha completa; así
+    // cada vista conserva su propia lógica de navegación (p. ej. el enlace
+    // de cliente, que agrega su propio parámetro ?from= a la ruta).
+    function openPeek(property, onSelect) {
+      closePeek();
+      var wrap = document.createElement('div');
+      wrap.innerHTML = window.App.components.propertyCardHTML(property, { showFavorite: false });
+      var cardEl = wrap.firstElementChild;
+      cardEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        closePeek();
+        if (onSelect) onSelect(property);
+      });
+      activePopup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 22, maxWidth: '230px', className: 'map-peek-popup' })
+        .setLngLat(property.coords)
+        .setDOMContent(cardEl)
+        .addTo(map);
+    }
+
+    map.on('click', closePeek);
 
     function setMarkers(properties, onSelect) {
       clearMarkers();
@@ -105,7 +133,7 @@
         var el = priceBubbleEl(property, { compact: opts.compactPins });
         el.addEventListener('click', function (e) {
           e.stopPropagation();
-          if (onSelect) onSelect(property);
+          if (onSelect) openPeek(property, onSelect);
         });
         var marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat(property.coords)
@@ -135,7 +163,7 @@
       setMarkers: setMarkers,
       flyTo: flyTo,
       fitToProperties: fitToProperties,
-      destroy: function () { clearMarkers(); map.remove(); }
+      destroy: function () { closePeek(); clearMarkers(); map.remove(); }
     };
   }
 
