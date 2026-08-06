@@ -24,7 +24,8 @@
     { route: "estadisticas", href: "#/dashboard/estadisticas", label: "Estadísticas", icon: "chart", desc: "Vistas, contactos y conversión" },
     { route: "publicidad", href: "#/dashboard/publicidad", label: "Publicidad", icon: "megaphone", desc: "Destaca tus propiedades" },
     { route: "notificaciones", href: "#/dashboard/notificaciones", label: "Notificaciones", icon: "bell", desc: "Actividad reciente", badge: function () { return as.notifications.unreadCount(); } },
-    { route: "suscripcion", href: "#/dashboard/suscripcion", label: "Suscripción", icon: "dollar", desc: "Tu plan y pagos" }
+    { route: "suscripcion", href: "#/dashboard/suscripcion", label: "Suscripción", icon: "dollar", desc: "Tu plan y pagos" },
+    { route: "soporte", href: "#/soporte", label: "Soporte", icon: "flag", desc: "Reporta un problema o déjanos tu comentario" }
   ];
 
   function menuBadgeCount() {
