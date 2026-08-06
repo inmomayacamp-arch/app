@@ -219,7 +219,9 @@
     if (!sheetEl) return;
     sheetEl.classList.remove('is-open');
     if (backdrop) backdrop.classList.remove('is-visible');
-    setTimeout(function () { root.innerHTML = ''; }, 220);
+    // Si mientras tanto se abrió otra hoja (p. ej. Editar desde el menú de
+    // acciones), no borrar su contenido: solo limpiar si sigue siendo esta.
+    setTimeout(function () { if (u.qs('.sheet', root) === sheetEl) root.innerHTML = ''; }, 220);
     sheetCloseHandlers.forEach(function (fn) { fn(); });
     sheetCloseHandlers = [];
     document.removeEventListener('keydown', onEscape);
