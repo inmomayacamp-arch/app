@@ -25,16 +25,26 @@
     var fromLink = fromRef ? state.links.get(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
     state.tracking.logPropertyView(property.id, fromLink ? fromLink.id : null);
 
+    var whatsappHref = u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.');
+    var trackAttrs = 'data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '');
+
     root.innerHTML =
-      '<div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
-      '  <a class="btn btn--icon" href="' + backHref + '" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      '<div class="detail-hero">' +
+      '  <div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
+      '    <a class="btn btn--icon" href="' + backHref + '" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      (fromRef ? '' : '    <div class="detail-header__brand">' + u.logoHTML({ tone: 'light' }) + '</div>') +
       (fromRef ? '' :
-      '  <div class="row gap-2">' +
-      '    <button type="button" class="btn btn--icon" data-share aria-label="Compartir propiedad">' + u.icon('share', { size: 16 }) + '</button>' +
-      '    <button type="button" class="btn btn--icon" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>' +
-      '  </div>') +
-      '</div>' +
+      '    <div class="row gap-2">' +
+      '      <button type="button" class="btn btn--icon" data-share aria-label="Compartir propiedad">' + u.icon('share', { size: 16 }) + '</button>' +
+      '      <button type="button" class="btn btn--icon" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>' +
+      '    </div>') +
+      '  </div>' +
       c.carouselHTML(property.photos) +
+      '</div>' +
+      '<div class="detail-float-contact" data-float-contact>' +
+      '  <a class="detail-float-contact__btn detail-float-contact__btn--whatsapp" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '" aria-label="Escribir por WhatsApp">' + u.icon('chat', { size: 20 }) + '</a>' +
+      '  <a class="detail-float-contact__btn" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
+      '</div>' +
       '<div class="detail-body">' +
       '  <div class="detail-title-row">' +
       '    <div>' +
@@ -110,9 +120,9 @@
         '  </div>'
       ) : '') +
 
-      '  <div class="contact-actions">' +
-      '    <a class="btn btn--whatsapp btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
-      '    <a class="btn btn--outline btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '  <div class="contact-actions" data-contact-actions>' +
+      '    <a class="btn btn--whatsapp btn--block" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--outline btn--block" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
 
@@ -190,6 +200,18 @@
         var detailMapCtrl = window.App.map.create(detailMapEl, { center: property.coords, zoom: 15 });
         if (detailMapCtrl.ready) detailMapCtrl.setMarkers([property], null);
       }
+    }
+
+    // Los botones flotantes de contacto se ocultan cuando los botones "de verdad"
+    // (más abajo en la ficha) ya están a la vista, para no duplicar la misma acción.
+    var floatContact = u.qs('[data-float-contact]', root);
+    var contactActions = u.qs('[data-contact-actions]', root);
+    if (floatContact && contactActions && window.IntersectionObserver) {
+      var observer = new IntersectionObserver(function (entries) {
+        floatContact.classList.toggle('is-hidden', entries[0].isIntersecting);
+      }, { rootMargin: '0px 0px -10% 0px' });
+      observer.observe(contactActions);
+      window.App.router.onLeave(function () { observer.disconnect(); });
     }
   }
 

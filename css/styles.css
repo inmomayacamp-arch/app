@@ -500,18 +500,37 @@ body.is-admin .site-header { display: none; }
    Detalle de propiedad
    ========================================================================== */
 
+/* El encabezado flota sobre la foto (no una barra sólida aparte) y se desplaza
+   junto con ella: al bajar a la descripción ya no hace falta, como el botón
+   "atrás" de cualquier navegador. */
+.detail-hero { position: relative; }
 .detail-header {
-  position: sticky; top: 0; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0));
+  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px;
+  padding: 12px; background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0));
 }
+.detail-header__brand { justify-self: center; font-size: 1.05rem; }
 @media (min-width: 900px) { .detail-header { display: none; } }
 /* En modo "enlace de cliente" no hay header de sitio que ofrezca una forma de
    regresar, así que la flecha de volver se mantiene visible también en escritorio. */
-@media (min-width: 900px) { .detail-header--exclusive { display: flex; justify-content: flex-start; } }
+@media (min-width: 900px) { .detail-header--exclusive { display: grid; } }
 
 .carousel { position: relative; aspect-ratio: 4 / 3; background: var(--color-bg); overflow: hidden; }
 @media (min-width: 900px) { .carousel { aspect-ratio: 16 / 8; border-radius: var(--radius-lg); } }
+
+.detail-float-contact {
+  position: fixed; right: 16px; bottom: calc(var(--bottomnav-h) + 16px); z-index: var(--z-overlay);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+@media (min-width: 900px) { .detail-float-contact { bottom: 24px; } }
+.detail-float-contact.is-hidden { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.detail-float-contact__btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-surface); color: var(--color-ink); box-shadow: var(--shadow-lg);
+}
+.detail-float-contact__btn--whatsapp { background: var(--color-venta); color: #fff; }
 .carousel__track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel__track::-webkit-scrollbar { display: none; }
 .carousel__slide { flex: 0 0 100%; scroll-snap-align: start; height: 100%; }
