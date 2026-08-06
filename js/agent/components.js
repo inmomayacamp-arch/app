@@ -101,7 +101,9 @@
       '<div class="agent-content">' +
       '  <div class="agent-topbar"><h1 class="agent-topbar__title">' + title + '</h1></div>' +
       contentHtml +
-      '</div>';
+      '</div>' +
+      '<a class="agent-float-btn agent-float-btn--left" href="#/" aria-label="Volver al sitio público (sigues con tu sesión iniciada)" title="Volver al sitio público">' + u.icon('home', { size: 20 }) + '</a>' +
+      '<a class="agent-float-btn agent-float-btn--right" href="#/soporte" aria-label="Soporte" title="¿Necesitas ayuda? Soporte">' + u.icon('flag', { size: 20 }) + '</a>';
     document.title = title + ' — Panel del asesor · InmoMaps';
   }
 

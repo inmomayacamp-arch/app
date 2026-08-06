@@ -555,6 +555,18 @@ body.is-admin .site-header { display: none; }
 }
 .detail-float-contact__btn--whatsapp { background: var(--color-venta); color: #fff; }
 .detail-float-contact__btn--call { background: var(--color-primary); color: #fff; }
+
+/* Accesos flotantes del panel del asesor: siempre a la vista, en las dos
+   esquinas inferiores para no chocar con el botón "+" central de la barra. */
+.agent-float-btn {
+  position: fixed; bottom: calc(var(--bottomnav-h) + 16px); z-index: var(--z-overlay);
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-surface); box-shadow: var(--shadow-lg);
+}
+.agent-float-btn--left { left: 16px; color: var(--color-ink-secondary); }
+.agent-float-btn--right { right: 16px; color: var(--color-primary); }
+@media (min-width: 900px) { .agent-float-btn { bottom: 24px; } }
 .carousel__track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel__track::-webkit-scrollbar { display: none; }
 .carousel__slide { flex: 0 0 100%; scroll-snap-align: start; height: 100%; }
