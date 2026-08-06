@@ -7,13 +7,6 @@
   var state = window.App.state;
   var data = window.App.data;
 
-  var TABS = [
-    { key: "todas", label: "Todas" },
-    { key: "venta", label: "Venta" },
-    { key: "renta", label: "Renta" },
-    { key: "terreno", label: "Terrenos" }
-  ];
-
   function render(params, root) {
     var agent = data.getAgent(params.agentSlug);
     if (!agent) {
@@ -23,7 +16,7 @@
     }
 
     var allProps = state.properties.byAgent(agent.slug);
-    var activeTab = "todas";
+    var filters = u.defaultFilters();
     var mapCtrl = null;
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
     var social = agent.social || {};
@@ -34,15 +27,22 @@
       { key: "website", icon: "globe", label: "Sitio web" }
     ].filter(function (s) { return social[s.key]; });
 
-    function filteredProps() {
-      if (activeTab === 'todas') return allProps;
-      if (activeTab === 'terreno') return allProps.filter(function (p) { return p.type === 'terreno'; });
-      return allProps.filter(function (p) { return p.operation === activeTab; });
-    }
-
     root.innerHTML =
       '<div class="page-header" style="border-bottom:none;background:transparent;position:static">' +
       '  <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+      '</div>' +
+      '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
+      '  <div class="explore-map">' +
+      '    <div class="map-canvas" data-map></div>' +
+      '    <div class="map-chip-overlay">' +
+      '      <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
+      c.quickFilterChipsHTML() +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="explore-list"><div class="explore-list__inner">' +
+      '    <div class="property-grid property-grid--standalone" data-list></div>' +
+      '  </div></div>' +
       '</div>' +
       '<div class="agent-hero">' +
       '  <img class="avatar agent-hero__photo" src="' + agent.photo + '" width="88" height="88" alt="" />' +
@@ -57,15 +57,6 @@
       }).join('') + '</div>' : '') +
       '  <p class="agent-hero__bio">' + u.escapeHtml(agent.bio) + '</p>' +
       '  <div style="max-width:420px;margin:16px auto 0">' + c.shareBarHTML(profileUrl) + '</div>' +
-      '</div>' +
-      '<div class="tabs">' + TABS.map(function (t) {
-        return '<button type="button" class="tab' + (t.key === activeTab ? ' is-active' : '') + '" data-tab="' + t.key + '">' + t.label + '</button>';
-      }).join('') + '</div>' +
-      '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
-      '  <div class="explore-map"><div class="map-canvas" data-map></div></div>' +
-      '  <div class="explore-list"><div class="explore-list__inner">' +
-      '    <div class="property-grid property-grid--standalone" data-list></div>' +
-      '  </div></div>' +
       '</div>';
 
     c.mountChrome('explore');
@@ -74,7 +65,7 @@
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), { compactPins: false });
 
     function refresh() {
-      var list = filteredProps();
+      var list = u.applyFilters(allProps, filters);
       u.qs('[data-list]', root).innerHTML = list.length
         ? list.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
         : '<div class="empty-state"><h3>Sin propiedades en esta categoría</h3></div>';
@@ -86,14 +77,7 @@
 
     refresh();
 
-    u.qsa('[data-tab]', root).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        activeTab = btn.getAttribute('data-tab');
-        u.qsa('[data-tab]', root).forEach(function (b) { b.classList.toggle('is-active', b === btn); });
-        refresh();
-      });
-    });
-
+    c.bindQuickFilterChips(root, filters, refresh);
     c.bindCopyButtons(root);
   }
 

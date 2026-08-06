@@ -102,6 +102,14 @@
       '    <div data-poi-list class="poi-grid"></div>' +
       '  </div>' +
 
+      (property.coords ? (
+        '  <div class="detail-desc">' +
+        '    <h2 class="section-title" style="margin-top:0">Ubicación</h2>' +
+        (property.locationPrivacy === 'aproximada' ? '    <p class="text-muted" style="font-size:0.82rem;margin:-6px 0 10px">La ubicación exacta se comparte al contactar al asesor.</p>' : '') +
+        '    <div class="detail-map"><div class="map-canvas" data-detail-map></div></div>' +
+        '  </div>'
+      ) : '') +
+
       '  <div class="contact-actions">' +
       '    <a class="btn btn--whatsapp btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' target="_blank" rel="noopener" href="' + u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMap.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--outline btn--block" data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '') + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
@@ -174,6 +182,14 @@
             '</div>';
         }).join('');
       });
+    }
+
+    if (property.coords) {
+      var detailMapEl = u.qs('[data-detail-map]', root);
+      if (detailMapEl) {
+        var detailMapCtrl = window.App.map.create(detailMapEl, { center: property.coords, zoom: 15 });
+        if (detailMapCtrl.ready) detailMapCtrl.setMarkers([property], null);
+      }
     }
   }
 
