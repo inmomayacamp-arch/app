@@ -198,7 +198,7 @@
     if (property.coords) {
       var detailMapEl = u.qs('[data-detail-map]', root);
       if (detailMapEl) {
-        var detailMapCtrl = window.App.map.create(detailMapEl, { center: property.coords, zoom: 15 });
+        var detailMapCtrl = window.App.map.create(detailMapEl, { center: property.coords, zoom: 13 });
         if (detailMapCtrl.ready) detailMapCtrl.setMarkers([property], null);
       }
     }
