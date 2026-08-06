@@ -41,7 +41,7 @@
           '<td><img src="' + p.photos[0] + '" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div></td>' +
           '<td>' + u.propertyTypeLabel(p.type) + ' · ' + u.operationLabel(p.operation) + '</td>' +
-          '<td>' + u.formatPrice(p.price) + '</td>' +
+          '<td>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</td>' +
           '<td class="admin-table__meta">' + u.relativeTime(p.submittedAt) + '</td>' +
           '<td class="actions"><div class="icon-btn-row">' +
           '<button type="button" class="btn btn--sm btn--primary" data-approve="' + p.id + '">Aprobar</button>' +
@@ -54,7 +54,7 @@
           '<td><img src="' + p.photos[0] + '" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.city) + '</div></td>' +
           '<td>' + u.propertyTypeLabel(p.type) + '</td>' +
-          '<td>' + u.formatPrice(p.price) + '</td>' +
+          '<td>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</td>' +
           '<td>' + ac.statusPill(p.status) + '</td>' +
           '<td>' + (p.featured ? ac.statusPill('aprobada').replace('Aprobada', 'Sí') : '<span class="admin-table__meta">No</span>') + '</td>' +
           '<td class="actions"><div class="icon-btn-row">' +

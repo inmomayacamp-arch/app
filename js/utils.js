@@ -233,10 +233,8 @@
     return operationColorVar(operation);
   }
 
-  function badgeClassFor(type, operation) {
-    if (type === 'terreno') return 'terreno';
-    if (type === 'local' || type === 'oficina' || type === 'bodega' || type === 'nave_industrial' || type === 'consultorio') return 'otro';
-    return operation === 'venta_renta' ? 'venta' : operation;
+  function badgeClassFor(operation) {
+    return operation === 'renta' ? 'op-renta' : 'op-venta';
   }
 
   function toast(message, opts) {
@@ -268,6 +266,14 @@
 
   var PRICE_MAX = 5000000;
 
+  // Las propiedades solo en renta guardan su precio en priceRent (price queda en
+  // 0/null); esta función centraliza "cuál es el precio que corresponde mostrar
+  // o comparar" para no repetir ese if en cada lugar que muestra o filtra precios.
+  function effectivePrice(p) {
+    if (p.operation === 'renta') return p.priceRent || p.price || 0;
+    return p.price || 0;
+  }
+
   function defaultFilters() {
     return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '' };
   }
@@ -277,8 +283,9 @@
     return list.filter(function (p) {
       if (filters.operation !== 'todas' && p.operation !== filters.operation) return false;
       if (filters.types && filters.types.length && filters.types.indexOf(p.type) === -1) return false;
-      if (p.price < filters.priceMin) return false;
-      if (filters.priceMax < PRICE_MAX && p.price > filters.priceMax) return false;
+      var price = effectivePrice(p);
+      if (price < filters.priceMin) return false;
+      if (filters.priceMax < PRICE_MAX && price > filters.priceMax) return false;
       if (filters.bedrooms > 0 && !(p.bedrooms >= filters.bedrooms)) return false;
       if (filters.bathrooms > 0 && !(p.bathrooms >= filters.bathrooms)) return false;
       if (filters.parking > 0 && !(p.parking >= filters.parking)) return false;
@@ -294,6 +301,7 @@
     formatPrice: formatPrice,
     formatCompact: formatCompact,
     formatNumber: formatNumber,
+    effectivePrice: effectivePrice,
     distanceKm: distanceKm,
     slugify: slugify,
     uid: uid,

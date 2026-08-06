@@ -102,7 +102,7 @@
       '<div class="property-card admin-property-card">' +
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
       '    <img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
-      '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.type, p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
+      '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
       '    <div class="admin-property-card__pills">' +
       '      <span class="status-pill status-pill--' + pubStatus.tone + '">' + pubStatus.label + '</span>' +
       dealBadgeHTML(p) +

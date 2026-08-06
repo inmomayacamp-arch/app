@@ -43,7 +43,7 @@
       var isShared = p.agentSlug !== agent.slug;
       return '<label class="select-property-row" data-row="' + p.id + '">' +
         '<img src="' + p.photos[0] + '" alt="" />' +
-        '<div class="select-property-row__info"><strong>' + u.escapeHtml(p.title) + (isShared ? ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span>' : '') + '</strong><span>' + u.formatPrice(p.price) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
+        '<div class="select-property-row__info"><strong>' + u.escapeHtml(p.title) + (isShared ? ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span>' : '') + '</strong><span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
         '<span class="checkbox-circle' + (checked ? ' is-checked' : '') + '" data-check="' + p.id + '">' + u.icon('check', { size: 14 }) + '</span>' +
         '</label>';
     }

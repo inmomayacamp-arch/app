@@ -56,8 +56,8 @@
     el.type = 'button';
     el.style.setProperty('--pin-color', 'var(' + colorVar + ')');
     var label = property.operation === 'renta'
-      ? utils.formatPrice(property.price) + '/mes'
-      : utils.formatPrice(property.price);
+      ? utils.formatPrice(utils.effectivePrice(property)) + '/mes'
+      : utils.formatPrice(utils.effectivePrice(property));
     el.className = 'map-pin' + (opts.compact ? ' map-pin--compact' : '') + (opts.selected ? ' map-pin--selected' : '');
     el.innerHTML = opts.compact
       ? '<span class="map-pin__dot"></span>'

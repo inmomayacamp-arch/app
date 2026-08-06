@@ -61,7 +61,7 @@
           '<img src="' + p.photos[0] + '" alt="" style="width:64px;height:64px;border-radius:8px;object-fit:cover" />' +
           '<div class="ranked-row__info">' +
           '<strong>' + u.escapeHtml(p.title) + '</strong>' +
-          '<span>' + u.formatPrice(p.price) + (p.operation === 'renta' ? '/mes' : '') + ' · ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</span><br />' +
+          '<span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + ' · ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</span><br />' +
           '<span>Asesor: ' + (owner ? u.escapeHtml(owner.name) : p.agentSlug) + ' · ' + commissionLabel(p.sharing) + '</span>' +
           '</div>' +
           (inCatalog
@@ -134,7 +134,7 @@
             return '<div class="ranked-row">' +
               '<img src="' + row.property.photos[0] + '" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover" />' +
               '<div class="ranked-row__info"><strong>' + u.escapeHtml(row.property.title) + ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span></strong>' +
-              '<span>' + u.formatPrice(row.property.price) + ' · Propietario: ' + (owner ? u.escapeHtml(owner.name) : row.property.agentSlug) + '</span></div>' +
+              '<span>' + u.formatPrice(u.effectivePrice(row.property)) + (row.property.operation === 'renta' ? '/mes' : '') + ' · Propietario: ' + (owner ? u.escapeHtml(owner.name) : row.property.agentSlug) + '</span></div>' +
               '<div class="icon-btn-row">' +
               '<a class="btn btn--sm btn--outline" href="#/dashboard/enlaces/nuevo">Incluir en enlace</a>' +
               '<button type="button" class="btn btn--sm btn--outline" data-remove-catalog="' + row.collaboration.id + '">Quitar</button>' +

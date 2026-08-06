@@ -217,7 +217,7 @@
       all = all.filter(function (p) { return p.neighborhood.toLowerCase().indexOf(q) !== -1; });
     }
     if (filters.minCommission) all = all.filter(function (p) { return (p.sharing.totalCommission || 0) >= filters.minCommission; });
-    if (filters.priceMax) all = all.filter(function (p) { return p.price <= filters.priceMax; });
+    if (filters.priceMax) all = all.filter(function (p) { return window.App.utils.effectivePrice(p) <= filters.priceMax; });
     return all;
   }
   function mySharedProperties() {

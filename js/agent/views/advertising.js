@@ -25,7 +25,7 @@
           (properties.length
             ? '<div class="stack gap-2">' + properties.map(function (p) {
               return '<div class="ranked-row"><img src="' + p.photos[0] + '" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover" />' +
-                '<div class="ranked-row__info"><strong>' + u.escapeHtml(p.title) + '</strong><span>' + u.formatPrice(p.price) + '</span></div>' +
+                '<div class="ranked-row__info"><strong>' + u.escapeHtml(p.title) + '</strong><span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
                 '<button type="button" class="btn btn--sm ' + (p.featured ? 'btn--primary' : 'btn--outline') + '" data-toggle="' + p.id + '">' + (p.featured ? '★ Destacada' : 'Destacar') + '</button></div>';
             }).join('') + '</div>'
             : '<p class="text-muted" style="font-size:0.85rem">Publica una propiedad para poder destacarla.</p>') +

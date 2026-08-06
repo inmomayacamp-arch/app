@@ -243,6 +243,10 @@ body.is-admin .site-header { display: none; }
 .badge--renta { background: var(--color-renta-bg); color: var(--color-renta); }
 .badge--terreno { background: var(--color-terreno-bg); color: var(--color-terreno); }
 .badge--otro { background: var(--color-otro-bg); color: var(--color-otro); }
+/* Etiqueta "En venta"/"En renta" de la ficha: mismo color que sus pines en el
+   mapa (rojo/azul de operación), sin importar el tipo de propiedad. */
+.badge--op-venta { background: var(--color-primary-light); color: var(--color-primary); }
+.badge--op-renta { background: var(--color-renta-bg); color: var(--color-renta); }
 
 /* ==========================================================================
    Explorar (mapa)

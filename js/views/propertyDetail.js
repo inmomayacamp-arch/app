@@ -48,7 +48,7 @@
       '<div class="detail-body">' +
       '  <div class="detail-title-row">' +
       '    <div>' +
-      '      <span class="badge badge--' + u.badgeClassFor(property.type, property.operation) + '">' + u.operationLabel(property.operation) + '</span>' +
+      '      <span class="badge badge--' + u.badgeClassFor(property.operation) + '">' + u.operationLabel(property.operation) + '</span>' +
       (property.tags && property.tags.length ? property.tags.map(function (v) {
         var t = u.SPECIAL_TAGS.filter(function (s) { return s.value === v; })[0];
         return t ? '<span class="badge badge--otro" style="margin-left:6px">' + u.escapeHtml(t.label) + '</span>' : '';
