@@ -182,10 +182,7 @@
     // Categorías
     var allPropertiesBtn = u.qs('[data-all-properties]', root);
     if (allPropertiesBtn) allPropertiesBtn.addEventListener('click', function () {
-      filters.types = [];
-      filters.operation = 'todas';
-      refreshList();
-      u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.location.hash = '#/propiedades';
     });
 
     u.qsa('[data-service]', root).forEach(function (btn) {

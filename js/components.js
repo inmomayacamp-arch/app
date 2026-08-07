@@ -311,13 +311,6 @@
         }).join('') + '</div></div>' +
 
         '<div class="filter-sheet__section">' +
-        '<span class="filter-sheet__label">Buscar</span>' +
-        '<div class="search-bar" style="box-shadow:none;border:1px solid var(--color-border-strong)">' +
-        u.icon('search', { size: 18, class: 'text-muted' }) +
-        '<input type="text" placeholder="Colonia, ciudad o nombre" data-search-text value="' + u.escapeHtml(working.searchText) + '" />' +
-        '</div></div>' +
-
-        '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Operación</span>' +
         '<div class="filter-options" data-group="operation">' +
         ['todas', 'venta', 'renta'].map(function (op) {
@@ -469,8 +462,6 @@
           input.addEventListener('change', onRange);
         });
       }
-      var searchInput = u.qs('[data-search-text]', root);
-      if (searchInput) searchInput.addEventListener('input', function (e) { working.searchText = e.target.value; });
 
       var clearBtn = u.qs('[data-clear]', root);
       if (clearBtn) clearBtn.addEventListener('click', function () { working = Object.assign(u.defaultFilters(), { searchText: '' }); rerender(); });

@@ -36,6 +36,14 @@
       '  <div class="explore-map"><div class="map-canvas" data-map></div></div>' +
       '  <div class="explore-list"><div class="page-wrap">' +
       (nearCoords ? '<p class="text-muted" style="font-size:0.82rem;margin:-4px 0 12px">' + u.icon('locate', { size: 13 }) + ' Ordenadas por cercanía a tu ubicación</p>' : '') +
+      '  <div class="row gap-2" style="margin-bottom:10px">' +
+      '    <select class="city-chip" data-city-select aria-label="Ciudad">' +
+      '      <option value="">Ciudad</option>' +
+      Object.keys(window.APP_CONFIG.CITY_CENTERS).map(function (k) {
+        return '<option value="' + k + '"' + (filters.city === k ? ' selected' : '') + '>' + u.escapeHtml(window.APP_CONFIG.CITY_CENTERS[k].label) + '</option>';
+      }).join('') +
+      '    </select>' +
+      '  </div>' +
       '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML() + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
       '    <select data-sort aria-label="Ordenar por" style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:9px 14px;font-weight:700;font-size:0.85rem;background:var(--color-surface)">' +
@@ -74,6 +82,13 @@
 
     refresh();
     c.bindQuickFilterChips(root, filters, refresh);
+
+    u.qs('[data-city-select]', root).addEventListener('change', function (e) {
+      var key = e.target.value || null;
+      state.city.set(key);
+      filters.city = key;
+      refresh();
+    });
 
     u.qs('[data-sort]', root).addEventListener('change', function (e) {
       sortKey = e.target.value;
