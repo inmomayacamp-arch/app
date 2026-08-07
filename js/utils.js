@@ -310,7 +310,27 @@
   }
 
   function defaultFilters() {
-    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '' };
+    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '', city: null };
+  }
+
+  function normalizeText(s) {
+    return String(s || '').toLowerCase()
+      .replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i')
+      .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n');
+  }
+
+  // city/municipality son texto libre que el asesor escribe a mano (no un
+  // catálogo fijo), así que en vez de comparar exacto se busca coincidencia
+  // parcial contra "matchTokens" — así "San Francisco ", "san fransisco" (con
+  // error de dedo) o "Campeche" a secas siguen cayendo dentro de la misma
+  // ciudad. No se compara contra "state": las 3 ciudades soportadas comparten
+  // el mismo estado salvo Mérida, así que usarlo metería propiedades de otras
+  // ciudades del mismo estado dentro del filtro.
+  function matchesCity(property, cityKey) {
+    var entry = window.APP_CONFIG.CITY_CENTERS[cityKey];
+    if (!entry || !entry.matchTokens) return true;
+    var haystack = normalizeText((property.city || '') + ' ' + (property.municipality || ''));
+    return entry.matchTokens.some(function (token) { return haystack.indexOf(normalizeText(token)) !== -1; });
   }
 
   function applyFilters(list, filters) {
@@ -318,6 +338,7 @@
     return list.filter(function (p) {
       if (filters.operation !== 'todas' && p.operation !== filters.operation) return false;
       if (filters.types && filters.types.length && filters.types.indexOf(p.type) === -1) return false;
+      if (filters.city && !matchesCity(p, filters.city)) return false;
       var price = effectivePrice(p);
       if (price < filters.priceMin) return false;
       if (filters.priceMax < PRICE_MAX && price > filters.priceMax) return false;
@@ -356,6 +377,7 @@
     badgeClassFor: badgeClassFor,
     PRICE_MAX: PRICE_MAX,
     defaultFilters: defaultFilters,
+    matchesCity: matchesCity,
     applyFilters: applyFilters,
     PROPERTY_TYPES: PROPERTY_TYPES,
     CREDIT_TYPES: CREDIT_TYPES,

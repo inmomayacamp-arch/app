@@ -15,6 +15,7 @@
 
   function render(params, root) {
     var filters = u.defaultFilters();
+    filters.city = state.city.get();
     var nearCoords = null;
     if (params && params.query && params.query.near) {
       var parts = params.query.near.split(',').map(Number);

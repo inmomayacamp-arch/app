@@ -211,7 +211,13 @@
         '<div class="form-field"><label>Municipio</label><input type="text" data-field="municipality" value="' + u.escapeHtml(payload.municipality) + '" placeholder="Campeche" /></div>' +
         '</div>' +
         '<div class="form-row">' +
-        '<div class="form-field"><label>Ciudad</label><input type="text" data-field="city" value="' + u.escapeHtml(payload.city) + '" placeholder="Campeche" /></div>' +
+        '<div class="form-field"><label>Ciudad</label><select data-field="city">' +
+        '<option value="">Selecciona una ciudad</option>' +
+        Object.keys(window.APP_CONFIG.CITY_CENTERS).map(function (k) {
+          var c = window.APP_CONFIG.CITY_CENTERS[k];
+          return '<option value="' + u.escapeHtml(c.label) + '"' + (payload.city === c.label ? ' selected' : '') + '>' + u.escapeHtml(c.label) + '</option>';
+        }).join('') +
+        '</select></div>' +
         '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre" /></div>' +
         '</div>' +
         '<div class="form-row">' +
@@ -510,7 +516,7 @@
         if (needsVenta && !(Number(payload.price) > 0)) { u.toast('Ingresa un precio de venta válido'); return false; }
         if (needsRenta && !(Number(payload.priceRent) > 0)) { u.toast('Ingresa un precio de renta válido'); return false; }
       }
-      if (key === 'ubicacion' && !payload.city.trim()) { u.toast('Ingresa al menos la ciudad'); return false; }
+      if (key === 'ubicacion' && !payload.city.trim()) { u.toast('Selecciona una ciudad'); return false; }
       if (key === 'fotos' && payload.photos.length === 0) { u.toast('Agrega al menos una foto de la propiedad'); return false; }
       if (key === 'publicacion' && payload.publishStatus === 'programada' && !payload.scheduledAt) { u.toast('Elige la fecha y hora de publicación'); return false; }
       return true;

@@ -280,6 +280,11 @@ body.is-admin .site-header { display: none; }
 }
 /* En escritorio el encabezado ya muestra el logotipo; repetirlo sobre el mapa sobra. */
 @media (min-width: 900px) { .map-brand-badge { display: none; } }
+.city-chip {
+  background: var(--color-surface); border: none; border-radius: var(--radius-full);
+  padding: 7px 14px; box-shadow: var(--shadow-md); font-size: 0.85rem; font-weight: 700;
+  color: var(--color-ink); font-family: inherit; cursor: pointer; flex-shrink: 0;
+}
 .map-chip-overlay { display: flex; align-items: center; gap: 8px; width: 100%; }
 .map-chip-overlay .chip-row { padding: 2px 2px 2px; }
 .map-chip-overlay .chip { box-shadow: var(--shadow-md); }

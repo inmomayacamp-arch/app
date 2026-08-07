@@ -8,8 +8,9 @@ window.APP_CONFIG = {
   DEFAULT_CENTER: [-90.5349, 19.8301], // Campeche, Camp.
   DEFAULT_ZOOM: 13,
   CITY_CENTERS: {
-    campeche: { center: [-90.5349, 19.8301], zoom: 13, label: "Campeche" },
-    merida: { center: [-89.6237, 20.9674], zoom: 12, label: "Mérida" }
+    campeche: { center: [-90.5349, 19.8301], zoom: 13, label: "San Francisco de Campeche", matchTokens: ["campeche", "san francisco"] },
+    merida: { center: [-89.6237, 20.9674], zoom: 12, label: "Mérida", matchTokens: ["merida"] },
+    carmen: { center: [-91.8299, 18.6459], zoom: 13, label: "Cd. del Carmen", matchTokens: ["carmen"] }
   },
   CURRENT_AGENT_SLUG: "oswaldochable"
 };

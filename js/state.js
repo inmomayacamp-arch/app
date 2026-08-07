@@ -7,7 +7,8 @@
   var data = window.App.data;
 
   var KEYS = {
-    favorites: "inmomap:favorites"
+    favorites: "inmomap:favorites",
+    city: "inmomap:city"
   };
 
   function readJSON(key, fallback) {
@@ -59,6 +60,15 @@
     return favoriteIds
       .map(function (id) { return getProperty(id); })
       .filter(Boolean);
+  }
+
+  // --- Ciudad seleccionada: filtra propiedades en todas las vistas que la lean ---
+  var selectedCityKey = readJSON(KEYS.city, null);
+  function getCity() { return selectedCityKey; }
+  function setCity(key) {
+    selectedCityKey = key || null;
+    writeJSON(KEYS.city, selectedCityKey);
+    emit("city:change", selectedCityKey);
   }
 
   // --- Cuentas de asesor: registro, inicio de sesión, sesión activa (Supabase Auth real) ---
@@ -421,6 +431,10 @@
       toggle: toggleFavorite,
       count: favoriteCount,
       list: favoriteProperties
+    },
+    city: {
+      get: getCity,
+      set: setCity
     },
     agents: {
       bootstrap: bootstrapAgents,

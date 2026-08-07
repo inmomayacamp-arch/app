@@ -21,8 +21,10 @@
 
   function render(params, root) {
     var filters = u.defaultFilters();
+    filters.city = state.city.get();
     var mapCtrl = null;
     var boundsOnly = false;
+    var cityCenters = window.APP_CONFIG.CITY_CENTERS;
 
     function visibleProperties() {
       var base = state.properties.publicList();
@@ -45,7 +47,15 @@
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
       '    <div class="map-top-overlay">' +
-      '      <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
+      '      <div class="row" style="justify-content:space-between;align-items:center;width:100%">' +
+      '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
+      '        <select class="city-chip" data-city-select aria-label="Ciudad">' +
+      '          <option value="">Ciudad</option>' +
+      Object.keys(cityCenters).map(function (key) {
+        return '<option value="' + key + '"' + (filters.city === key ? ' selected' : '') + '>' + u.escapeHtml(cityCenters[key].label) + '</option>';
+      }).join('') +
+      '        </select>' +
+      '      </div>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       c.quickFilterChipsHTML() +
@@ -97,7 +107,8 @@
     c.mountChrome('explore');
     document.title = 'InmoMaps — Explorar propiedades en el mapa';
 
-    mapCtrl = window.App.map.create(u.qs('[data-map]', root), { showLocate: true });
+    var initialCity = filters.city && cityCenters[filters.city];
+    mapCtrl = window.App.map.create(u.qs('[data-map]', root), Object.assign({ showLocate: true }, initialCity ? { center: initialCity.center, zoom: initialCity.zoom } : {}));
 
     function onSelectProperty(property) {
       window.location.hash = '#/propiedad/' + property.id;
@@ -129,6 +140,15 @@
         filters = applied;
         refreshList();
       });
+    });
+
+    // Ciudad: filtra las propiedades disponibles y mueve el mapa a esa ciudad
+    u.qs('[data-city-select]', root).addEventListener('change', function (e) {
+      var key = e.target.value || null;
+      state.city.set(key);
+      filters.city = key;
+      refreshList();
+      if (key && mapCtrl.ready) mapCtrl.flyTo(cityCenters[key].center, cityCenters[key].zoom);
     });
 
     // Categorías
