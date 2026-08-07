@@ -294,13 +294,22 @@
   function openFilterSheet(currentFilters, allProperties, onApply) {
     var working = Object.assign({}, u.defaultFilters(), currentFilters, {
       types: (currentFilters.types || []).slice(),
-      searchText: currentFilters.searchText || ''
+      searchText: currentFilters.searchText || '',
+      creditsAccepted: (currentFilters.creditsAccepted || []).slice()
     });
 
     function countMatches() { return u.applyFilters(allProperties, working).length; }
 
     function bodyHTML() {
+      var cityCenters = window.APP_CONFIG.CITY_CENTERS;
       return (
+        '<div class="filter-sheet__section">' +
+        '<span class="filter-sheet__label">Ciudad</span>' +
+        '<div class="filter-options" data-group="city">' +
+        Object.keys(cityCenters).map(function (k) {
+          return '<button type="button" class="filter-option' + (working.city === k ? ' is-active' : '') + '" data-city="' + k + '">' + u.escapeHtml(cityCenters[k].label) + '</button>';
+        }).join('') + '</div></div>' +
+
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Buscar</span>' +
         '<div class="search-bar" style="box-shadow:none;border:1px solid var(--color-border-strong)">' +
@@ -338,6 +347,24 @@
         stepperHTML('parking', 'Estacionamientos', working.parking) +
         '</div>' +
 
+        (working.operation === 'venta' ? (
+          '<div class="filter-sheet__section">' +
+          '<span class="filter-sheet__label">Créditos aceptados</span>' +
+          '<div class="filter-options" data-group="credits">' +
+          u.CREDIT_TYPES.map(function (cr) {
+            return '<button type="button" class="filter-option' + (working.creditsAccepted.indexOf(cr.value) !== -1 ? ' is-active' : '') + '" data-credit="' + cr.value + '">' + cr.label + '</button>';
+          }).join('') + '</div></div>'
+        ) : '') +
+
+        (working.operation === 'renta' ? (
+          '<div class="filter-sheet__section">' +
+          '<span class="filter-sheet__label">Amueblado</span>' +
+          '<div class="filter-options" data-group="furnished">' +
+          u.RENTAL_FURNISHED_OPTIONS.map(function (f) {
+            return '<button type="button" class="filter-option' + (working.rentalFurnished === f.value ? ' is-active' : '') + '" data-furnished="' + f.value + '">' + f.label + '</button>';
+          }).join('') + '</div></div>'
+        ) : '') +
+
         '<div class="filter-footer row gap-2">' +
         '<button type="button" class="btn btn--outline" data-clear>Limpiar</button>' +
         '<button type="button" class="btn btn--primary btn--block" data-apply>Ver ' + countMatches() + ' propiedades</button>' +
@@ -372,8 +399,39 @@
     }
 
     function wire(root) {
+      u.qsa('[data-city]', root).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var val = btn.getAttribute('data-city');
+          working.city = working.city === val ? null : val;
+          rerender();
+        });
+      });
+      u.qsa('[data-credit]', root).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var val = btn.getAttribute('data-credit');
+          var idx = working.creditsAccepted.indexOf(val);
+          if (idx === -1) working.creditsAccepted.push(val); else working.creditsAccepted.splice(idx, 1);
+          rerender();
+        });
+      });
+      u.qsa('[data-furnished]', root).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var val = btn.getAttribute('data-furnished');
+          working.rentalFurnished = working.rentalFurnished === val ? null : val;
+          rerender();
+        });
+      });
       u.qsa('[data-op]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () { working.operation = btn.getAttribute('data-op'); rerender(); });
+        btn.addEventListener('click', function () {
+          working.operation = btn.getAttribute('data-op');
+          // Créditos/amueblado son específicos de venta/renta; si no se limpian
+          // al cambiar de operación, quedan aplicados "ocultos" (la sección ya
+          // no se muestra) y pueden dejar la lista en 0 resultados sin que se
+          // vea por qué.
+          working.creditsAccepted = [];
+          working.rentalFurnished = null;
+          rerender();
+        });
       });
       u.qsa('[data-type]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {

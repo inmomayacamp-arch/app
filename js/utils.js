@@ -310,7 +310,7 @@
   }
 
   function defaultFilters() {
-    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '', city: null };
+    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '', city: null, creditsAccepted: [], rentalFurnished: null };
   }
 
   function normalizeText(s) {
@@ -339,6 +339,8 @@
       if (filters.operation !== 'todas' && p.operation !== filters.operation) return false;
       if (filters.types && filters.types.length && filters.types.indexOf(p.type) === -1) return false;
       if (filters.city && !matchesCity(p, filters.city)) return false;
+      if (filters.creditsAccepted && filters.creditsAccepted.length && !filters.creditsAccepted.some(function (c) { return (p.creditsAccepted || []).indexOf(c) !== -1; })) return false;
+      if (filters.rentalFurnished && p.rentalFurnished !== filters.rentalFurnished) return false;
       var price = effectivePrice(p);
       if (price < filters.priceMin) return false;
       if (filters.priceMax < PRICE_MAX && price > filters.priceMax) return false;
