@@ -14,8 +14,10 @@
   };
 
   function render(params, root) {
-    var filters = u.defaultFilters();
-    filters.city = state.city.get();
+    var handoff = state.filters.take();
+    var filters = handoff || u.defaultFilters();
+    if (!handoff) filters.city = state.city.get();
+    var mapCtrl = null;
     var nearCoords = null;
     if (params && params.query && params.query.near) {
       var parts = params.query.near.split(',').map(Number);
@@ -30,7 +32,9 @@
       '  <h1 class="page-header__title">Propiedades (<span data-total>0</span>)</h1>' +
       '  <a class="btn btn--outline btn--sm" href="#/">' + u.icon('map', { size: 15 }) + ' Mapa</a>' +
       '</div>' +
-      '<div class="page-wrap">' +
+      '<div class="explore-layout" style="grid-template-areas:\'map\' \'list\'">' +
+      '  <div class="explore-map"><div class="map-canvas" data-map></div></div>' +
+      '  <div class="explore-list"><div class="page-wrap">' +
       (nearCoords ? '<p class="text-muted" style="font-size:0.82rem;margin:-4px 0 12px">' + u.icon('locate', { size: 13 }) + ' Ordenadas por cercanía a tu ubicación</p>' : '') +
       '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML() + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
@@ -40,10 +44,17 @@
       '    <button type="button" class="btn btn--outline btn--sm" data-open-filters>' + u.icon('sliders', { size: 15 }) + ' Filtros</button>' +
       '  </div>' +
       '  <div class="stack gap-2" data-list></div>' +
+      '  </div></div>' +
       '</div>';
 
     c.mountChrome('properties');
     document.title = 'InmoMaps — Propiedades';
+
+    function onSelectProperty(property) {
+      window.location.hash = '#/propiedad/' + property.id;
+    }
+
+    mapCtrl = window.App.map.create(u.qs('[data-map]', root), {});
 
     function refresh() {
       var list = u.applyFilters(state.properties.publicList(), filters);
@@ -55,6 +66,10 @@
       u.qs('[data-list]', root).innerHTML = list.length
         ? list.map(function (p) { return c.propertyCardHTML(p, { variant: 'row' }); }).join('')
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin resultados</h3><p>Prueba con otros filtros para ver más propiedades.</p></div>';
+      if (mapCtrl.ready) {
+        mapCtrl.setMarkers(list, onSelectProperty);
+        mapCtrl.fitToProperties(list);
+      }
     }
 
     refresh();

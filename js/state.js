@@ -62,6 +62,14 @@
       .filter(Boolean);
   }
 
+  // --- Traspaso de filtros entre páginas: al aplicar el filtro en Explorar,
+  // "Ver X propiedades" navega a Propiedades y le pasa el filtro elegido por
+  // aquí. Es de un solo uso (take() lo consume) y no se persiste en
+  // localStorage: es estado de navegación, no una preferencia duradera. ---
+  var pendingFilters = null;
+  function setPendingFilters(f) { pendingFilters = f; }
+  function takePendingFilters() { var f = pendingFilters; pendingFilters = null; return f; }
+
   // --- Ciudad seleccionada: filtra propiedades en todas las vistas que la lean ---
   var selectedCityKey = readJSON(KEYS.city, null);
   function getCity() { return selectedCityKey; }
@@ -435,6 +443,10 @@
     city: {
       get: getCity,
       set: setCity
+    },
+    filters: {
+      set: setPendingFilters,
+      take: takePendingFilters
     },
     agents: {
       bootstrap: bootstrapAgents,

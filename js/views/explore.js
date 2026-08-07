@@ -162,11 +162,13 @@
     // Chips rápidos de operación / tipo
     c.bindQuickFilterChips(root, filters, refreshList);
 
-    // Búsqueda y filtros avanzados
+    // Búsqueda y filtros avanzados: "Ver X propiedades" lleva a la página
+    // Propiedades (mapa + lista completa del resultado), no se aplica sobre
+    // el mapa general de Explorar.
     u.qs('[data-open-filters]', root).addEventListener('click', function () {
       c.openFilterSheet(filters, state.properties.publicList(), function (applied) {
-        filters = applied;
-        refreshList();
+        state.filters.set(applied);
+        window.location.hash = '#/propiedades';
       });
     });
 
