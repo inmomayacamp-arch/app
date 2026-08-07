@@ -1,6 +1,7 @@
-// Vista "Publicar como propietario": cuenta simple + datos de la propiedad +
-// espacio de pago, todo en un solo paso. Sin panel de trabajo: el propietario
-// solo deja sus datos para que los interesados lo contacten directo.
+// Vista "Publicar como propietario": sin cuenta ni contraseña. Solo se
+// guardan sus datos de contacto directo en la propiedad (owner_name/
+// owner_phone/owner_email) para que los interesados lo contacten y para que
+// quede visible en el panel admin — no se crea ningún perfil público.
 (function () {
   "use strict";
 
@@ -13,15 +14,6 @@
     { value: "terreno", label: "Terreno" },
     { value: "local", label: "Local" },
     { value: "oficina", label: "Oficina" }
-  ];
-
-  var STOCK_PHOTOS = [
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80",
-    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80",
-    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80",
-    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=80",
-    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80"
   ];
 
   var PAYMENT_METHODS = [
@@ -44,17 +36,22 @@
     var plan = window.App.admin.data.OWNER_PLAN;
     var addon = plan.featuredAddon;
     var photos = [];
+    var uploadingCount = 0;
     var destacar = false;
+    var mapCtrl = null;
+    var coords = null;
+    var cityCenters = window.APP_CONFIG.CITY_CENTERS;
 
     function photoSlotsHTML() {
-      var slots = "";
-      for (var i = 0; i < 6; i++) {
-        var photo = photos[i];
-        slots += '<button type="button" class="photo-slot" data-photo-slot="' + i + '">' +
-          (photo ? '<img src="' + photo + '" alt="" />' : u.icon('camera', { size: 20 })) +
-          '</button>';
+      var tiles = photos.map(function (p, i) {
+        return '<div class="photo-slot photo-slot--filled"><img src="' + p.url + '" alt="" />' +
+          '<button type="button" class="photo-slot__remove" data-remove-photo="' + i + '" aria-label="Eliminar foto">' + u.icon('x', { size: 12 }) + '</button></div>';
+      }).join('');
+      for (var i = 0; i < uploadingCount; i++) tiles += '<div class="photo-slot photo-slot--uploading"><span class="spinner"></span></div>';
+      if (photos.length + uploadingCount < 6) {
+        tiles += '<button type="button" class="photo-slot photo-slot--add" data-add-photos>' + u.icon('camera', { size: 20 }) + '<span>Agregar</span></button>';
       }
-      return slots;
+      return tiles;
     }
 
     function paymentMethodsHTML() {
@@ -86,14 +83,13 @@
       '    </div>' +
 
       '    <h1 class="signup-checkout__title">Tus datos de contacto</h1>' +
-      '    <p class="signup-checkout__subtitle">Así te van a contactar los interesados. No necesitas crear una cuenta de asesor.</p>' +
+      '    <p class="signup-checkout__subtitle">Así te van a contactar los interesados. No necesitas crear una cuenta.</p>' +
 
       '    <div class="form-field"><label>Nombre completo</label><input type="text" data-name placeholder="Tu nombre" /></div>' +
       '    <div class="form-row">' +
       '    <div class="form-field"><label>Teléfono / WhatsApp</label><input type="text" data-phone placeholder="9811234567" /></div>' +
       '    <div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" /></div>' +
       '    </div>' +
-      '    <div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Crea una contraseña" /></div>' +
 
       '    <h1 class="signup-checkout__title">Datos de tu propiedad</h1>' +
       '    <div class="form-field"><label>Título</label><input type="text" data-title placeholder="Casa en Fracc. Vista Alegre" /></div>' +
@@ -103,12 +99,22 @@
       '    </div>' +
       '    <div class="form-field"><label>Precio (MXN)</label><input type="number" min="0" data-price placeholder="2,500,000" /></div>' +
       '    <div class="form-row">' +
-      '    <div class="form-field"><label>Ciudad</label><input type="text" data-city placeholder="Campeche" /></div>' +
+      '    <div class="form-field"><label>Ciudad</label><select data-city>' +
+      '      <option value="">Selecciona una ciudad</option>' +
+      Object.keys(cityCenters).map(function (k) { return '<option value="' + u.escapeHtml(cityCenters[k].label) + '">' + u.escapeHtml(cityCenters[k].label) + '</option>'; }).join('') +
+      '    </select></div>' +
       '    <div class="form-field"><label>Colonia</label><input type="text" data-neighborhood placeholder="Vista Alegre" /></div>' +
+      '    </div>' +
+      '    <div class="form-field" data-location-wrap style="display:none">' +
+      '      <label>Ubicación en el mapa</label>' +
+      '      <div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div>' +
+      '      <span class="map-picker__pin">' + u.icon('pin', { size: 34 }) + '</span></div>' +
+      '      <p class="text-muted" style="font-size:0.78rem;margin-top:6px">Mueve el mapa hasta ubicar el pin en tu propiedad.</p>' +
       '    </div>' +
       '    <div class="form-field"><label>Descripción</label><textarea rows="4" data-description placeholder="Describe tu propiedad: acabados, distribución, puntos fuertes."></textarea></div>' +
       '    <div class="form-field"><label>Fotos</label><div class="photo-grid" data-photo-grid>' + photoSlotsHTML() + '</div>' +
-      '    <p class="text-muted" style="font-size:0.78rem;margin-top:6px">Toca un espacio para agregar una foto de muestra.</p></div>' +
+      '    <input type="file" accept="image/*" multiple data-photo-input style="display:none" />' +
+      '    <p class="text-muted" style="font-size:0.78rem;margin-top:6px">Sube al menos una foto real de tu propiedad.</p></div>' +
 
       '    <div class="form-field"><label class="row gap-2" style="cursor:pointer">' +
       '      <input type="checkbox" data-destacar style="width:18px;height:18px" /> ' + u.escapeHtml(addon.label) + ' (+$' + addon.price + ' MXN) — ' + u.escapeHtml(addon.description) +
@@ -130,16 +136,64 @@
       totalEl.textContent = totalPrice();
     });
 
-    u.qs('[data-photo-grid]', root).addEventListener('click', function (e) {
-      var slot = e.target.closest('[data-photo-slot]');
-      if (!slot) return;
-      var idx = Number(slot.getAttribute('data-photo-slot'));
-      if (photos[idx]) {
-        photos.splice(idx, 1);
-      } else if (photos.length < 6) {
-        photos.push(STOCK_PHOTOS[photos.length % STOCK_PHOTOS.length]);
-      }
+    function wirePhotoGrid() {
+      var grid = u.qs('[data-photo-grid]', root);
+      var addBtn = u.qs('[data-add-photos]', grid);
+      if (addBtn) addBtn.addEventListener('click', function () { fileInput.click(); });
+      u.qsa('[data-remove-photo]', grid).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          photos.splice(Number(btn.getAttribute('data-remove-photo')), 1);
+          refreshPhotos();
+        });
+      });
+    }
+    function refreshPhotos() {
       u.qs('[data-photo-grid]', root).innerHTML = photoSlotsHTML();
+      wirePhotoGrid();
+    }
+    wirePhotoGrid();
+
+    var fileInput = u.qs('[data-photo-input]', root);
+    fileInput.addEventListener('change', function () {
+      var files = Array.prototype.slice.call(fileInput.files || []);
+      fileInput.value = '';
+      if (!files.length) return;
+      uploadingCount += files.length;
+      refreshPhotos();
+      files.forEach(function (file) {
+        window.App.photoUpload.uploadImage(file, 'propietarios').then(function (url) {
+          photos.push({ url: url });
+          uploadingCount -= 1;
+          refreshPhotos();
+        }).catch(function (err) {
+          uploadingCount -= 1;
+          u.toast(err.message || 'No se pudo subir una foto');
+          refreshPhotos();
+        });
+      });
+    });
+
+    // Ciudad: hasta elegir una de las 3 soportadas aparece el mapa real,
+    // centrado ahí, para ubicar el pin de la propiedad.
+    u.qs('[data-city]', root).addEventListener('change', function (e) {
+      var label = e.target.value;
+      var wrap = u.qs('[data-location-wrap]', root);
+      var entry = null;
+      Object.keys(cityCenters).forEach(function (k) { if (cityCenters[k].label === label) entry = cityCenters[k]; });
+      if (!entry) { wrap.style.display = 'none'; coords = null; return; }
+      coords = entry.center.slice();
+      wrap.style.display = '';
+      if (!mapCtrl) {
+        mapCtrl = window.App.map.create(u.qs('[data-map]', root), { center: coords, zoom: 15 });
+        if (mapCtrl.ready) {
+          mapCtrl.map.on('moveend', function () {
+            var c = mapCtrl.map.getCenter();
+            coords = [c.lng, c.lat];
+          });
+        }
+      } else if (mapCtrl.ready) {
+        mapCtrl.map.jumpTo({ center: coords, zoom: 15 });
+      }
     });
 
     var publishBtn = u.qs('[data-publish]', root);
@@ -147,7 +201,6 @@
       var name = u.qs('[data-name]', root).value.trim();
       var phone = u.qs('[data-phone]', root).value.trim();
       var email = u.qs('[data-email]', root).value.trim();
-      var password = u.qs('[data-password]', root).value;
       var title = u.qs('[data-title]', root).value.trim();
       var type = u.qs('[data-type]', root).value;
       var operation = u.qs('[data-operation]', root).value;
@@ -156,20 +209,25 @@
       var neighborhood = u.qs('[data-neighborhood]', root).value.trim();
       var description = u.qs('[data-description]', root).value.trim();
 
-      if (!name || !phone || !email || !password) { u.toast('Completa tus datos de contacto'); return; }
-      if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
-      if (!city.trim() || !(price > 0)) { u.toast('Completa la ciudad y el precio de tu propiedad'); return; }
+      if (!name || !phone || !email) { u.toast('Completa tus datos de contacto'); return; }
+      if (!city) { u.toast('Selecciona la ciudad de tu propiedad'); return; }
+      if (!(price > 0)) { u.toast('Ingresa el precio de tu propiedad'); return; }
+      if (!photos.length) { u.toast('Sube al menos una foto real de tu propiedad'); return; }
 
       publishBtn.disabled = true;
       try {
-        await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: 'propietario' });
-        var published = await state.properties.publish({
+        var published = await state.properties.publishOwner({
           title: title || (u.propertyTypeLabel(type) + ' en ' + (neighborhood || city)),
-          type: type, operation: operation, price: price, city: city,
-          neighborhood: neighborhood || city, addressNote: '', coords: window.APP_CONFIG.DEFAULT_CENTER,
-          description: description, photos: photos, featured: destacar
+          type: type, operation: operation,
+          price: operation === 'venta' ? price : 0,
+          priceRent: operation === 'renta' ? price : null,
+          city: city, neighborhood: neighborhood || city, addressNote: '',
+          coords: coords || window.APP_CONFIG.DEFAULT_CENTER,
+          description: description,
+          photos: photos.map(function (p) { return p.url; }),
+          featured: destacar,
+          ownerName: name, ownerPhone: phone, ownerEmail: email
         });
-        await state.agents.logout();
         window.location.hash = '#/propiedad/' + published.id;
         u.toast('¡Tu propiedad fue publicada!', { tone: 'success' });
       } catch (err) {

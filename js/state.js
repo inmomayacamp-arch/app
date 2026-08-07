@@ -257,6 +257,9 @@
       rentalGuarantees: row.rental_guarantees || [],
       rentalServicesIncluded: row.rental_services_included || [],
       rentalAvailableFrom: row.rental_available_from || "",
+      ownerName: row.owner_name || "",
+      ownerPhone: row.owner_phone || "",
+      ownerEmail: row.owner_email || "",
       tags: row.tags || [],
       featured: !!row.featured,
       status: row.status || "disponible",
@@ -280,6 +283,7 @@
       features: "features", photos: "photos", videoUrl: "video_url", virtualTourUrl: "virtual_tour_url",
       rentalDeposit: "rental_deposit", rentalMinContract: "rental_min_contract", rentalFurnished: "rental_furnished",
       rentalGuarantees: "rental_guarantees", rentalServicesIncluded: "rental_services_included", rentalAvailableFrom: "rental_available_from",
+      ownerName: "owner_name", ownerPhone: "owner_phone", ownerEmail: "owner_email",
       tags: "tags", featured: "featured", status: "status", publishStatus: "publish_status",
       scheduledAt: "scheduled_at", sharing: "sharing"
     };
@@ -328,6 +332,27 @@
     var row = Object.assign(propertyFieldsToRow(payload), {
       agent_id: targetAgent.id,
       agent_slug: targetAgent.slug,
+      featured: !!payload.featured,
+      status: "disponible",
+      photos: payload.photos && payload.photos.length ? payload.photos : [FALLBACK_PHOTO],
+      features: payload.features || []
+    });
+    var insertResult = await supabaseClient.from("properties").insert(row).select().single();
+    if (insertResult.error) throw insertResult.error;
+    var property = mapPropertyRow(insertResult.data);
+    cachedProperties = cachedProperties.concat([property]);
+    emit("properties:change", cachedProperties);
+    return property;
+  }
+  // Publicación de un propietario sin cuenta de asesor: sin sesión iniciada,
+  // sin agent_id/agent_slug — el contacto público queda en owner_name/owner_phone/
+  // owner_email, guardados directo en la propiedad. La política de RLS de
+  // "properties" solo permite este insert cuando agent_id es null.
+  async function publishOwnerProperty(payload) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var row = Object.assign(propertyFieldsToRow(payload), {
+      agent_id: null,
+      agent_slug: null,
       featured: !!payload.featured,
       status: "disponible",
       photos: payload.photos && payload.photos.length ? payload.photos : [FALLBACK_PHOTO],
@@ -466,6 +491,7 @@
       get: getProperty,
       byAgent: propertiesByAgent,
       publish: publishProperty,
+      publishOwner: publishOwnerProperty,
       update: updateProperty,
       remove: removeProperty,
       duplicate: duplicateProperty

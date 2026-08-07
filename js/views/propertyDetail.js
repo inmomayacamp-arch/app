@@ -29,7 +29,12 @@
     var fromLink = fromRef ? state.links.get(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
     state.tracking.logPropertyView(property.id, fromLink ? fromLink.id : null);
 
-    var whatsappHref = u.whatsappLink(agent ? agent.whatsapp : '', 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.');
+    // Si no hay asesor (propiedad publicada directo por el propietario, sin
+    // cuenta), el contacto cae en los datos que el propietario dejó en la
+    // propiedad misma (owner_phone), no en un perfil.
+    var contactPhone = agent ? agent.whatsapp : property.ownerPhone;
+    var contactCallPhone = agent ? agent.phone : property.ownerPhone;
+    var whatsappHref = u.whatsappLink(contactPhone, 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.');
     var trackAttrs = 'data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '');
 
     root.innerHTML =
@@ -48,7 +53,7 @@
       '<div class="detail-float-contact" data-float-contact>' +
       (property.coords ? '  <a class="detail-float-contact__btn detail-float-contact__btn--directions" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '" aria-label="Cómo llegar">' + u.brandMark({ size: 20, style: 'color:#fff' }) + '</a>' : '') +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--whatsapp" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '" aria-label="Escribir por WhatsApp">' + u.icon('chat', { size: 20 }) + '</a>' +
-      '  <a class="detail-float-contact__btn detail-float-contact__btn--call" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
+      '  <a class="detail-float-contact__btn detail-float-contact__btn--call" ' + trackAttrs + ' href="tel:' + contactCallPhone + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +
       '</div>' +
       '<div class="detail-body">' +
       '  <div class="detail-title-row">' +
@@ -147,7 +152,7 @@
 
       '  <div class="contact-actions" data-contact-actions>' +
       '    <a class="btn btn--whatsapp btn--block" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
-      '    <a class="btn btn--call btn--block" ' + trackAttrs + ' href="tel:' + (agent ? agent.phone : '') + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '    <a class="btn btn--call btn--block" ' + trackAttrs + ' href="tel:' + contactCallPhone + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       '  <button type="button" class="btn btn--outline btn--block" data-download-pdf>' + u.icon('download', { size: 16 }) + ' Descargar ficha en PDF</button>' +
 
@@ -161,7 +166,7 @@
         '  </div>' +
         '  <span class="btn btn--outline btn--sm">Ver perfil</span>' +
         '</a>'
-      ) : '') +
+      ) : (property.ownerName ? '<p class="text-muted" style="font-size:0.85rem">Publicado por ' + u.escapeHtml(property.ownerName) + '</p>' : '')) +
       '</div>';
 
     if (fromRef) {
