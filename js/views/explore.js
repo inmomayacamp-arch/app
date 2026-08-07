@@ -7,12 +7,16 @@
   var state = window.App.state;
   var data = window.App.data;
 
-  var CATEGORIES = [
-    { type: "casa", label: "Casas", icon: "home", color: "var(--color-primary)", bg: "var(--color-primary-light)" },
-    { type: "departamento", label: "Deptos.", icon: "layers", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
-    { type: "terreno", label: "Terrenos", icon: "map", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
-    { type: "local", label: "Locales", icon: "store", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
-    { type: "oficina", label: "Oficinas", icon: "briefcase", color: "var(--color-venta)", bg: "var(--color-venta-bg)" }
+  // Directorio de servicios inmobiliarios (notario, valuadores, etc.): todavía
+  // no existe un directorio real detrás de estas categorías, así que por ahora
+  // solo avisan que viene pronto. Cuando se construya esa sección, este es el
+  // lugar para cambiar el handler de "data-service" por una navegación real.
+  var SERVICE_CATEGORIES = [
+    { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
+    { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
+    { key: "arquitectos", label: "Arquitectos", icon: "penTool", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
+    { key: "servicios", label: "Servicios", icon: "tool", color: "var(--color-venta)", bg: "var(--color-venta-bg)" },
+    { key: "sofom", label: "SOFOM", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
   ];
 
   function render(params, root) {
@@ -68,10 +72,10 @@
       '    <div class="container">' +
       '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
       '      <div class="category-grid" data-categories>' +
-      '        <button type="button" class="category-card" data-nearby style="--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' +
-      '          <span class="category-card__icon">' + u.icon('locate', { size: 22 }) + '</span><strong>Cerca de ti</strong></button>' +
-      CATEGORIES.map(function (cat) {
-        return '<button type="button" class="category-card" data-category="' + cat.type + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
+      '        <button type="button" class="category-card" data-all-properties style="--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' +
+      '          <span class="category-card__icon">' + u.icon('home', { size: 22 }) + '</span><strong>Ver todas las casas</strong></button>' +
+      SERVICE_CATEGORIES.map(function (cat) {
+        return '<button type="button" class="category-card" data-service="' + cat.key + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
           '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
       }).join('') +
       '      </div>' +
@@ -128,24 +132,18 @@
     });
 
     // Categorías
-    u.qsa('[data-category]', root).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        filters.types = [btn.getAttribute('data-category')];
-        filters.operation = 'todas';
-        refreshList();
-        u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+    var allPropertiesBtn = u.qs('[data-all-properties]', root);
+    if (allPropertiesBtn) allPropertiesBtn.addEventListener('click', function () {
+      filters.types = [];
+      filters.operation = 'todas';
+      refreshList();
+      u.qs('.explore-map', root).scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    var nearbyBtn = u.qs('[data-nearby]', root);
-    if (nearbyBtn) nearbyBtn.addEventListener('click', function () {
-      if (!navigator.geolocation) { u.toast('Tu navegador no soporta geolocalización.'); return; }
-      nearbyBtn.disabled = true;
-      navigator.geolocation.getCurrentPosition(function (pos) {
-        window.location.hash = '#/propiedades?near=' + pos.coords.longitude + ',' + pos.coords.latitude;
-      }, function () {
-        nearbyBtn.disabled = false;
-        u.toast('No pudimos acceder a tu ubicación.');
+    u.qsa('[data-service]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var cat = SERVICE_CATEGORIES.filter(function (c) { return c.key === btn.getAttribute('data-service'); })[0];
+        u.toast((cat ? cat.label : 'Este directorio') + ': muy pronto disponible.');
       });
     });
 
