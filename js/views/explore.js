@@ -11,6 +11,11 @@
   // no existe un directorio real detrás de estas categorías, así que por ahora
   // solo avisan que viene pronto. Cuando se construya esa sección, este es el
   // lugar para cambiar el handler de "data-service" por una navegación real.
+  // Radio máximo (km) para asumir que alguien "está" en una de las 3 ciudades
+  // soportadas, tanto por geolocalización real como por arrastrar el mapa.
+  // Fuera de ese radio no se fuerza ninguna ciudad.
+  var AUTO_CITY_RADIUS_KM = 60;
+
   var SERVICE_CATEGORIES = [
     { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
     { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
@@ -129,6 +134,29 @@
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
     }
 
+    // Encuentra la ciudad soportada más cercana a un punto [lng, lat]; null si
+    // ninguna está dentro de AUTO_CITY_RADIUS_KM (evita forzar una ciudad a
+    // alguien que está lejos de las 3, por geolocalización o por el mapa).
+    function nearestCityKey(coords) {
+      var best = null, bestDist = Infinity;
+      Object.keys(cityCenters).forEach(function (k) {
+        var d = u.distanceKm(coords, cityCenters[k].center);
+        if (d < bestDist) { bestDist = d; best = k; }
+      });
+      return bestDist <= AUTO_CITY_RADIUS_KM ? best : null;
+    }
+
+    // Fuente única de verdad para activar una ciudad: la usan el <select>, el
+    // arrastre del mapa y la geolocalización inicial, para no repetir el
+    // mismo bloque tres veces.
+    function applyCity(key) {
+      state.city.set(key);
+      filters.city = key;
+      var select = u.qs('[data-city-select]', root);
+      if (select) select.value = key || '';
+      refreshList();
+    }
+
     refreshList();
 
     // Chips rápidos de operación / tipo
@@ -145,9 +173,7 @@
     // Ciudad: filtra las propiedades disponibles y mueve el mapa a esa ciudad
     u.qs('[data-city-select]', root).addEventListener('change', function (e) {
       var key = e.target.value || null;
-      state.city.set(key);
-      filters.city = key;
-      refreshList();
+      applyCity(key);
       if (key && mapCtrl.ready) mapCtrl.flyTo(cityCenters[key].center, cityCenters[key].zoom);
     });
 
@@ -172,6 +198,14 @@
     if (mapCtrl.ready) {
       mapCtrl.map.on('dragend', function () { searchAreaBtn.hidden = false; });
       mapCtrl.map.on('zoomend', function () { searchAreaBtn.hidden = false; });
+      // Si al soltar el mapa quedó cerca de otra de las 3 ciudades soportadas,
+      // el chip "Ciudad" y el filtro la siguen solos — sin volver a centrar el
+      // mapa, porque el usuario ya está viendo esa zona.
+      mapCtrl.map.on('moveend', function () {
+        var center = mapCtrl.map.getCenter();
+        var key = nearestCityKey([center.lng, center.lat]);
+        if (key && key !== filters.city) applyCity(key);
+      });
     }
     searchAreaBtn.addEventListener('click', function () {
       boundsOnly = true;
@@ -179,6 +213,22 @@
       refreshList();
     });
 
+    // Al entrar sin ninguna ciudad activa, se detecta la ubicación real para
+    // arrancar ya filtrado ahí. Silencioso si se niega el permiso o no hay
+    // soporte: es una detección en segundo plano, no una acción que el
+    // usuario pidió a propósito (a diferencia del antiguo botón "Cerca de
+    // ti"). Si ya había una ciudad activa, no se vuelve a preguntar — no se
+    // le pisa la elección solo por volver a entrar a la página.
+    if (!filters.city && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var key = nearestCityKey([pos.coords.longitude, pos.coords.latitude]);
+        if (key) {
+          applyCity(key);
+          if (mapCtrl.ready) mapCtrl.flyTo(cityCenters[key].center, cityCenters[key].zoom);
+          u.toast('Te mostramos propiedades en ' + cityCenters[key].label + ' según tu ubicación.');
+        }
+      }, function () { /* permiso denegado o error: sin aviso, queda como estaba */ });
+    }
   }
 
   window.App.views = window.App.views || {};
