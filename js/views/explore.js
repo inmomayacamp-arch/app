@@ -11,10 +11,10 @@
   // no existe un directorio real detrás de estas categorías, así que por ahora
   // solo avisan que viene pronto. Cuando se construya esa sección, este es el
   // lugar para cambiar el handler de "data-service" por una navegación real.
-  // Radio máximo (km) para asumir que alguien "está" en una de las 3 ciudades
-  // soportadas, tanto por geolocalización real como por arrastrar el mapa.
-  // Fuera de ese radio no se fuerza ninguna ciudad.
-  var AUTO_CITY_RADIUS_KM = 60;
+  // Radio máximo (km) para asumir que la geolocalización "está" en una ciudad
+  // del catálogo nacional. Más amplio que antes porque ahora la cobertura es
+  // todo México, no solo 3 ciudades cercanas entre sí.
+  var AUTO_LOCATION_RADIUS_KM = 120;
 
   var SERVICE_CATEGORIES = [
     { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
@@ -26,10 +26,27 @@
 
   function render(params, root) {
     var filters = u.defaultFilters();
-    filters.city = state.city.get();
+    var savedLocation = state.location.get();
+    filters.stateKey = savedLocation.stateKey;
+    filters.cityKey = savedLocation.cityKey;
     var mapCtrl = null;
     var boundsOnly = false;
-    var cityCenters = window.APP_CONFIG.CITY_CENTERS;
+    var mexicoStates = window.APP_CONFIG.MEXICO_STATES;
+
+    // Resuelve un {stateKey, cityKey} al centro/zoom donde mover el mapa y a
+    // la etiqueta que se muestra en el botón de ubicación.
+    function resolveLocation(stateKey, cityKey) {
+      var st = stateKey && mexicoStates[stateKey];
+      if (!st) return null;
+      var city = cityKey && st.cities[cityKey];
+      if (city) return { center: city.center, zoom: city.zoom, label: city.label };
+      return { center: st.center, zoom: st.zoom, label: st.label };
+    }
+
+    function locationLabel() {
+      var loc = resolveLocation(filters.stateKey, filters.cityKey);
+      return loc ? loc.label : 'Ubicación';
+    }
 
     function visibleProperties() {
       var base = state.properties.publicList();
@@ -55,12 +72,7 @@
       '    <div class="map-top-overlay">' +
       '      <div class="row" style="justify-content:space-between;align-items:center;width:100%">' +
       '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
-      '        <select class="city-chip" data-city-select aria-label="Ciudad">' +
-      '          <option value="">Ciudad</option>' +
-      Object.keys(cityCenters).map(function (key) {
-        return '<option value="' + key + '"' + (filters.city === key ? ' selected' : '') + '>' + u.escapeHtml(cityCenters[key].label) + '</option>';
-      }).join('') +
-      '        </select>' +
+      '        <button type="button" class="city-chip" data-open-location aria-label="Ubicación">' + u.icon('pin', { size: 13 }) + ' <span data-location-label>' + u.escapeHtml(locationLabel()) + '</span></button>' +
       '      </div>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
@@ -113,8 +125,8 @@
     c.mountChrome('explore');
     document.title = 'InmoMaps — Explorar propiedades en el mapa';
 
-    var initialCity = filters.city && cityCenters[filters.city];
-    mapCtrl = window.App.map.create(u.qs('[data-map]', root), Object.assign({ showLocate: true }, initialCity ? { center: initialCity.center, zoom: initialCity.zoom } : {}));
+    var initialLocation = resolveLocation(filters.stateKey, filters.cityKey);
+    mapCtrl = window.App.map.create(u.qs('[data-map]', root), Object.assign({ showLocate: true }, initialLocation ? { center: initialLocation.center, zoom: initialLocation.zoom } : {}));
     window.App.router.onLeave(function () { mapCtrl.destroy(); });
 
     function onSelectProperty(property) {
@@ -136,26 +148,29 @@
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
     }
 
-    // Encuentra la ciudad soportada más cercana a un punto [lng, lat]; null si
-    // ninguna está dentro de AUTO_CITY_RADIUS_KM (evita forzar una ciudad a
-    // alguien que está lejos de las 3, por geolocalización o por el mapa).
-    function nearestCityKey(coords) {
+    // Encuentra la ciudad del catálogo nacional más cercana a un punto
+    // [lng, lat]; null si ninguna está dentro de AUTO_LOCATION_RADIUS_KM
+    // (evita forzar una ubicación a alguien lejos de cualquier ciudad conocida).
+    function nearestLocation(coords) {
       var best = null, bestDist = Infinity;
-      Object.keys(cityCenters).forEach(function (k) {
-        var d = u.distanceKm(coords, cityCenters[k].center);
-        if (d < bestDist) { bestDist = d; best = k; }
+      Object.keys(mexicoStates).forEach(function (sk) {
+        var cities = mexicoStates[sk].cities;
+        Object.keys(cities).forEach(function (ck) {
+          var d = u.distanceKm(coords, cities[ck].center);
+          if (d < bestDist) { bestDist = d; best = { stateKey: sk, cityKey: ck }; }
+        });
       });
-      return bestDist <= AUTO_CITY_RADIUS_KM ? best : null;
+      return bestDist <= AUTO_LOCATION_RADIUS_KM ? best : null;
     }
 
-    // Fuente única de verdad para activar una ciudad: la usan el <select>, el
-    // arrastre del mapa y la geolocalización inicial, para no repetir el
-    // mismo bloque tres veces.
-    function applyCity(key) {
-      state.city.set(key);
-      filters.city = key;
-      var select = u.qs('[data-city-select]', root);
-      if (select) select.value = key || '';
+    // Fuente única de verdad para activar una ubicación: la usan la hoja de
+    // ubicación y la geolocalización inicial, para no repetir el mismo bloque.
+    function applyLocation(stateKey, cityKey) {
+      state.location.set(stateKey, cityKey);
+      filters.stateKey = stateKey;
+      filters.cityKey = cityKey;
+      var label = u.qs('[data-location-label]', root);
+      if (label) label.textContent = locationLabel();
       refreshList();
     }
 
@@ -174,11 +189,13 @@
       });
     });
 
-    // Ciudad: filtra las propiedades disponibles y mueve el mapa a esa ciudad
-    u.qs('[data-city-select]', root).addEventListener('change', function (e) {
-      var key = e.target.value || null;
-      applyCity(key);
-      if (key && mapCtrl.ready) mapCtrl.flyTo(cityCenters[key].center, cityCenters[key].zoom);
+    // Ubicación: filtra las propiedades disponibles y mueve el mapa ahí
+    u.qs('[data-open-location]', root).addEventListener('click', function () {
+      c.openLocationSheet({ stateKey: filters.stateKey, cityKey: filters.cityKey }, function (loc) {
+        applyLocation(loc.stateKey, loc.cityKey);
+        var target = resolveLocation(loc.stateKey, loc.cityKey);
+        if (target && mapCtrl.ready) mapCtrl.flyTo(target.center, target.zoom);
+      });
     });
 
     // Categorías
@@ -194,19 +211,13 @@
       });
     });
 
-    // Buscar en esta área (al mover el mapa)
+    // Buscar en esta área (al mover el mapa): el patrón estándar de Zillow/
+    // Redfin/Airbnb — arrastrar el mapa nunca cambia los resultados solo,
+    // siempre requiere este botón explícito.
     var searchAreaBtn = u.qs('[data-search-area]', root);
     if (mapCtrl.ready) {
       mapCtrl.map.on('dragend', function () { searchAreaBtn.hidden = false; });
       mapCtrl.map.on('zoomend', function () { searchAreaBtn.hidden = false; });
-      // Si al soltar el mapa quedó cerca de otra de las 3 ciudades soportadas,
-      // el chip "Ciudad" y el filtro la siguen solos — sin volver a centrar el
-      // mapa, porque el usuario ya está viendo esa zona.
-      mapCtrl.map.on('moveend', function () {
-        var center = mapCtrl.map.getCenter();
-        var key = nearestCityKey([center.lng, center.lat]);
-        if (key && key !== filters.city) applyCity(key);
-      });
     }
     searchAreaBtn.addEventListener('click', function () {
       boundsOnly = true;
@@ -214,19 +225,19 @@
       refreshList();
     });
 
-    // Al entrar sin ninguna ciudad activa, se detecta la ubicación real para
+    // Al entrar sin ninguna ubicación activa, se detecta la ubicación real para
     // arrancar ya filtrado ahí. Silencioso si se niega el permiso o no hay
     // soporte: es una detección en segundo plano, no una acción que el
-    // usuario pidió a propósito (a diferencia del antiguo botón "Cerca de
-    // ti"). Si ya había una ciudad activa, no se vuelve a preguntar — no se
-    // le pisa la elección solo por volver a entrar a la página.
-    if (!filters.city && navigator.geolocation) {
+    // usuario pidió a propósito. Si ya había una ubicación activa, no se
+    // vuelve a preguntar — no se le pisa la elección solo por volver a entrar.
+    if (!filters.stateKey && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function (pos) {
-        var key = nearestCityKey([pos.coords.longitude, pos.coords.latitude]);
-        if (key) {
-          applyCity(key);
-          if (mapCtrl.ready) mapCtrl.flyTo(cityCenters[key].center, cityCenters[key].zoom);
-          u.toast('Te mostramos propiedades en ' + cityCenters[key].label + ' según tu ubicación.');
+        var loc = nearestLocation([pos.coords.longitude, pos.coords.latitude]);
+        if (loc) {
+          applyLocation(loc.stateKey, loc.cityKey);
+          var target = resolveLocation(loc.stateKey, loc.cityKey);
+          if (target && mapCtrl.ready) mapCtrl.flyTo(target.center, target.zoom);
+          u.toast('Te mostramos propiedades en ' + (target ? target.label : '') + ' según tu ubicación.');
         }
       }, function () { /* permiso denegado o error: sin aviso, queda como estaba */ });
     }

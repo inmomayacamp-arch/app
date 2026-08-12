@@ -8,7 +8,7 @@
 
   var KEYS = {
     favorites: "inmomap:favorites",
-    city: "inmomap:city"
+    location: "inmomap:location"
   };
 
   function readJSON(key, fallback) {
@@ -70,13 +70,13 @@
   function setPendingFilters(f) { pendingFilters = f; }
   function takePendingFilters() { var f = pendingFilters; pendingFilters = null; return f; }
 
-  // --- Ciudad seleccionada: filtra propiedades en todas las vistas que la lean ---
-  var selectedCityKey = readJSON(KEYS.city, null);
-  function getCity() { return selectedCityKey; }
-  function setCity(key) {
-    selectedCityKey = key || null;
-    writeJSON(KEYS.city, selectedCityKey);
-    emit("city:change", selectedCityKey);
+  // --- Estado/ciudad seleccionados: filtra propiedades en todas las vistas que los lean ---
+  var selectedLocation = readJSON(KEYS.location, { stateKey: null, cityKey: null });
+  function getLocation() { return selectedLocation; }
+  function setLocation(stateKey, cityKey) {
+    selectedLocation = { stateKey: stateKey || null, cityKey: (stateKey && cityKey) || null };
+    writeJSON(KEYS.location, selectedLocation);
+    emit("location:change", selectedLocation);
   }
 
   // --- Cuentas de asesor: registro, inicio de sesión, sesión activa (Supabase Auth real) ---
@@ -465,9 +465,9 @@
       count: favoriteCount,
       list: favoriteProperties
     },
-    city: {
-      get: getCity,
-      set: setCity
+    location: {
+      get: getLocation,
+      set: setLocation
     },
     filters: {
       set: setPendingFilters,

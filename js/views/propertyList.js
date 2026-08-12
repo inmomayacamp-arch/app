@@ -16,8 +16,19 @@
   function render(params, root) {
     var handoff = state.filters.take();
     var filters = handoff || u.defaultFilters();
-    if (!handoff) filters.city = state.city.get();
+    if (!handoff) {
+      var savedLocation = state.location.get();
+      filters.stateKey = savedLocation.stateKey;
+      filters.cityKey = savedLocation.cityKey;
+    }
     var mapCtrl = null;
+
+    function locationLabel() {
+      var st = filters.stateKey && window.APP_CONFIG.MEXICO_STATES[filters.stateKey];
+      if (!st) return 'Ubicación';
+      var city = filters.cityKey && st.cities[filters.cityKey];
+      return city ? city.label : st.label;
+    }
     var nearCoords = null;
     if (params && params.query && params.query.near) {
       var parts = params.query.near.split(',').map(Number);
@@ -37,12 +48,7 @@
       '  <div class="explore-list"><div class="page-wrap">' +
       (nearCoords ? '<p class="text-muted" style="font-size:0.82rem;margin:-4px 0 12px">' + u.icon('locate', { size: 13 }) + ' Ordenadas por cercanía a tu ubicación</p>' : '') +
       '  <div class="row gap-2" style="margin-bottom:10px">' +
-      '    <select class="city-chip" data-city-select aria-label="Ciudad">' +
-      '      <option value="">Ciudad</option>' +
-      Object.keys(window.APP_CONFIG.CITY_CENTERS).map(function (k) {
-        return '<option value="' + k + '"' + (filters.city === k ? ' selected' : '') + '>' + u.escapeHtml(window.APP_CONFIG.CITY_CENTERS[k].label) + '</option>';
-      }).join('') +
-      '    </select>' +
+      '    <button type="button" class="city-chip" data-open-location aria-label="Ubicación">' + u.icon('pin', { size: 13 }) + ' <span data-location-label>' + u.escapeHtml(locationLabel()) + '</span></button>' +
       '  </div>' +
       '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML(filters.operation) + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
@@ -84,11 +90,15 @@
     refresh();
     c.bindQuickFilterChips(root, filters, refresh);
 
-    u.qs('[data-city-select]', root).addEventListener('change', function (e) {
-      var key = e.target.value || null;
-      state.city.set(key);
-      filters.city = key;
-      refresh();
+    u.qs('[data-open-location]', root).addEventListener('click', function () {
+      c.openLocationSheet({ stateKey: filters.stateKey, cityKey: filters.cityKey }, function (loc) {
+        state.location.set(loc.stateKey, loc.cityKey);
+        filters.stateKey = loc.stateKey;
+        filters.cityKey = loc.cityKey;
+        var label = u.qs('[data-location-label]', root);
+        if (label) label.textContent = locationLabel();
+        refresh();
+      });
     });
 
     u.qs('[data-sort]', root).addEventListener('change', function (e) {

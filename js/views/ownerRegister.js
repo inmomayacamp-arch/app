@@ -40,7 +40,8 @@
     var destacar = false;
     var mapCtrl = null;
     var coords = null;
-    var cityCenters = window.APP_CONFIG.CITY_CENTERS;
+    var mexicoStates = window.APP_CONFIG.MEXICO_STATES;
+    var stateKeys = Object.keys(mexicoStates).sort(function (a, b) { return mexicoStates[a].label.localeCompare(mexicoStates[b].label, 'es'); });
 
     function photoSlotsHTML() {
       var tiles = photos.map(function (p, i) {
@@ -99,12 +100,15 @@
       '    </div>' +
       '    <div class="form-field"><label>Precio (MXN)</label><input type="number" min="0" data-price placeholder="2,500,000" /></div>' +
       '    <div class="form-row">' +
-      '    <div class="form-field"><label>Ciudad</label><select data-city>' +
-      '      <option value="">Selecciona una ciudad</option>' +
-      Object.keys(cityCenters).map(function (k) { return '<option value="' + u.escapeHtml(cityCenters[k].label) + '">' + u.escapeHtml(cityCenters[k].label) + '</option>'; }).join('') +
+      '    <div class="form-field"><label>Estado</label><select data-state>' +
+      '      <option value="">Selecciona un estado</option>' +
+      stateKeys.map(function (k) { return '<option value="' + k + '">' + u.escapeHtml(mexicoStates[k].label) + '</option>'; }).join('') +
       '    </select></div>' +
-      '    <div class="form-field"><label>Colonia</label><input type="text" data-neighborhood placeholder="Vista Alegre" /></div>' +
+      '    <div class="form-field"><label>Ciudad</label><select data-city disabled>' +
+      '      <option value="">Elige un estado primero</option>' +
+      '    </select></div>' +
       '    </div>' +
+      '    <div class="form-field"><label>Colonia</label><input type="text" data-neighborhood placeholder="Vista Alegre" /></div>' +
       '    <div class="form-field" data-location-wrap style="display:none">' +
       '      <label>Ubicación en el mapa</label>' +
       '      <div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div>' +
@@ -173,13 +177,35 @@
       });
     });
 
-    // Ciudad: hasta elegir una de las 3 soportadas aparece el mapa real,
-    // centrado ahí, para ubicar el pin de la propiedad.
+    // Estado → Ciudad en cascada: hasta elegir ambos aparece el mapa real,
+    // centrado en la ciudad elegida, para ubicar el pin de la propiedad.
+    u.qs('[data-state]', root).addEventListener('change', function (e) {
+      var stateKey = e.target.value;
+      var citySelect = u.qs('[data-city]', root);
+      var wrap = u.qs('[data-location-wrap]', root);
+      var state = mexicoStates[stateKey];
+      if (!state) {
+        citySelect.innerHTML = '<option value="">Elige un estado primero</option>';
+        citySelect.disabled = true;
+        wrap.style.display = 'none';
+        coords = null;
+        return;
+      }
+      var cityKeys = Object.keys(state.cities).sort(function (a, b) { return state.cities[a].label.localeCompare(state.cities[b].label, 'es'); });
+      citySelect.innerHTML = '<option value="">Selecciona una ciudad</option>' +
+        cityKeys.map(function (k) { return '<option value="' + u.escapeHtml(state.cities[k].label) + '">' + u.escapeHtml(state.cities[k].label) + '</option>'; }).join('');
+      citySelect.disabled = false;
+      wrap.style.display = 'none';
+      coords = null;
+    });
+
     u.qs('[data-city]', root).addEventListener('change', function (e) {
+      var stateKey = u.qs('[data-state]', root).value;
+      var state = mexicoStates[stateKey];
       var label = e.target.value;
       var wrap = u.qs('[data-location-wrap]', root);
       var entry = null;
-      Object.keys(cityCenters).forEach(function (k) { if (cityCenters[k].label === label) entry = cityCenters[k]; });
+      if (state) Object.keys(state.cities).forEach(function (k) { if (state.cities[k].label === label) entry = state.cities[k]; });
       if (!entry) { wrap.style.display = 'none'; coords = null; return; }
       coords = entry.center.slice();
       wrap.style.display = '';
@@ -206,12 +232,14 @@
       var type = u.qs('[data-type]', root).value;
       var operation = u.qs('[data-operation]', root).value;
       var price = Number(u.qs('[data-price]', root).value) || 0;
+      var stateKey = u.qs('[data-state]', root).value;
+      var stateLabel = (mexicoStates[stateKey] || {}).label || '';
       var city = u.qs('[data-city]', root).value.trim();
       var neighborhood = u.qs('[data-neighborhood]', root).value.trim();
       var description = u.qs('[data-description]', root).value.trim();
 
       if (!name || !phone || !email) { u.toast('Completa tus datos de contacto'); return; }
-      if (!city) { u.toast('Selecciona la ciudad de tu propiedad'); return; }
+      if (!stateLabel || !city) { u.toast('Selecciona el estado y la ciudad de tu propiedad'); return; }
       if (!(price > 0)) { u.toast('Ingresa el precio de tu propiedad'); return; }
       if (!photos.length) { u.toast('Sube al menos una foto real de tu propiedad'); return; }
 
@@ -222,7 +250,7 @@
           type: type, operation: operation,
           price: operation === 'venta' ? price : 0,
           priceRent: operation === 'renta' ? price : null,
-          city: city, neighborhood: neighborhood || city, addressNote: '',
+          state: stateLabel, city: city, neighborhood: neighborhood || city, addressNote: '',
           coords: coords || window.APP_CONFIG.DEFAULT_CENTER,
           description: description,
           photos: photos.map(function (p) { return p.url; }),

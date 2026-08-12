@@ -292,6 +292,78 @@
     { value: 'oficina', label: 'Oficina' }
   ];
 
+  /* ---------------------------------------------------------------------
+   * Selector Estado → Ciudad (en cascada), compartido entre el filtro y
+   * la hoja de ubicación de Explorar/Propiedades.
+   * ------------------------------------------------------------------- */
+
+  function stateSelectHTML(stateKey) {
+    var states = window.APP_CONFIG.MEXICO_STATES;
+    var keys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
+    return '<select class="input" data-location-state>' +
+      '<option value="">Todo México</option>' +
+      keys.map(function (k) {
+        return '<option value="' + k + '"' + (stateKey === k ? ' selected' : '') + '>' + u.escapeHtml(states[k].label) + '</option>';
+      }).join('') + '</select>';
+  }
+
+  function citySelectHTML(stateKey, cityKey) {
+    var states = window.APP_CONFIG.MEXICO_STATES;
+    var state = stateKey && states[stateKey];
+    if (!state) return '<select class="input" data-location-city disabled><option value="">Elige un estado primero</option></select>';
+    var cityKeys = Object.keys(state.cities).sort(function (a, b) { return state.cities[a].label.localeCompare(state.cities[b].label, 'es'); });
+    return '<select class="input" data-location-city>' +
+      '<option value="">Todo el estado</option>' +
+      cityKeys.map(function (k) {
+        return '<option value="' + k + '"' + (cityKey === k ? ' selected' : '') + '>' + u.escapeHtml(state.cities[k].label) + '</option>';
+      }).join('') + '</select>';
+  }
+
+  function openLocationSheet(current, onApply) {
+    current = current || {};
+    var working = { stateKey: current.stateKey || null, cityKey: current.cityKey || null };
+
+    function bodyHTML() {
+      return (
+        '<div class="filter-sheet__section">' +
+        '<span class="filter-sheet__label">Estado</span>' +
+        stateSelectHTML(working.stateKey) +
+        '</div>' +
+        '<div class="filter-sheet__section">' +
+        '<span class="filter-sheet__label">Ciudad</span>' +
+        citySelectHTML(working.stateKey, working.cityKey) +
+        '</div>' +
+        '<div class="filter-footer row gap-2">' +
+        '<button type="button" class="btn btn--outline" data-clear>Limpiar</button>' +
+        '<button type="button" class="btn btn--primary btn--block" data-apply>Aplicar</button>' +
+        '</div>'
+      );
+    }
+
+    function rerender() {
+      var root = u.qs('#sheet-root .sheet__body');
+      root.innerHTML = bodyHTML();
+      wire(root);
+    }
+
+    function wire(root) {
+      u.qs('[data-location-state]', root).addEventListener('change', function (e) {
+        working.stateKey = e.target.value || null;
+        working.cityKey = null;
+        rerender();
+      });
+      var citySel = u.qs('[data-location-city]', root);
+      if (citySel) citySel.addEventListener('change', function (e) { working.cityKey = e.target.value || null; });
+      var clearBtn = u.qs('[data-clear]', root);
+      if (clearBtn) clearBtn.addEventListener('click', function () { working = { stateKey: null, cityKey: null }; rerender(); });
+      var applyBtn = u.qs('[data-apply]', root);
+      if (applyBtn) applyBtn.addEventListener('click', function () { closeSheet(); onApply(working); });
+    }
+
+    openSheet({ title: 'Ubicación', body: bodyHTML() });
+    wire(u.qs('#sheet-root .sheet__body'));
+  }
+
   function openFilterSheet(currentFilters, allProperties, onApply) {
     var working = Object.assign({}, u.defaultFilters(), currentFilters, {
       types: (currentFilters.types || []).slice(),
@@ -302,14 +374,15 @@
     function countMatches() { return u.applyFilters(allProperties, working).length; }
 
     function bodyHTML() {
-      var cityCenters = window.APP_CONFIG.CITY_CENTERS;
       return (
         '<div class="filter-sheet__section">' +
+        '<span class="filter-sheet__label">Estado</span>' +
+        stateSelectHTML(working.stateKey) +
+        '</div>' +
+        '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Ciudad</span>' +
-        '<div class="filter-options" data-group="city">' +
-        Object.keys(cityCenters).map(function (k) {
-          return '<button type="button" class="filter-option' + (working.city === k ? ' is-active' : '') + '" data-city="' + k + '">' + u.escapeHtml(cityCenters[k].label) + '</button>';
-        }).join('') + '</div></div>' +
+        citySelectHTML(working.stateKey, working.cityKey) +
+        '</div>' +
 
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Operación</span>' +
@@ -393,12 +466,16 @@
     }
 
     function wire(root) {
-      u.qsa('[data-city]', root).forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var val = btn.getAttribute('data-city');
-          working.city = working.city === val ? null : val;
-          rerender();
-        });
+      var stateSel = u.qs('[data-location-state]', root);
+      if (stateSel) stateSel.addEventListener('change', function () {
+        working.stateKey = stateSel.value || null;
+        working.cityKey = null;
+        rerender();
+      });
+      var citySel = u.qs('[data-location-city]', root);
+      if (citySel) citySel.addEventListener('change', function () {
+        working.cityKey = citySel.value || null;
+        rerender();
       });
       u.qsa('[data-credit]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -574,6 +651,7 @@
     openPropertyPeek: openPropertyPeek,
     closePropertyPeek: closePropertyPeek,
     openFilterSheet: openFilterSheet,
+    openLocationSheet: openLocationSheet,
     carouselHTML: carouselHTML,
     initCarousel: initCarousel,
     shareBarHTML: shareBarHTML,

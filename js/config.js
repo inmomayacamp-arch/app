@@ -7,10 +7,5 @@ window.APP_CONFIG = {
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlwbXZ5eXpteHJ3dXNhcGp4c3J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NzQ4NjcsImV4cCI6MjEwMTQ1MDg2N30.8BKlzAmv9O-S8JJhH5uj5djhAOjfYJxvw_Li3j7pXbw",
   DEFAULT_CENTER: [-90.5349, 19.8301], // Campeche, Camp.
   DEFAULT_ZOOM: 13,
-  CITY_CENTERS: {
-    campeche: { center: [-90.5349, 19.8301], zoom: 13, label: "San Francisco de Campeche", state: "Campeche", matchTokens: ["campeche", "san francisco"] },
-    merida: { center: [-89.6237, 20.9674], zoom: 12, label: "Mérida", state: "Yucatán", matchTokens: ["merida"] },
-    carmen: { center: [-91.8299, 18.6459], zoom: 13, label: "Cd. del Carmen", state: "Campeche", matchTokens: ["carmen"] }
-  },
   CURRENT_AGENT_SLUG: "oswaldochable"
 };

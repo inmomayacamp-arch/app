@@ -321,7 +321,7 @@
   }
 
   function defaultFilters() {
-    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '', city: null, creditsAccepted: [], rentalFurnished: null };
+    return { operation: 'todas', types: [], priceMin: 0, priceMax: PRICE_MAX, bedrooms: 0, bathrooms: 0, parking: 0, searchText: '', stateKey: null, cityKey: null, creditsAccepted: [], rentalFurnished: null };
   }
 
   function normalizeText(s) {
@@ -330,18 +330,22 @@
       .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n');
   }
 
-  // city/municipality son texto libre que el asesor escribe a mano (no un
-  // catálogo fijo), así que en vez de comparar exacto se busca coincidencia
-  // parcial contra "matchTokens" — así "San Francisco ", "san fransisco" (con
-  // error de dedo) o "Campeche" a secas siguen cayendo dentro de la misma
-  // ciudad. No se compara contra "state": las 3 ciudades soportadas comparten
-  // el mismo estado salvo Mérida, así que usarlo metería propiedades de otras
-  // ciudades del mismo estado dentro del filtro.
-  function matchesCity(property, cityKey) {
-    var entry = window.APP_CONFIG.CITY_CENTERS[cityKey];
-    if (!entry || !entry.matchTokens) return true;
-    var haystack = normalizeText((property.city || '') + ' ' + (property.municipality || ''));
-    return entry.matchTokens.some(function (token) { return haystack.indexOf(normalizeText(token)) !== -1; });
+  // city/municipality/state son texto libre que el asesor escribe a mano (no
+  // un catálogo fijo), así que en vez de comparar exacto se busca coincidencia
+  // parcial. Con cityKey elegido se compara contra "matchTokens" de esa ciudad
+  // — así "San Francisco ", "san fransisco" (con error de dedo) o "Campeche" a
+  // secas siguen cayendo dentro de la misma ciudad. Si solo hay stateKey (sin
+  // ciudad elegida) se compara el campo state contra el nombre del estado.
+  function matchesLocation(property, stateKey, cityKey) {
+    var state = stateKey && window.APP_CONFIG.MEXICO_STATES[stateKey];
+    if (!state) return true;
+    if (cityKey) {
+      var city = state.cities[cityKey];
+      if (!city || !city.matchTokens) return true;
+      var haystack = normalizeText((property.city || '') + ' ' + (property.municipality || ''));
+      return city.matchTokens.some(function (token) { return haystack.indexOf(normalizeText(token)) !== -1; });
+    }
+    return normalizeText(property.state || '').indexOf(normalizeText(state.label)) !== -1;
   }
 
   function applyFilters(list, filters) {
@@ -349,7 +353,7 @@
     return list.filter(function (p) {
       if (filters.operation !== 'todas' && p.operation !== filters.operation) return false;
       if (filters.types && filters.types.length && filters.types.indexOf(p.type) === -1) return false;
-      if (filters.city && !matchesCity(p, filters.city)) return false;
+      if (filters.stateKey && !matchesLocation(p, filters.stateKey, filters.cityKey)) return false;
       if (filters.creditsAccepted && filters.creditsAccepted.length && !filters.creditsAccepted.some(function (c) { return (p.creditsAccepted || []).indexOf(c) !== -1; })) return false;
       if (filters.rentalFurnished && p.rentalFurnished !== filters.rentalFurnished) return false;
       var price = effectivePrice(p);
@@ -391,7 +395,7 @@
     thumbUrl: thumbUrl,
     PRICE_MAX: PRICE_MAX,
     defaultFilters: defaultFilters,
-    matchesCity: matchesCity,
+    matchesLocation: matchesLocation,
     applyFilters: applyFilters,
     PROPERTY_TYPES: PROPERTY_TYPES,
     CREDIT_TYPES: CREDIT_TYPES,

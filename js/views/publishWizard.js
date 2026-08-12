@@ -194,23 +194,35 @@
 
     /* ---------- Paso 4: Ubicación ---------- */
     function stepUbicacionHTML() {
-      var cityLocked = !payload.city;
-      var dis = cityLocked ? ' disabled' : '';
+      var states = window.APP_CONFIG.MEXICO_STATES;
+      var stateKeys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
+      var selectedStateKey = null;
+      stateKeys.forEach(function (k) { if (states[k].label === payload.state) selectedStateKey = k; });
+      var cityOptions = selectedStateKey ? states[selectedStateKey].cities : null;
+      var locationLocked = !payload.state || !payload.city;
+      var dis = locationLocked ? ' disabled' : '';
       return (
         '<div class="page-wrap" style="padding-bottom:0">' +
-        '<div class="form-field"><label>Ciudad</label><select data-field="city">' +
-        '<option value="">Selecciona una ciudad</option>' +
-        Object.keys(window.APP_CONFIG.CITY_CENTERS).map(function (k) {
-          var c = window.APP_CONFIG.CITY_CENTERS[k];
-          return '<option value="' + u.escapeHtml(c.label) + '"' + (payload.city === c.label ? ' selected' : '') + '>' + u.escapeHtml(c.label) + '</option>';
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Estado</label><select data-field="state">' +
+        '<option value="">Selecciona un estado</option>' +
+        stateKeys.map(function (k) {
+          return '<option value="' + u.escapeHtml(states[k].label) + '"' + (payload.state === states[k].label ? ' selected' : '') + '>' + u.escapeHtml(states[k].label) + '</option>';
         }).join('') +
-        '</select>' +
-        (cityLocked ? '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">Elige una ciudad para continuar con la ubicación.</p>' : '') +
-        '</div></div>' +
+        '</select></div>' +
+        '<div class="form-field"><label>Ciudad</label><select data-field="city"' + (cityOptions ? '' : ' disabled') + '>' +
+        '<option value="">' + (cityOptions ? 'Selecciona una ciudad' : 'Elige un estado primero') + '</option>' +
+        (cityOptions ? Object.keys(cityOptions).sort(function (a, b) { return cityOptions[a].label.localeCompare(cityOptions[b].label, 'es'); }).map(function (k) {
+          var c = cityOptions[k];
+          return '<option value="' + u.escapeHtml(c.label) + '"' + (payload.city === c.label ? ' selected' : '') + '>' + u.escapeHtml(c.label) + '</option>';
+        }).join('') : '') +
+        '</select></div>' +
+        '</div>' +
+        (locationLocked ? '<div class="form-field" style="padding-top:0"><p class="text-muted" style="font-size:0.78rem">Elige estado y ciudad para continuar con la ubicación.</p></div>' : '') +
 
         '<div class="form-field" style="padding:0 16px"><label>Ubicación en el mapa</label>' +
-        (cityLocked
-          ? '<div class="map-picker map-picker--locked"><p class="text-muted" style="margin:0;text-align:center;padding:0 24px">Selecciona una ciudad arriba para ubicar tu propiedad en el mapa</p></div>'
+        (locationLocked
+          ? '<div class="map-picker map-picker--locked"><p class="text-muted" style="margin:0;text-align:center;padding:0 24px">Selecciona estado y ciudad arriba para ubicar tu propiedad en el mapa</p></div>'
           : '<div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div><span class="map-picker__pin">' + u.icon('pin', { size: 34 }) + '</span></div>') +
         '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">Mueve el mapa hasta ubicar el pin en la propiedad, o busca la dirección abajo.</p></div>' +
         '<div class="page-wrap" style="padding-top:0">' +
@@ -220,10 +232,7 @@
         '<button type="button" class="filter-option' + (payload.locationPrivacy === 'aproximada' ? ' is-active' : '') + '" data-privacy="aproximada"' + dis + '>Ubicación aproximada</button>' +
         '</div>' +
         '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">La ubicación aproximada protege la privacidad del propietario: el pin público se muestra unos metros desplazado.</p></div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Estado</label><input type="text" data-field="state" value="' + u.escapeHtml(payload.state) + '" placeholder="Campeche"' + dis + ' /></div>' +
         '<div class="form-field"><label>Municipio</label><input type="text" data-field="municipality" value="' + u.escapeHtml(payload.municipality) + '" placeholder="Campeche"' + dis + ' /></div>' +
-        '</div>' +
         '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre"' + dis + ' /></div>' +
         '<div class="form-row">' +
         '<div class="form-field"><label>Calle</label><input type="text" data-field="street" value="' + u.escapeHtml(payload.street) + '" placeholder="Calle 10"' + dis + ' /></div>' +
@@ -522,7 +531,7 @@
         if (needsVenta && !(Number(payload.price) > 0)) { u.toast('Ingresa un precio de venta válido'); return false; }
         if (needsRenta && !(Number(payload.priceRent) > 0)) { u.toast('Ingresa un precio de renta válido'); return false; }
       }
-      if (key === 'ubicacion' && !payload.city.trim()) { u.toast('Selecciona una ciudad'); return false; }
+      if (key === 'ubicacion' && (!payload.state.trim() || !payload.city.trim())) { u.toast('Selecciona estado y ciudad'); return false; }
       if (key === 'fotos' && payload.photos.length === 0) { u.toast('Agrega al menos una foto de la propiedad'); return false; }
       if (key === 'publicacion' && payload.publishStatus === 'programada' && !payload.scheduledAt) { u.toast('Elige la fecha y hora de publicación'); return false; }
       return true;
@@ -573,7 +582,7 @@
       }
 
       if (key === 'ubicacion') {
-        if (payload.city) {
+        if (payload.state && payload.city) {
           if (mapCtrl) { mapCtrl.destroy(); mapCtrl = null; }
           mapCtrl = window.App.map.create(u.qs('[data-map]', root), { center: payload.coords, zoom: 15 });
           if (mapCtrl.ready) {
@@ -586,16 +595,22 @@
         u.qsa('[data-privacy]', root).forEach(function (btn) {
           btn.addEventListener('click', function () { collectStepFields(); payload.locationPrivacy = btn.getAttribute('data-privacy'); renderStep(); });
         });
+        u.qs('[data-field="state"]', root).addEventListener('change', function () {
+          collectStepFields();
+          payload.state = readField('state');
+          payload.city = '';
+          renderStep();
+        });
         u.qs('[data-field="city"]', root).addEventListener('change', function () {
           collectStepFields();
-          var cityKey = null;
-          Object.keys(window.APP_CONFIG.CITY_CENTERS).forEach(function (k) {
-            if (window.APP_CONFIG.CITY_CENTERS[k].label === payload.city) cityKey = k;
-          });
-          if (cityKey) {
-            var entry = window.APP_CONFIG.CITY_CENTERS[cityKey];
-            payload.state = entry.state;
-            payload.coords = entry.center.slice();
+          var states = window.APP_CONFIG.MEXICO_STATES;
+          var stateKey = null;
+          Object.keys(states).forEach(function (k) { if (states[k].label === payload.state) stateKey = k; });
+          if (stateKey) {
+            var cities = states[stateKey].cities;
+            var cityKey = null;
+            Object.keys(cities).forEach(function (k) { if (cities[k].label === payload.city) cityKey = k; });
+            if (cityKey) payload.coords = cities[cityKey].center.slice();
           }
           renderStep();
         });
