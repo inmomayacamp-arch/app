@@ -185,6 +185,7 @@
       wrap.style.display = '';
       if (!mapCtrl) {
         mapCtrl = window.App.map.create(u.qs('[data-map]', root), { center: coords, zoom: 15 });
+        window.App.router.onLeave(function () { mapCtrl.destroy(); });
         if (mapCtrl.ready) {
           mapCtrl.map.on('moveend', function () {
             var c = mapCtrl.map.getCenter();

@@ -459,6 +459,7 @@
     };
 
     var mapCtrl = null;
+    window.App.router.onLeave(function () { if (mapCtrl) mapCtrl.destroy(); });
 
     function renderStep() {
       var keys = activeStepKeys();
@@ -573,6 +574,7 @@
 
       if (key === 'ubicacion') {
         if (payload.city) {
+          if (mapCtrl) { mapCtrl.destroy(); mapCtrl = null; }
           mapCtrl = window.App.map.create(u.qs('[data-map]', root), { center: payload.coords, zoom: 15 });
           if (mapCtrl.ready) {
             mapCtrl.map.on('moveend', function () {

@@ -29,8 +29,6 @@
       ac.kpiCardHTML('starFilled', u.formatNumber(k.featured), 'Destacadas') +
       ac.kpiCardHTML('flag', u.formatNumber(k.pendingProperties), 'Pendientes de aprobación') +
       ac.kpiCardHTML('x', u.formatNumber(k.rejectedProperties), 'Rechazadas') +
-      ac.kpiCardHTML('eye', u.formatNumber(k.visitsToday), 'Visitas hoy') +
-      ac.kpiCardHTML('eye', u.formatNumber(k.visitsMonth), 'Visitas del mes') +
       ac.kpiCardHTML('users', u.formatNumber(k.newUsers), 'Usuarios nuevos (30 días)') +
       ac.kpiCardHTML('briefcase', u.formatNumber(k.newAgents), 'Solicitudes de agente') +
       ac.kpiCardHTML('dollar', u.formatPrice(k.monthlyRevenue), 'Ingresos del mes') +

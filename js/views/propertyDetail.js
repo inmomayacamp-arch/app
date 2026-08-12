@@ -64,7 +64,7 @@
         return t ? '<span class="badge badge--otro" style="margin-left:6px">' + u.escapeHtml(t.label) + '</span>' : '';
       }).join('') : '') +
       '      <div class="detail-price">' + priceLabel + '</div>' +
-      '      <div class="detail-title">' + u.escapeHtml(property.title) + '</div>' +
+      '      <h1 class="detail-title">' + u.escapeHtml(property.title) + '</h1>' +
       '      <div class="detail-location">' + u.icon('pin', { size: 14 }) + ' ' + u.escapeHtml(property.neighborhood) + ', ' + u.escapeHtml(property.city) + (property.addressNote ? ' · ' + u.escapeHtml(property.addressNote) : '') +
       (property.locationPrivacy === 'aproximada' ? ' <span class="text-muted" style="font-size:0.76rem">(ubicación aproximada)</span>' : '') +
       '      </div>' +
@@ -227,6 +227,7 @@
       var detailMapEl = u.qs('[data-detail-map]', root);
       if (detailMapEl) {
         var detailMapCtrl = window.App.map.create(detailMapEl, { center: property.coords, zoom: 13 });
+        window.App.router.onLeave(function () { detailMapCtrl.destroy(); });
         if (detailMapCtrl.ready) detailMapCtrl.setMarkers([property], null);
       }
     }

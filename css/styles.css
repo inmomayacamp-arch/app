@@ -20,7 +20,7 @@
 
   --color-ink: #111827;
   --color-ink-secondary: #4B5563;
-  --color-ink-muted: #9CA3AF;
+  --color-ink-muted: #6B7280;
   --color-border: #E5E7EB;
   --color-border-strong: #D1D5DB;
   --color-surface: #FFFFFF;
@@ -78,6 +78,14 @@ button, [role="button"], summary { cursor: pointer; }
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Los chips/pills activos ya usan --color-primary de fondo, así que el
+   anillo de foco por defecto (del mismo color) queda invisible sobre
+   ellos — un aro blanco con halo de color se ve sin importar el fondo. */
+.chip:focus-visible, .filter-option:focus-visible, .category-card:focus-visible {
+  outline: 2px solid #fff;
+  box-shadow: 0 0 0 4px var(--color-primary);
 }
 
 .visually-hidden {

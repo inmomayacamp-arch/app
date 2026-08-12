@@ -48,6 +48,7 @@
     }
 
     root.innerHTML =
+      '<h1 class="visually-hidden">Explorar propiedades en el mapa</h1>' +
       '<div class="explore-layout">' +
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
@@ -63,7 +64,7 @@
       '      </div>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
-      c.quickFilterChipsHTML() +
+      c.quickFilterChipsHTML(filters.operation) +
       '        </div>' +
       '        <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
       '      </div>' +
@@ -114,6 +115,7 @@
 
     var initialCity = filters.city && cityCenters[filters.city];
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), Object.assign({ showLocate: true }, initialCity ? { center: initialCity.center, zoom: initialCity.zoom } : {}));
+    window.App.router.onLeave(function () { mapCtrl.destroy(); });
 
     function onSelectProperty(property) {
       window.location.hash = '#/propiedad/' + property.id;

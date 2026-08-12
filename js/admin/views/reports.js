@@ -28,11 +28,11 @@
   function printTable(title, columns, rows) {
     var win = window.open('', '_blank');
     if (!win) { u.toast('Permite las ventanas emergentes para generar el PDF'); return; }
-    var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>' + title + '</title>' +
+    var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>' + u.escapeHtml(title) + '</title>' +
       '<style>body{font-family:Arial,sans-serif;padding:24px;color:#111} h1{font-size:18px} table{width:100%;border-collapse:collapse;margin-top:14px} th,td{border:1px solid #ddd;padding:8px;font-size:12px;text-align:left} th{background:#f5f5f5}</style>' +
-      '</head><body><h1>' + title + '</h1><p>InmoMaps — generado el ' + new Date().toLocaleString('es-MX') + '</p>' +
-      '<table><thead><tr>' + columns.map(function (c) { return '<th>' + c.label + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      rows.map(function (row) { return '<tr>' + columns.map(function (c) { return '<td>' + (row[c.key] == null ? '' : row[c.key]) + '</td>'; }).join('') + '</tr>'; }).join('') +
+      '</head><body><h1>' + u.escapeHtml(title) + '</h1><p>InmoMaps — generado el ' + new Date().toLocaleString('es-MX') + '</p>' +
+      '<table><thead><tr>' + columns.map(function (c) { return '<th>' + u.escapeHtml(c.label) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (row) { return '<tr>' + columns.map(function (c) { return '<td>' + (row[c.key] == null ? '' : u.escapeHtml(row[c.key])) + '</td>'; }).join('') + '</tr>'; }).join('') +
       '</tbody></table></body></html>';
     win.document.write(html);
     win.document.close();

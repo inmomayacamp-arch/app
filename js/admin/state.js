@@ -44,8 +44,11 @@
   var settings = readJSON(KEYS.settings, d.DEFAULT_SETTINGS);
   var audit = readJSON(KEYS.audit, []);
 
+  // Hoy el acceso al panel admin es una sola contraseña compartida (sin
+  // identidad por persona), así que no hay un "quién" real que registrar
+  // todavía — "Admin" es honesto; el dominio viejo ya no existe.
   function logAction(action, target) {
-    audit = [{ id: utils.uid("log"), actor: "admin@inmomap.mx", action: action, target: target, timestamp: new Date().toISOString() }].concat(audit).slice(0, 200);
+    audit = [{ id: utils.uid("log"), actor: "Admin", action: action, target: target, timestamp: new Date().toISOString() }].concat(audit).slice(0, 200);
     writeJSON(KEYS.audit, audit);
   }
 
@@ -269,8 +272,6 @@
       featured: properties.filter(function (p) { return p.featured; }).length,
       pendingProperties: pendingPropertiesList().length,
       rejectedProperties: properties.filter(function (p) { return p.status === 'rechazada'; }).length,
-      visitsToday: 214,
-      visitsMonth: 5860,
       newUsers: users.filter(function (u) { return (today - new Date(u.createdAt)) / 86400000 < 30; }).length,
       newAgents: pendingAgentsList().length,
       monthlyRevenue: monthlyRevenue,

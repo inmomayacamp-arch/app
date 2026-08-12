@@ -99,7 +99,7 @@
     u.qs('#bottom-nav').innerHTML = renderAgentBottomNav(activeRoute);
     root.innerHTML =
       '<div class="agent-content">' +
-      '  <div class="agent-topbar"><h1 class="agent-topbar__title">' + title + '</h1></div>' +
+      '  <div class="agent-topbar"><h1 class="agent-topbar__title">' + u.escapeHtml(title) + '</h1></div>' +
       contentHtml +
       '</div>' +
       '<a class="agent-float-btn agent-float-btn--left" href="#/" aria-label="Volver al sitio público (sigues con tu sesión iniciada)" title="Volver al sitio público">' + u.icon('home', { size: 20 }) + '</a>' +

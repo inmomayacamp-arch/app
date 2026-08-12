@@ -141,10 +141,12 @@
       });
       u.qsa('[data-move]', root).forEach(function (btn) {
         btn.addEventListener('click', async function () {
+          btn.disabled = true;
           try {
             await agentState.clients.update(btn.getAttribute('data-move'), { status: btn.getAttribute('data-move-to') });
             refresh();
           } catch (err) {
+            btn.disabled = false;
             u.toast(err.message || 'No se pudo mover el cliente');
           }
         });
@@ -211,11 +213,13 @@
 
       u.qs('[data-edit]', root).addEventListener('click', function () { editClientSheet(client, refresh); });
       u.qs('[data-status]', root).addEventListener('change', async function (e) {
+        e.target.disabled = true;
         try {
           await agentState.clients.update(client.id, { status: e.target.value });
           u.toast('Etapa actualizada', { tone: 'success' });
           refresh();
         } catch (err) {
+          e.target.disabled = false;
           u.toast(err.message || 'No se pudo actualizar la etapa');
         }
       });
@@ -224,22 +228,26 @@
           var type = btn.getAttribute('data-log');
           var note = window.prompt('Nota sobre esta ' + (ACTIVITY_LABELS[type] || type).toLowerCase() + ':', '');
           if (note === null) return;
+          btn.disabled = true;
           try {
             await agentState.clients.addActivity(client.id, { type: type, note: note || (ACTIVITY_LABELS[type] + ' registrada') });
             u.toast('Actividad registrada');
             refresh();
           } catch (err) {
+            btn.disabled = false;
             u.toast(err.message || 'No se pudo registrar la actividad');
           }
         });
       });
-      u.qs('[data-delete]', root).addEventListener('click', async function () {
+      u.qs('[data-delete]', root).addEventListener('click', async function (e) {
         if (!window.confirm('¿Eliminar a ' + client.name + ' de tu CRM?')) return;
+        e.target.disabled = true;
         try {
           await agentState.clients.remove(client.id);
           u.toast('Cliente eliminado');
           window.location.hash = '#/dashboard/clientes';
         } catch (err) {
+          e.target.disabled = false;
           u.toast(err.message || 'No se pudo eliminar el cliente');
         }
       });

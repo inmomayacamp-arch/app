@@ -44,7 +44,7 @@
       }).join('') +
       '    </select>' +
       '  </div>' +
-      '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML() + '</div>' +
+      '  <div class="chip-row" style="margin-bottom:12px">' + c.quickFilterChipsHTML(filters.operation) + '</div>' +
       '  <div class="row gap-2" style="justify-content:space-between;flex-wrap:wrap;margin-bottom:14px">' +
       '    <select data-sort aria-label="Ordenar por" style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:9px 14px;font-weight:700;font-size:0.85rem;background:var(--color-surface)">' +
       sortKeys.map(function (key) { return '<option value="' + key + '"' + (key === sortKey ? ' selected' : '') + '>' + SORTERS[key].label + '</option>'; }).join('') +
@@ -63,6 +63,7 @@
     }
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), {});
+    window.App.router.onLeave(function () { mapCtrl.destroy(); });
 
     function refresh() {
       var list = u.applyFilters(state.properties.publicList(), filters);

@@ -58,7 +58,7 @@
         var inCatalog = sp.isInCatalog(p.id);
         var needsRequest = sp.requiresRequest(p);
         return '<div class="ranked-row" style="align-items:flex-start">' +
-          '<img src="' + p.photos[0] + '" alt="" style="width:64px;height:64px;border-radius:8px;object-fit:cover" />' +
+          '<img src="' + u.thumbUrl(p.photos[0], 130) + '" alt="" loading="lazy" style="width:64px;height:64px;border-radius:8px;object-fit:cover" />' +
           '<div class="ranked-row__info">' +
           '<strong>' + u.escapeHtml(p.title) + '</strong>' +
           '<span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + ' · ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</span><br />' +
@@ -132,7 +132,7 @@
           ? '<div class="stack gap-2">' + rows.map(function (row) {
             var owner = window.App.data.getAgent(row.property.agentSlug);
             return '<div class="ranked-row">' +
-              '<img src="' + row.property.photos[0] + '" alt="" style="width:52px;height:52px;border-radius:8px;object-fit:cover" />' +
+              '<img src="' + u.thumbUrl(row.property.photos[0], 110) + '" alt="" loading="lazy" style="width:52px;height:52px;border-radius:8px;object-fit:cover" />' +
               '<div class="ranked-row__info"><strong>' + u.escapeHtml(row.property.title) + ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span></strong>' +
               '<span>' + u.formatPrice(u.effectivePrice(row.property)) + (row.property.operation === 'renta' ? '/mes' : '') + ' · Propietario: ' + (owner ? u.escapeHtml(owner.name) : row.property.agentSlug) + '</span></div>' +
               '<div class="icon-btn-row">' +

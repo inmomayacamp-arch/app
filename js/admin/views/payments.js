@@ -25,10 +25,10 @@
       var rows = list.map(function (p) {
         var agent = window.App.data.getAgent(p.agentSlug);
         return '<tr>' +
-          '<td class="admin-table__name">' + (agent ? agent.name : p.agentSlug) + '</td>' +
-          '<td>' + p.plan + '</td>' +
+          '<td class="admin-table__name">' + u.escapeHtml(agent ? agent.name : p.agentSlug) + '</td>' +
+          '<td>' + u.escapeHtml(p.plan) + '</td>' +
           '<td>' + u.formatPrice(p.amount) + '</td>' +
-          '<td class="admin-table__meta">' + p.method + '</td>' +
+          '<td class="admin-table__meta">' + u.escapeHtml(p.method) + '</td>' +
           '<td class="admin-table__meta">' + new Date(p.date).toLocaleDateString('es-MX') + '</td>' +
           '<td>' + ac.statusPill(p.status) + '</td></tr>';
       }).join('');

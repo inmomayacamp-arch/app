@@ -266,6 +266,17 @@
     return operation === 'renta' ? 'op-renta' : 'op-venta';
   }
 
+  // Pide una versión reducida de una foto para miniaturas (tarjetas, tablas
+  // admin) en vez de la imagen completa que ya se sube hasta 1600px — usa la
+  // transformación de imágenes de Supabase Storage, que solo aplica a URLs
+  // públicas de ese bucket; cualquier otra URL (p. ej. la foto de respaldo de
+  // Unsplash) se regresa igual, sin tocar.
+  function thumbUrl(url, width) {
+    if (!url || url.indexOf('/storage/v1/object/public/') === -1) return url;
+    return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') +
+      (url.indexOf('?') === -1 ? '?' : '&') + 'width=' + width + '&resize=cover&quality=75';
+  }
+
   function toast(message, opts) {
     opts = opts || {};
     var root = qs('#toast-root');
@@ -377,6 +388,7 @@
     directionsLink: directionsLink,
     youtubeEmbedUrl: youtubeEmbedUrl,
     badgeClassFor: badgeClassFor,
+    thumbUrl: thumbUrl,
     PRICE_MAX: PRICE_MAX,
     defaultFilters: defaultFilters,
     matchesCity: matchesCity,

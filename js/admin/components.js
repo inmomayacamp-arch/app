@@ -70,7 +70,7 @@
       '  <div class="admin-main">' +
       '    <div class="admin-topbar">' +
       '      <button type="button" class="btn btn--icon admin-menu-toggle" data-admin-open-nav aria-label="Abrir menú">' + u.icon('menu', { size: 18 }) + '</button>' +
-      '      <h1 class="admin-topbar__title">' + title + '</h1>' +
+      '      <h1 class="admin-topbar__title">' + u.escapeHtml(title) + '</h1>' +
       '    </div>' +
       '    <div class="admin-content">' + contentHtml + '</div>' +
       '  </div>' +

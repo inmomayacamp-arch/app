@@ -11,8 +11,8 @@
 
   function contactHTML(lead) {
     var parts = [];
-    if (lead.phone) parts.push('<a href="tel:' + lead.phone + '">' + u.escapeHtml(lead.phone) + '</a>');
-    if (lead.email) parts.push('<a href="mailto:' + lead.email + '">' + u.escapeHtml(lead.email) + '</a>');
+    if (lead.phone) parts.push('<a href="tel:' + u.escapeHtml(lead.phone) + '">' + u.escapeHtml(lead.phone) + '</a>');
+    if (lead.email) parts.push('<a href="mailto:' + u.escapeHtml(lead.email) + '">' + u.escapeHtml(lead.email) + '</a>');
     return parts.join(' · ') || '—';
   }
 

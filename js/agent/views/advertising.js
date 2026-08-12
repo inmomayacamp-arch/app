@@ -24,7 +24,7 @@
           '<div class="admin-section__subtitle">Aparecen primero en los resultados de búsqueda y en la portada</div></div></div>' +
           (properties.length
             ? '<div class="stack gap-2">' + properties.map(function (p) {
-              return '<div class="ranked-row"><img src="' + p.photos[0] + '" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover" />' +
+              return '<div class="ranked-row"><img src="' + u.thumbUrl(p.photos[0], 100) + '" alt="" loading="lazy" style="width:48px;height:48px;border-radius:8px;object-fit:cover" />' +
                 '<div class="ranked-row__info"><strong>' + u.escapeHtml(p.title) + '</strong><span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</span></div>' +
                 '<button type="button" class="btn btn--sm ' + (p.featured ? 'btn--primary' : 'btn--outline') + '" data-toggle="' + p.id + '">' + (p.featured ? '★ Destacada' : 'Destacar') + '</button></div>';
             }).join('') + '</div>'
@@ -48,10 +48,12 @@
         btn.addEventListener('click', async function () {
           var id = btn.getAttribute('data-toggle');
           var p = properties.filter(function (x) { return x.id === id; })[0];
+          btn.disabled = true;
           try {
             await state.properties.update(id, { featured: !p.featured });
             refresh();
           } catch (err) {
+            btn.disabled = false;
             u.toast(err.message || 'No se pudo actualizar la propiedad');
           }
         });
@@ -59,11 +61,13 @@
       var buyBtn = u.qs('[data-buy-campaign]', root);
       if (buyBtn) buyBtn.addEventListener('click', async function () {
         var propId = u.qs('[data-campaign-property]', root).value;
+        buyBtn.disabled = true;
         try {
           await state.properties.update(propId, { featured: true });
           u.toast('Promoción activada por 7 días', { tone: 'success' });
           refresh();
         } catch (err) {
+          buyBtn.disabled = false;
           u.toast(err.message || 'No se pudo activar la promoción');
         }
       });

@@ -97,9 +97,10 @@
     { op: "renta", label: "Renta", color: "var(--color-renta)" }
   ];
 
-  function quickFilterChipsHTML() {
+  function quickFilterChipsHTML(activeOp) {
+    activeOp = activeOp || "todas";
     return QUICK_CHIPS.map(function (chip) {
-      var isActive = chip.op === "todas";
+      var isActive = chip.op === activeOp;
       return '<button type="button" class="chip' + (isActive ? ' is-active' : '') + '" data-op="' + chip.op + '" style="--chip-color:' + chip.color + '">' + chip.label + '</button>';
     }).join('');
   }
@@ -147,7 +148,7 @@
     return (
       '<a class="property-card property-card--' + variant + (opts.highlight ? ' is-highlighted' : '') + '" href="#/propiedad/' + p.id + '" data-property-id="' + p.id + '">' +
       '<div class="property-card__media">' +
-      '<img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
+      '<img src="' + u.thumbUrl(p.photos[0], 480) + '" alt="" loading="lazy" />' +
       '<span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
       (p.tags && p.tags.length ? '<span class="property-card__tag">' + u.escapeHtml((u.SPECIAL_TAGS.filter(function (t) { return t.value === p.tags[0]; })[0] || {}).label || '') + '</span>' : '') +
       (opts.showFavorite === false ? '' : '<button type="button" class="property-card__fav' + (isFav ? ' is-active' : '') + '" data-fav-id="' + p.id + '"' + (opts.linkId ? ' data-track-link="' + opts.linkId + '"' : '') + ' aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +
