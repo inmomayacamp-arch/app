@@ -127,6 +127,22 @@
     return 2 * R * Math.asin(Math.sqrt(h));
   }
 
+  // Encuentra la ciudad del catálogo nacional (window.APP_CONFIG.MEXICO_STATES)
+  // más cercana a un punto [lng, lat]; null si ninguna cae dentro de radiusKm
+  // (evita forzar una ubicación a alguien lejos de cualquier ciudad conocida).
+  function nearestMexicoLocation(coords, radiusKm) {
+    var states = window.APP_CONFIG.MEXICO_STATES;
+    var best = null, bestDist = Infinity;
+    Object.keys(states).forEach(function (sk) {
+      var cities = states[sk].cities;
+      Object.keys(cities).forEach(function (ck) {
+        var d = distanceKm(coords, cities[ck].center);
+        if (d < bestDist) { bestDist = d; best = { stateKey: sk, cityKey: ck }; }
+      });
+    });
+    return (radiusKm == null || bestDist <= radiusKm) ? best : null;
+  }
+
   function slugify(str) {
     var normalized = String(str).toLowerCase().normalize('NFD');
     var stripped = '';
@@ -376,6 +392,7 @@
     formatNumber: formatNumber,
     effectivePrice: effectivePrice,
     distanceKm: distanceKm,
+    nearestMexicoLocation: nearestMexicoLocation,
     slugify: slugify,
     uid: uid,
     escapeHtml: escapeHtml,

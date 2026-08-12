@@ -355,6 +355,10 @@
         '<input type="text" inputmode="search" placeholder="' + (state ? 'Buscar ciudad' : 'Buscar estado') + '" value="' + u.escapeHtml(query) + '" data-location-search />' +
         '<button type="button" class="location-picker__search-clear" data-clear-search aria-label="Limpiar búsqueda"' + (query ? '' : ' hidden') + '>' + u.icon('x', { size: 12 }) + '</button>' +
         '</label>' +
+        (navigator.geolocation ? (
+          '<button type="button" class="location-picker__locate" data-locate-me>' + u.icon('locate', { size: 15 }) +
+          '<span data-locate-label>Usar mi ubicación actual</span></button>'
+        ) : '') +
         '<div class="location-picker__list" data-list>' + listHTML() + '</div>' +
         '</div>' +
         '<div class="filter-footer row gap-2">' +
@@ -414,6 +418,30 @@
       });
 
       wireRows(root);
+
+      var locateBtn = u.qs('[data-locate-me]', root);
+      if (locateBtn) locateBtn.addEventListener('click', function () {
+        var label = u.qs('[data-locate-label]', locateBtn);
+        locateBtn.disabled = true;
+        label.textContent = 'Buscando tu ubicación…';
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          var loc = u.nearestMexicoLocation([pos.coords.longitude, pos.coords.latitude], 120);
+          if (!loc) {
+            u.toast('No encontramos una ciudad cercana a tu ubicación en el catálogo.');
+            locateBtn.disabled = false;
+            label.textContent = 'Usar mi ubicación actual';
+            return;
+          }
+          working.stateKey = loc.stateKey;
+          working.cityKey = loc.cityKey;
+          query = '';
+          rerender();
+        }, function () {
+          u.toast('No pudimos acceder a tu ubicación. Revisa los permisos del navegador.');
+          locateBtn.disabled = false;
+          label.textContent = 'Usar mi ubicación actual';
+        });
+      });
 
       var clearBtn = u.qs('[data-clear]', root);
       if (clearBtn) clearBtn.addEventListener('click', function () { working = { stateKey: null, cityKey: null }; query = ''; rerender(); });

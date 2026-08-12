@@ -470,7 +470,11 @@ body.is-admin .site-header { display: none; }
 .property-scroller {
   display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 10px; scroll-snap-type: x mandatory;
 }
-.property-scroller > .property-card { min-width: 220px; scroll-snap-align: start; }
+/* Ancho fijo (no solo mínimo): si cada tarjeta creciera según su propio
+   texto, el alto de su imagen (aspect-ratio 4/3, proporcional al ancho)
+   variaría tarjeta a tarjeta y la fila se vería desfasada en escritorio. */
+.property-scroller > .property-card { width: 220px; flex: 0 0 220px; scroll-snap-align: start; }
+@media (min-width: 640px) { .property-scroller > .property-card { width: 240px; flex-basis: 240px; } }
 
 .property-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
@@ -572,6 +576,14 @@ body.is-admin .site-header { display: none; }
   background: var(--color-border-strong); color: var(--color-surface);
 }
 .location-picker__search-clear[hidden] { display: none; }
+
+.location-picker__locate {
+  display: flex; align-items: center; gap: 8px; align-self: flex-start;
+  background: none; border: none; padding: 6px 4px; margin: -4px 0 0;
+  color: var(--color-primary); font-weight: 700; font-size: 0.84rem;
+}
+.location-picker__locate:hover { text-decoration: underline; }
+.location-picker__locate[disabled] { color: var(--color-ink-muted); cursor: default; }
 
 .location-picker__list {
   display: flex; flex-direction: column; gap: 1px;

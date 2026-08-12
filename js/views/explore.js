@@ -148,21 +148,6 @@
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
     }
 
-    // Encuentra la ciudad del catálogo nacional más cercana a un punto
-    // [lng, lat]; null si ninguna está dentro de AUTO_LOCATION_RADIUS_KM
-    // (evita forzar una ubicación a alguien lejos de cualquier ciudad conocida).
-    function nearestLocation(coords) {
-      var best = null, bestDist = Infinity;
-      Object.keys(mexicoStates).forEach(function (sk) {
-        var cities = mexicoStates[sk].cities;
-        Object.keys(cities).forEach(function (ck) {
-          var d = u.distanceKm(coords, cities[ck].center);
-          if (d < bestDist) { bestDist = d; best = { stateKey: sk, cityKey: ck }; }
-        });
-      });
-      return bestDist <= AUTO_LOCATION_RADIUS_KM ? best : null;
-    }
-
     // Fuente única de verdad para activar una ubicación: la usan la hoja de
     // ubicación y la geolocalización inicial, para no repetir el mismo bloque.
     function applyLocation(stateKey, cityKey) {
@@ -232,7 +217,7 @@
     // vuelve a preguntar — no se le pisa la elección solo por volver a entrar.
     if (!filters.stateKey && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function (pos) {
-        var loc = nearestLocation([pos.coords.longitude, pos.coords.latitude]);
+        var loc = u.nearestMexicoLocation([pos.coords.longitude, pos.coords.latitude], AUTO_LOCATION_RADIUS_KM);
         if (loc) {
           applyLocation(loc.stateKey, loc.cityKey);
           var target = resolveLocation(loc.stateKey, loc.cityKey);
