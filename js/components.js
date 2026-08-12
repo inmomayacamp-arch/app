@@ -293,51 +293,99 @@
   ];
 
   /* ---------------------------------------------------------------------
-   * Selector Estado → Ciudad (en cascada), compartido entre el filtro y
-   * la hoja de ubicación de Explorar/Propiedades.
+   * Selector Estado → Ciudad: un buscador con lista en cascada (como un
+   * combobox de Estado, y al elegirlo, entra en cascada a sus ciudades),
+   * compartido entre el filtro y la hoja de ubicación de Explorar/Propiedades.
    * ------------------------------------------------------------------- */
 
-  function stateSelectHTML(stateKey) {
-    var states = window.APP_CONFIG.MEXICO_STATES;
-    var keys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
-    return '<select class="input" data-location-state>' +
-      '<option value="">Todo México</option>' +
-      keys.map(function (k) {
-        return '<option value="' + k + '"' + (stateKey === k ? ' selected' : '') + '>' + u.escapeHtml(states[k].label) + '</option>';
-      }).join('') + '</select>';
+  function normalizeLocationQuery(s) {
+    return String(s || '').toLowerCase()
+      .replace(/[áàäâ]/g, 'a').replace(/[éèëê]/g, 'e').replace(/[íìïî]/g, 'i')
+      .replace(/[óòöô]/g, 'o').replace(/[úùüû]/g, 'u').replace(/ñ/g, 'n');
   }
 
-  function citySelectHTML(stateKey, cityKey) {
-    var states = window.APP_CONFIG.MEXICO_STATES;
-    var state = stateKey && states[stateKey];
-    if (!state) return '<select class="input" data-location-city disabled><option value="">Elige un estado primero</option></select>';
-    var cityKeys = Object.keys(state.cities).sort(function (a, b) { return state.cities[a].label.localeCompare(state.cities[b].label, 'es'); });
-    return '<select class="input" data-location-city>' +
-      '<option value="">Todo el estado</option>' +
-      cityKeys.map(function (k) {
-        return '<option value="' + k + '"' + (cityKey === k ? ' selected' : '') + '>' + u.escapeHtml(state.cities[k].label) + '</option>';
-      }).join('') + '</select>';
+  function locationLabelFor(stateKey, cityKey) {
+    var state = stateKey && window.APP_CONFIG.MEXICO_STATES[stateKey];
+    if (!state) return null;
+    var city = cityKey && state.cities[cityKey];
+    return city ? city.label : state.label;
   }
 
   function openLocationSheet(current, onApply) {
     current = current || {};
     var working = { stateKey: current.stateKey || null, cityKey: current.cityKey || null };
+    var query = '';
+    var states = window.APP_CONFIG.MEXICO_STATES;
+
+    function locationRowHTML(label, meta, active, attr) {
+      return '<button type="button" class="location-row' + (active ? ' is-active' : '') + '" ' + attr + '>' +
+        '<span class="location-row__text"><span class="location-row__label">' + u.escapeHtml(label) + '</span>' +
+        (meta ? '<span class="location-row__meta">' + u.escapeHtml(meta) + '</span>' : '') + '</span>' +
+        '<span class="location-row__end">' + (active ? u.icon('check', { size: 16 }) : u.icon('chevronRight', { size: 15 })) + '</span>' +
+        '</button>';
+    }
+
+    function listHTML() {
+      var q = normalizeLocationQuery(query);
+      if (!working.stateKey) {
+        var stateKeys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
+        if (q) stateKeys = stateKeys.filter(function (k) { return normalizeLocationQuery(states[k].label).indexOf(q) !== -1; });
+        if (!stateKeys.length) return '<p class="location-picker__empty">Sin resultados para "' + u.escapeHtml(query) + '"</p>';
+        return stateKeys.map(function (k) {
+          var count = Object.keys(states[k].cities).length;
+          return locationRowHTML(states[k].label, count + ' ciudad' + (count === 1 ? '' : 'es'), false, 'data-state-row="' + k + '"');
+        }).join('');
+      }
+      var state = states[working.stateKey];
+      var cityKeys = Object.keys(state.cities).sort(function (a, b) { return state.cities[a].label.localeCompare(state.cities[b].label, 'es'); });
+      if (q) cityKeys = cityKeys.filter(function (k) { return normalizeLocationQuery(state.cities[k].label).indexOf(q) !== -1; });
+      var rows = q ? '' : locationRowHTML('Todo ' + state.label, 'Sin filtrar por ciudad', !working.cityKey, 'data-city-row=""');
+      if (!cityKeys.length) return rows + (q ? '<p class="location-picker__empty">Sin ciudades para "' + u.escapeHtml(query) + '"</p>' : '');
+      return rows + cityKeys.map(function (k) {
+        return locationRowHTML(state.cities[k].label, null, working.cityKey === k, 'data-city-row="' + k + '"');
+      }).join('');
+    }
 
     function bodyHTML() {
+      var state = working.stateKey && states[working.stateKey];
       return (
-        '<div class="filter-sheet__section">' +
-        '<span class="filter-sheet__label">Estado</span>' +
-        stateSelectHTML(working.stateKey) +
-        '</div>' +
-        '<div class="filter-sheet__section">' +
-        '<span class="filter-sheet__label">Ciudad</span>' +
-        citySelectHTML(working.stateKey, working.cityKey) +
+        '<div class="location-picker">' +
+        (state ? '<button type="button" class="location-picker__crumb" data-back>' + u.icon('chevronLeft', { size: 16 }) + '<strong>' + u.escapeHtml(state.label) + '</strong></button>' : '') +
+        '<label class="location-picker__search">' + u.icon('search', { size: 16 }) +
+        '<input type="text" inputmode="search" placeholder="' + (state ? 'Buscar ciudad' : 'Buscar estado') + '" value="' + u.escapeHtml(query) + '" data-location-search />' +
+        '<button type="button" class="location-picker__search-clear" data-clear-search aria-label="Limpiar búsqueda"' + (query ? '' : ' hidden') + '>' + u.icon('x', { size: 12 }) + '</button>' +
+        '</label>' +
+        '<div class="location-picker__list" data-list>' + listHTML() + '</div>' +
         '</div>' +
         '<div class="filter-footer row gap-2">' +
-        '<button type="button" class="btn btn--outline" data-clear>Limpiar</button>' +
+        '<button type="button" class="btn btn--text" data-clear>Quitar ubicación</button>' +
         '<button type="button" class="btn btn--primary btn--block" data-apply>Aplicar</button>' +
         '</div>'
       );
+    }
+
+    function wireRows(scope) {
+      u.qsa('[data-state-row]', scope).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          working.stateKey = btn.getAttribute('data-state-row');
+          working.cityKey = null;
+          query = '';
+          rerender();
+        });
+      });
+      u.qsa('[data-city-row]', scope).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          working.cityKey = btn.getAttribute('data-city-row') || null;
+          refreshList();
+        });
+      });
+    }
+
+    function refreshList() {
+      var root = u.qs('#sheet-root .sheet__body');
+      var listEl = u.qs('[data-list]', root);
+      listEl.innerHTML = listHTML();
+      wireRows(listEl);
     }
 
     function rerender() {
@@ -347,20 +395,33 @@
     }
 
     function wire(root) {
-      u.qs('[data-location-state]', root).addEventListener('change', function (e) {
-        working.stateKey = e.target.value || null;
-        working.cityKey = null;
-        rerender();
+      var backBtn = u.qs('[data-back]', root);
+      if (backBtn) backBtn.addEventListener('click', function () { working.stateKey = null; working.cityKey = null; query = ''; rerender(); });
+
+      var searchInput = u.qs('[data-location-search]', root);
+      var clearSearchBtn = u.qs('[data-clear-search]', root);
+      searchInput.addEventListener('input', function (e) {
+        query = e.target.value;
+        clearSearchBtn.hidden = !query;
+        refreshList();
       });
-      var citySel = u.qs('[data-location-city]', root);
-      if (citySel) citySel.addEventListener('change', function (e) { working.cityKey = e.target.value || null; });
+      clearSearchBtn.addEventListener('click', function () {
+        query = '';
+        searchInput.value = '';
+        clearSearchBtn.hidden = true;
+        searchInput.focus();
+        refreshList();
+      });
+
+      wireRows(root);
+
       var clearBtn = u.qs('[data-clear]', root);
-      if (clearBtn) clearBtn.addEventListener('click', function () { working = { stateKey: null, cityKey: null }; rerender(); });
+      if (clearBtn) clearBtn.addEventListener('click', function () { working = { stateKey: null, cityKey: null }; query = ''; rerender(); });
       var applyBtn = u.qs('[data-apply]', root);
       if (applyBtn) applyBtn.addEventListener('click', function () { closeSheet(); onApply(working); });
     }
 
-    openSheet({ title: 'Ubicación', body: bodyHTML() });
+    openSheet({ title: 'Ubicación', body: bodyHTML(), className: 'sheet--location' });
     wire(u.qs('#sheet-root .sheet__body'));
   }
 
@@ -376,13 +437,12 @@
     function bodyHTML() {
       return (
         '<div class="filter-sheet__section">' +
-        '<span class="filter-sheet__label">Estado</span>' +
-        stateSelectHTML(working.stateKey) +
-        '</div>' +
-        '<div class="filter-sheet__section">' +
-        '<span class="filter-sheet__label">Ciudad</span>' +
-        citySelectHTML(working.stateKey, working.cityKey) +
-        '</div>' +
+        '<span class="filter-sheet__label">Ubicación</span>' +
+        '<button type="button" class="location-picker-trigger" data-open-location>' +
+        u.icon('pin', { size: 15 }) +
+        '<span>' + u.escapeHtml(locationLabelFor(working.stateKey, working.cityKey) || 'Todo México') + '</span>' +
+        u.icon('chevronRight', { size: 15 }) +
+        '</button></div>' +
 
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Operación</span>' +
@@ -466,16 +526,13 @@
     }
 
     function wire(root) {
-      var stateSel = u.qs('[data-location-state]', root);
-      if (stateSel) stateSel.addEventListener('change', function () {
-        working.stateKey = stateSel.value || null;
-        working.cityKey = null;
-        rerender();
-      });
-      var citySel = u.qs('[data-location-city]', root);
-      if (citySel) citySel.addEventListener('change', function () {
-        working.cityKey = citySel.value || null;
-        rerender();
+      var locBtn = u.qs('[data-open-location]', root);
+      if (locBtn) locBtn.addEventListener('click', function () {
+        openLocationSheet({ stateKey: working.stateKey, cityKey: working.cityKey }, function (loc) {
+          working.stateKey = loc.stateKey;
+          working.cityKey = loc.cityKey;
+          openFilterSheet(working, allProperties, onApply);
+        });
       });
       u.qsa('[data-credit]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {

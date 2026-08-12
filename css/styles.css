@@ -534,6 +534,79 @@ body.is-admin .site-header { display: none; }
   padding: 12px 0 4px; margin-top: 8px;
 }
 
+.btn--text {
+  background: transparent; border-color: transparent; color: var(--color-ink-secondary);
+  padding-left: 12px; padding-right: 12px;
+}
+.btn--text:hover { background: var(--color-bg); color: var(--color-ink); }
+
+/* ==========================================================================
+   Selector de ubicación (Estado → Ciudad, buscador con lista en cascada)
+   ========================================================================== */
+
+.location-picker { display: flex; flex-direction: column; gap: 10px; }
+
+.location-picker__crumb {
+  display: inline-flex; align-items: center; gap: 4px; align-self: flex-start;
+  background: none; border: none; padding: 4px 6px 4px 2px; margin: -2px 0 -4px;
+  font-size: 0.88rem; color: var(--color-ink-secondary); font-weight: 700;
+}
+.location-picker__crumb:hover { color: var(--color-ink); }
+.location-picker__crumb strong { color: var(--color-ink); font-weight: 800; }
+
+.location-picker__search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--color-bg); border-radius: var(--radius-full);
+  padding: 11px 14px; color: var(--color-ink-muted);
+  transition: box-shadow 0.15s ease;
+}
+.location-picker__search:focus-within { box-shadow: 0 0 0 2px var(--color-primary-ring); }
+.location-picker__search input {
+  flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+  font-size: 0.92rem; font-weight: 600; color: var(--color-ink);
+}
+.location-picker__search input::placeholder { color: var(--color-ink-muted); font-weight: 500; }
+.location-picker__search-clear {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 22px; height: 22px; border-radius: 50%; border: none;
+  background: var(--color-border-strong); color: var(--color-surface);
+}
+.location-picker__search-clear[hidden] { display: none; }
+
+.location-picker__list {
+  display: flex; flex-direction: column; gap: 1px;
+  max-height: min(48vh, 400px); overflow-y: auto; margin: 0 -6px;
+  animation: location-fade-in 0.16s ease;
+}
+@keyframes location-fade-in { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+
+.location-picker__empty { text-align: center; color: var(--color-ink-muted); font-size: 0.85rem; padding: 28px 12px; }
+
+.location-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; padding: 12px; border: none; background: transparent; border-radius: var(--radius-md);
+  text-align: left; color: var(--color-ink); transition: background 0.12s ease;
+}
+.location-row:hover { background: var(--color-bg); }
+.location-row:active { transform: scale(0.99); }
+.location-row.is-active { background: var(--color-primary-light); color: var(--color-primary); }
+.location-row__text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.location-row__label { font-weight: 700; font-size: 0.92rem; }
+.location-row__meta { font-size: 0.76rem; color: var(--color-ink-muted); }
+.location-row.is-active .location-row__meta { color: var(--color-primary); opacity: 0.8; }
+.location-row__end { flex-shrink: 0; color: var(--color-ink-muted); display: flex; }
+.location-row.is-active .location-row__end { color: var(--color-primary); }
+
+.location-picker-trigger {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: var(--color-bg); border: none; border-radius: var(--radius-md);
+  padding: 12px 14px; color: var(--color-ink); font-weight: 700; font-size: 0.88rem;
+}
+.location-picker-trigger:hover { background: var(--color-border); }
+.location-picker-trigger svg:first-child { color: var(--color-primary); flex-shrink: 0; }
+.location-picker-trigger span { flex: 1; text-align: left; }
+.location-picker-trigger svg:last-child { color: var(--color-ink-muted); flex-shrink: 0; }
+
 /* ==========================================================================
    Detalle de propiedad
    ========================================================================== */
