@@ -170,7 +170,10 @@
         return '<div class="admin-section">' +
           '<div class="admin-section__head"><div><div class="admin-section__title">' + u.escapeHtml(p.title) + '</div>' +
           '<div class="admin-section__subtitle">' + commissionLabel(p.sharing) + ' · Visibilidad: ' + visibilityLabel(p.sharing.visibility) + (p.sharing.conditions ? ' · "' + u.escapeHtml(p.sharing.conditions) + '"' : '') + '</div></div>' +
-          '<a class="btn btn--outline btn--sm" href="#/dashboard/propiedades">Editar</a></div>' +
+          '<div class="row gap-2" style="flex-wrap:wrap">' +
+          '<a class="btn btn--outline btn--sm" href="#/dashboard/propiedades">Editar</a>' +
+          '<button type="button" class="btn btn--outline btn--sm" data-stop-sharing="' + p.id + '" style="color:var(--color-primary);border-color:var(--color-primary)">Dejar de compartir</button>' +
+          '</div></div>' +
           (collaborators.length
             ? '<div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Colaborador</th><th>Enviada</th><th>Vistas</th><th>Contactos</th><th>Visitas</th><th></th></tr></thead><tbody>' +
               collaborators.map(function (col) {
@@ -291,6 +294,25 @@
           btn.addEventListener('click', async function () {
             try { await sp.removeFromCatalog(btn.getAttribute('data-revoke')); u.toast('Colaborador retirado'); refresh(); }
             catch (err) { u.toast(err.message || 'No se pudo retirar al colaborador'); }
+          });
+        });
+        u.qsa('[data-stop-sharing]', root).forEach(function (btn) {
+          btn.addEventListener('click', async function () {
+            var propertyId = btn.getAttribute('data-stop-sharing');
+            if (!window.confirm('Se dejará de compartir esta propiedad y se quitará de la lista de todos los asesores que la tienen en su catálogo. ¿Continuar?')) return;
+            btn.disabled = true;
+            try {
+              var collaborators = sp.collaboratorsFor(propertyId);
+              for (var i = 0; i < collaborators.length; i++) {
+                await sp.removeFromCatalog(collaborators[i].id);
+              }
+              await sp.setSharing(propertyId, { enabled: false });
+              u.toast('Dejaste de compartir esta propiedad', { tone: 'success' });
+              refresh();
+            } catch (err) {
+              btn.disabled = false;
+              u.toast(err.message || 'No se pudo dejar de compartir la propiedad');
+            }
           });
         });
       }
