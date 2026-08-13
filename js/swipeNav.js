@@ -1,18 +1,17 @@
 // Navegación por deslizamiento: arrastrar horizontalmente sobre el contenido
-// cambia entre las secciones principales de la barra inferior (Explorar /
-// Propiedades / Favoritos / Publicar-o-Panel en el sitio público; Inicio /
-// Propiedades / Clientes / Menú en el panel del asesor), con el contenido
-// seleccionaste al dedo y termina de deslizarse solo al soltar pasada la
-// mitad del recorrido — como un carrusel, no como un salto instantáneo. El
-// botón central (+) queda fuera de la secuencia: es una acción, no una
-// sección. No interfiere con el mapa, los carruseles de fotos ni las listas
-// que ya se desplazan horizontalmente: si el toque empieza ahí, o si la
-// pantalla actual no es una de estas secciones, se deja el gesto nativo
-// intacto y no se anima nada.
+// cambia entre las secciones principales de la barra inferior del sitio
+// público (Explorar / Propiedades / Favoritos / Publicar-o-Panel), con el
+// contenido siguiendo al dedo y terminando de deslizarse solo al soltar
+// pasada la mitad del recorrido — como un carrusel, no como un salto
+// instantáneo. El botón central (+) queda fuera de la secuencia: es una
+// acción, no una sección. No interfiere con el mapa, los carruseles de fotos
+// ni las listas que ya se desplazan horizontalmente: si el toque empieza
+// ahí, o si la pantalla actual no es una de estas secciones, se deja el
+// gesto nativo intacto y no se anima nada. El panel del asesor (/dashboard/*)
+// ya no tiene una barra de pestañas fija (usa una sidebar), así que no
+// participa de este gesto.
 (function () {
   "use strict";
-
-  var AGENT_TABS = ["/dashboard", "/dashboard/propiedades", "/dashboard/clientes", "/dashboard/menu"];
 
   var EXCLUDE_SELECTOR =
     '.explore-map, .detail-map, .map-canvas, .map-picker, .map-chip-overlay, ' +
@@ -38,7 +37,9 @@
   }
 
   function activeTabs() {
-    return currentPath().indexOf("/dashboard") === 0 ? AGENT_TABS : publicTabs();
+    // El panel del asesor ya no tiene pestañas fijas (usa una sidebar), así
+    // que no participa del gesto de deslizamiento — solo el sitio público.
+    return currentPath().indexOf("/dashboard") === 0 ? [] : publicTabs();
   }
 
   function init() {

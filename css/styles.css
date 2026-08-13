@@ -670,17 +670,6 @@ body.is-admin .site-header { display: none; }
 .detail-float-contact__btn--call { background: var(--color-primary); color: #fff; }
 .detail-float-contact__btn--directions { background: var(--color-renta); color: #fff; }
 
-/* Accesos flotantes del panel del asesor: siempre a la vista, en las dos
-   esquinas inferiores para no chocar con el botón "+" central de la barra. */
-.agent-float-btn {
-  position: fixed; bottom: calc(var(--bottomnav-h) + 16px); z-index: var(--z-overlay);
-  width: 46px; height: 46px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--color-surface); box-shadow: var(--shadow-lg);
-}
-.agent-float-btn--left { left: 16px; color: var(--color-ink-secondary); }
-.agent-float-btn--right { right: 16px; color: var(--color-primary); }
-@media (min-width: 900px) { .agent-float-btn { bottom: 24px; } }
 .carousel__track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel__track::-webkit-scrollbar { display: none; }
 .carousel__slide { flex: 0 0 100%; scroll-snap-align: start; height: 100%; }
@@ -841,10 +830,57 @@ body.is-admin .site-header { display: none; }
 
 .page-wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 32px; }
 
-/* ---- Panel del asesor: mismo header/bottom-nav adaptativo del sitio público ---- */
-.agent-content { max-width: 960px; margin: 0 auto; padding: 16px 16px 40px; }
-.agent-topbar { margin-bottom: 16px; }
-.agent-topbar__title { font-size: 1.2rem; font-weight: 800; }
+/* ==========================================================================
+   Panel del asesor: sidebar fija (calcada del mismo patrón que usa el panel
+   admin — ver .admin-shell en css/admin.css — con su propio juego de clases
+   para poder evolucionar cada superficie por separado).
+   ========================================================================== */
+
+.agent-shell { display: flex; min-height: 100dvh; background: var(--color-bg); }
+
+.agent-sidebar {
+  width: 248px; flex-shrink: 0; background: #111827; color: #E5E7EB;
+  position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 50;
+  padding: 18px 12px 24px; transition: transform 0.2s ease;
+  display: flex; flex-direction: column;
+}
+.agent-sidebar__logo { display: flex; align-items: center; gap: 8px; padding: 8px 10px 16px; font-weight: 800; color: #fff; font-size: 1.05rem; }
+.agent-sidebar__publish-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--color-primary); color: #fff; font-weight: 800; font-size: 0.86rem;
+  border-radius: var(--radius-md); padding: 12px; margin: 0 2px 16px;
+}
+.agent-sidebar__publish-btn:hover { background: var(--color-primary-dark); }
+.agent-nav-link {
+  display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: var(--radius-sm);
+  color: #D1D5DB; font-size: 0.86rem; font-weight: 600; margin-bottom: 2px;
+}
+.agent-nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.agent-nav-link.is-active { background: var(--color-primary); color: #fff; }
+.agent-nav-link .badge-count { margin-left: auto; background: rgba(255,255,255,0.15); font-size: 0.68rem; padding: 1px 7px; border-radius: var(--radius-full); }
+.agent-sidebar__footer { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+.agent-sidebar__footer a { color: #9CA3AF; font-size: 0.82rem; display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+.agent-sidebar__footer a:hover { color: #fff; }
+
+.agent-sidebar-backdrop { position: fixed; inset: 0; background: var(--color-overlay); z-index: 45; display: none; }
+
+.agent-main { flex: 1; min-width: 0; margin-left: 248px; }
+.agent-topbar {
+  position: sticky; top: 0; z-index: 20; background: var(--color-surface); border-bottom: 1px solid var(--color-border);
+  padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+}
+.agent-topbar__title { font-size: 1.05rem; font-weight: 800; flex: 1; }
+.agent-menu-toggle { display: none; }
+.agent-content { padding: 22px 24px 60px; max-width: 1100px; }
+
+@media (max-width: 899px) {
+  .agent-sidebar { transform: translateX(-100%); }
+  .agent-shell.is-nav-open .agent-sidebar { transform: translateX(0); }
+  .agent-shell.is-nav-open .agent-sidebar-backdrop { display: block; }
+  .agent-main { margin-left: 0; }
+  .agent-menu-toggle { display: inline-flex; }
+  .agent-content { padding: 16px 16px 48px; }
+}
 .badge-count {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--color-primary); color: #fff; font-size: 0.68rem; font-weight: 800;
@@ -882,8 +918,6 @@ body.is-admin .site-header { display: none; }
 .agent-greeting__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .agent-greeting__text strong { font-size: 1rem; }
 .agent-greeting__text span { font-size: 0.8rem; color: var(--color-ink-muted); }
-.agent-greeting__bell { position: relative; width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; background: var(--color-surface); border: 1px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: var(--color-ink-secondary); }
-.agent-greeting__bell .badge-count { position: absolute; top: -4px; right: -4px; }
 
 .crm-pipeline-bar { display: flex; gap: 2px; height: 8px; border-radius: var(--radius-full); overflow: hidden; background: var(--color-bg); }
 .crm-pipeline-bar span { display: block; background: var(--color-primary); }

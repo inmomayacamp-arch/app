@@ -23,14 +23,26 @@
     return "Buenas noches";
   }
 
+  function contactRowHTML(contact) {
+    var isCall = contact.channel === 'call';
+    var label = contact.propertyTitle || contact.clientLabel || 'Tu perfil público';
+    var meta = (isCall ? 'Llamada' : 'WhatsApp') + ' · ' + u.relativeTime(contact.createdAt);
+    return (
+      '<div class="ranked-row">' +
+      '<span class="dashboard-card__icon' + (isCall ? '' : ' dashboard-card__icon--venta') + '">' + u.icon(isCall ? 'phone' : 'chat', { size: 16 }) + '</span>' +
+      '<div class="ranked-row__info"><strong>' + u.escapeHtml(label) + '</strong><span>' + meta + '</span></div>' +
+      '</div>'
+    );
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
     var myLinks = state.links.byAgent(agent.slug);
     var myClients = agentState.clients.all();
-    var unread = agentState.notifications.unreadCount();
     var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
+    var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
     var poolPremium = agentState.sharedPool.isPremium(agent.slug);
     var poolCount = poolPremium ? agentState.sharedPool.search({}).length : 0;
@@ -44,7 +56,6 @@
       '<div class="agent-greeting">' +
       '  <img src="' + agent.photo + '" width="44" height="44" alt="" />' +
       '  <div class="agent-greeting__text"><strong>' + greetingWord() + ', ' + u.escapeHtml(agent.name.split(' ')[0]) + '</strong><span>Esto es lo que pasa en tu negocio hoy</span></div>' +
-      '  <a class="agent-greeting__bell" href="#/dashboard/notificaciones" aria-label="Notificaciones">' + u.icon('bell', { size: 19 }) + (unread ? '<span class="badge-count">' + unread + '</span>' : '') + '</a>' +
       '</div>' +
 
       (uncontacted
@@ -59,7 +70,13 @@
       '  <a class="dashboard-card" href="#/dashboard/perfil-profesional"><span class="dashboard-card__icon dashboard-card__icon--renta">' + u.icon('user', { size: 18 }) + '</span><strong>Editar perfil</strong><span>Tu información pública</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
       '  <a class="dashboard-card" href="#/dashboard/enlaces/nuevo"><span class="dashboard-card__icon dashboard-card__icon--terreno">' + u.icon('link', { size: 18 }) + '</span><strong>Crear enlace</strong><span>Comparte propiedades con un cliente</span></a>' +
-      '  <a class="dashboard-card" href="#/dashboard/calendario"><span class="dashboard-card__icon dashboard-card__icon--otro">' + u.icon('calendar', { size: 18 }) + '</span><strong>Calendario</strong><span>Citas, visitas y tareas</span></a>' +
+      '</div>' +
+
+      '<div class="admin-section">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Contactos recientes</div></div>' +
+      (recentContacts.length
+        ? '<div class="stack gap-2">' + recentContacts.map(contactRowHTML).join('') + '</div>'
+        : '<p class="text-muted" style="font-size:0.85rem">Aún no has recibido contactos por WhatsApp o llamada.</p>') +
       '</div>' +
 
       '<div class="admin-section" style="margin-top:20px">' +
@@ -111,6 +128,6 @@
     ac.mount('dashboard', 'Dashboard', content, root);
   }
 
-  window.App.views = window.App.views || {};
-  window.App.views.dashboardHome = { render: render };
+  window.App.agent.views = window.App.agent.views || {};
+  window.App.agent.views.dashboardHome = { render: render };
 })();

@@ -67,6 +67,6 @@
     c.bindCopyButtons(root);
   }
 
-  window.App.views = window.App.views || {};
-  window.App.views.linkStats = { render: render };
+  window.App.agent.views = window.App.agent.views || {};
+  window.App.agent.views.linkStats = { render: render };
 })();

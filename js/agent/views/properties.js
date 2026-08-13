@@ -134,6 +134,7 @@
         '<div class="stack gap-2">' +
         '<a class="btn btn--outline btn--block" target="_blank" rel="noopener" href="#/propiedad/' + p.id + '">' + u.icon('eye', { size: 15 }) + ' Ver ficha pública</a>' +
         '<button type="button" class="btn btn--outline btn--block" data-act="edit">' + u.icon('edit', { size: 15 }) + ' Editar</button>' +
+        '<button type="button" class="btn btn--outline btn--block" data-act="pdf">' + u.icon('download', { size: 15 }) + ' Descargar PDF</button>' +
         (p.status !== 'vendida' ? '<button type="button" class="btn btn--outline btn--block" data-act="status" data-status="vendida">' + u.icon('check', { size: 15 }) + ' Marcar como vendida</button>' : '') +
         '<button type="button" class="btn btn--outline btn--block" data-act="toggle-hide">' + u.icon('eye', { size: 15 }) + (isHidden ? ' Mostrar' : ' Ocultar') + '</button>' +
         (canPublishNow ? '<button type="button" class="btn btn--outline btn--block" data-act="publish-now">' + u.icon('check', { size: 15 }) + ' Publicar ahora</button>' : '') +
@@ -154,6 +155,14 @@
 
     var shareBtn = u.qs('[data-act="share"]', sheetRoot);
     if (shareBtn) shareBtn.addEventListener('click', function () { c.closeSheet(); shareSheet(p, agent, refresh); });
+
+    var pdfBtn = u.qs('[data-act="pdf"]', sheetRoot);
+    if (pdfBtn) pdfBtn.addEventListener('click', async function () {
+      pdfBtn.disabled = true;
+      try { await window.App.pdfFicha.generate(p, agent); }
+      catch (err) { u.toast('No se pudo generar el PDF'); }
+      finally { pdfBtn.disabled = false; }
+    });
 
     var duplicateBtn = u.qs('[data-act="duplicate"]', sheetRoot);
     if (duplicateBtn) duplicateBtn.addEventListener('click', async function () {

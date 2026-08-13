@@ -529,6 +529,7 @@
       viewsForProperty: viewsForProperty,
       topPropertiesForAgent: topPropertiesForAgent,
       contactsForAgent: contactsForAgent,
+      recentContactsForAgent: recentContactsForAgent,
       dailyViewsForAgent: dailyViewsForAgent,
       weeklyTrendForAgent: weeklyTrendForAgent
     }
@@ -851,6 +852,28 @@
       var p = getProperty(id);
       return p ? { label: p.title, value: map[id] } : null;
     }).filter(Boolean).sort(function (a, b) { return b.value - a.value; }).slice(0, limit || 5);
+  }
+
+  // Lista (no solo el conteo) de los contactos más recientes, para la
+  // tarjeta "Contactos recientes" del panel de agente — la señal de "alguien
+  // te contactó" es lo que más pesa en por qué un agente sigue pagando una
+  // herramienta como esta (velocidad de respuesta).
+  function recentContactsForAgent(slug, limit) {
+    var agentId = agentIdForSlug(slug);
+    return cachedEvents
+      .filter(function (e) { return e.eventType === 'contact_click' && e.agentId === agentId; })
+      .sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); })
+      .slice(0, limit || 5)
+      .map(function (e) {
+        var property = e.propertyId ? getProperty(e.propertyId) : null;
+        var link = e.linkId ? cachedLinks.filter(function (l) { return l.id === e.linkId; })[0] : null;
+        return {
+          channel: (e.meta && e.meta.channel) || 'whatsapp',
+          propertyTitle: property ? property.title : null,
+          clientLabel: link ? link.clientLabel : null,
+          createdAt: e.createdAt
+        };
+      });
   }
 
   function contactsForAgent(slug) {

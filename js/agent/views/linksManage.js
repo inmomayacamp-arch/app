@@ -94,6 +94,6 @@
     });
   }
 
-  window.App.views = window.App.views || {};
-  window.App.views.linksManage = { renderList: renderList, renderCreate: renderCreate };
+  window.App.agent.views = window.App.agent.views || {};
+  window.App.agent.views.linksManage = { renderList: renderList, renderCreate: renderCreate };
 })();

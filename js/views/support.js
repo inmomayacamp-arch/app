@@ -20,15 +20,14 @@
 
   function render(params, root) {
     var agent = state.agents.isLoggedIn() ? state.agents.current() : null;
-    var backHref = agent ? '#/dashboard/menu' : '#/';
 
     function mountPage(bodyHtml) {
       if (agent) {
-        ac.mount('menu', 'Soporte', bodyHtml, root);
+        ac.mount('', 'Soporte', bodyHtml, root);
       } else {
         root.innerHTML =
           '<div class="page-header">' +
-          '  <a class="btn btn--icon" href="' + backHref + '" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+          '  <a class="btn btn--icon" href="#/" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
           '  <h1 class="page-header__title">Soporte y contacto</h1>' +
           '</div>' + bodyHtml;
         c.mountChrome('explore');

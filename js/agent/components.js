@@ -1,38 +1,24 @@
-// Shell del panel del asesor: reutiliza el mismo sistema de navegación
-// adaptativa del sitio público (barra superior en escritorio, barra inferior
-// con botón flotante en celular — mismos contenedores #site-header/#bottom-nav
-// y mismo breakpoint de css/styles.css), en vez de una barra lateral fija.
+// Shell del panel del asesor: sidebar fija en escritorio (cajón deslizable +
+// hamburguesa en celular), calcada del mismo patrón que ya usa el panel
+// admin (js/admin/components.js + css/admin.css, quiebre en 900px) — en vez
+// de la barra inferior que usaba el sitio público. Con solo 7 secciones,
+// todas caben directo en la sidebar sin necesitar una pestaña "Menú" aparte.
 (function () {
   "use strict";
 
   var u = window.App.utils;
+  var state = window.App.state;
   var as = window.App.agent.state;
 
-  var PRIMARY = [
+  var NAV = [
     { route: "dashboard", href: "#/dashboard", label: "Inicio", icon: "grid" },
     { route: "propiedades", href: "#/dashboard/propiedades", label: "Propiedades", icon: "home" },
-    { route: "publicar", href: "#/dashboard/publicar", label: "Publicar", icon: "plus", fab: true },
-    { route: "clientes", href: "#/dashboard/clientes", label: "Clientes", icon: "users" },
-    { route: "menu", href: "#/dashboard/menu", label: "Menú", icon: "menu", badge: function () { return menuBadgeCount(); } }
+    { route: "clientes", href: "#/dashboard/clientes", label: "Clientes", icon: "users", badge: function () { return as.clients.all().filter(function (cl) { return cl.status === 'nuevo'; }).length; } },
+    { route: "bolsa", href: "#/dashboard/bolsa", label: "Bolsa Compartida", icon: "exchange", badge: function () { return as.sharedPool ? as.sharedPool.pendingRequests().length : 0; } },
+    { route: "enlaces", href: "#/dashboard/enlaces", label: "Enlaces", icon: "link" },
+    { route: "perfil-profesional", href: "#/dashboard/perfil-profesional", label: "Perfil profesional", icon: "user" },
+    { route: "suscripcion", href: "#/dashboard/suscripcion", label: "Suscripción", icon: "dollar" }
   ];
-
-  var MENU_ITEMS = [
-    { route: "enlaces", href: "#/dashboard/enlaces", label: "Enlaces", icon: "link", desc: "Selecciones para tus clientes" },
-    { route: "bolsa", href: "#/dashboard/bolsa", label: "Bolsa Compartida", icon: "exchange", desc: "Colabora con otros asesores", badge: function () { return as.sharedPool ? as.sharedPool.pendingRequests().length : 0; } },
-    { route: "calendario", href: "#/dashboard/calendario", label: "Calendario", icon: "calendar", desc: "Citas, visitas y tareas" },
-    { route: "perfil-profesional", href: "#/dashboard/perfil-profesional", label: "Perfil profesional", icon: "user", desc: "Tu información pública" },
-    { route: "estadisticas", href: "#/dashboard/estadisticas", label: "Estadísticas", icon: "chart", desc: "Vistas, contactos y conversión" },
-    { route: "publicidad", href: "#/dashboard/publicidad", label: "Publicidad", icon: "megaphone", desc: "Destaca tus propiedades" },
-    { route: "notificaciones", href: "#/dashboard/notificaciones", label: "Notificaciones", icon: "bell", desc: "Actividad reciente", badge: function () { return as.notifications.unreadCount(); } },
-    { route: "suscripcion", href: "#/dashboard/suscripcion", label: "Suscripción", icon: "dollar", desc: "Tu plan y pagos" },
-    { route: "soporte", href: "#/soporte", label: "Soporte", icon: "flag", desc: "Reporta un problema o déjanos tu comentario" }
-  ];
-
-  function menuBadgeCount() {
-    var pending = as.sharedPool ? as.sharedPool.pendingRequests().length : 0;
-    var unread = as.notifications ? as.notifications.unreadCount() : 0;
-    return pending + unread;
-  }
 
   function statusPill(status) {
     return window.App.admin.components.statusPill(status);
@@ -65,52 +51,60 @@
       bars + labels + '</svg>';
   }
 
-  function renderAgentHeader(activeRoute) {
-    var links = PRIMARY.filter(function (i) { return !i.fab; }).map(function (item) {
-      var cls = "site-header__link" + (item.route === activeRoute ? " is-active" : "");
+  function shellHTML(activeRoute, title, contentHtml) {
+    var agent = state.agents.current();
+    var navHtml = NAV.map(function (item) {
       var count = item.badge ? item.badge() : 0;
-      return '<a class="' + cls + '" href="' + item.href + '">' + u.escapeHtml(item.label) + (count ? ' <span class="badge-count">' + count + '</span>' : '') + '</a>';
+      return '<a class="agent-nav-link' + (item.route === activeRoute ? ' is-active' : '') + '" href="' + item.href + '">' +
+        u.icon(item.icon, { size: 17 }) + '<span>' + item.label + '</span>' +
+        (count ? '<span class="badge-count">' + count + '</span>' : '') + '</a>';
     }).join('');
-    var fab = PRIMARY.filter(function (i) { return i.fab; })[0];
 
     return (
-      '<a class="site-header__logo" href="#/dashboard">' + u.logoHTML() + '</a>' +
-      '<nav class="site-header__nav">' + links + '</nav>' +
-      '<a class="btn btn--primary btn--sm" href="' + fab.href + '">' + u.icon(fab.icon, { size: 14 }) + ' ' + fab.label + '</a>'
+      '<div class="agent-shell" id="agent-shell">' +
+      '  <div class="agent-sidebar-backdrop" data-agent-close-nav></div>' +
+      '  <aside class="agent-sidebar">' +
+      '    <div class="agent-sidebar__logo">' + u.logoHTML({ tone: 'light' }) + ' <span class="logo-tag">Panel</span></div>' +
+      '    <a class="agent-sidebar__publish-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
+      '    <nav>' + navHtml + '</nav>' +
+      '    <div class="agent-sidebar__footer">' +
+      (agent ? '<a href="#/' + agent.slug + '">' + u.icon('eye', { size: 16 }) + ' Ver mi perfil público</a>' : '') +
+      '      <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
+      '      <a href="#/soporte">' + u.icon('flag', { size: 16 }) + ' Soporte</a>' +
+      '      <a href="#" data-agent-logout>' + u.icon('logout', { size: 16 }) + ' Cerrar sesión</a>' +
+      '    </div>' +
+      '  </aside>' +
+      '  <div class="agent-main">' +
+      '    <div class="agent-topbar">' +
+      '      <button type="button" class="btn btn--icon agent-menu-toggle" data-agent-open-nav aria-label="Abrir menú">' + u.icon('menu', { size: 18 }) + '</button>' +
+      '      <h1 class="agent-topbar__title">' + u.escapeHtml(title) + '</h1>' +
+      '    </div>' +
+      '    <div class="agent-content">' + contentHtml + '</div>' +
+      '  </div>' +
+      '</div>'
     );
-  }
-
-  function renderAgentBottomNav(activeRoute) {
-    return PRIMARY.map(function (item) {
-      if (item.fab) {
-        return '<a class="bottom-nav__item" href="' + item.href + '" aria-label="' + item.label + '"><span class="bottom-nav__fab">' + u.icon(item.icon, { size: 20 }) + '</span></a>';
-      }
-      var cls = "bottom-nav__item" + (item.route === activeRoute ? " is-active" : "");
-      var count = item.badge ? item.badge() : 0;
-      var badgeHtml = count ? '<span class="bottom-nav__badge">' + count + '</span>' : '';
-      return '<a class="' + cls + '" href="' + item.href + '" aria-current="' + (item.route === activeRoute ? 'page' : 'false') + '">' +
-        badgeHtml + u.icon(item.icon, { size: 21 }) + '<span>' + u.escapeHtml(item.label) + '</span></a>';
-    }).join('');
   }
 
   function mount(activeRoute, title, contentHtml, root) {
     document.body.classList.remove('is-admin');
-    u.qs('#site-header').innerHTML = renderAgentHeader(activeRoute);
-    u.qs('#bottom-nav').innerHTML = renderAgentBottomNav(activeRoute);
-    root.innerHTML =
-      '<div class="agent-content">' +
-      '  <div class="agent-topbar"><h1 class="agent-topbar__title">' + u.escapeHtml(title) + '</h1></div>' +
-      contentHtml +
-      '</div>' +
-      '<a class="agent-float-btn agent-float-btn--left" href="#/" aria-label="Volver al sitio público (sigues con tu sesión iniciada)" title="Volver al sitio público">' + u.icon('home', { size: 20 }) + '</a>' +
-      '<a class="agent-float-btn agent-float-btn--right" href="#/soporte" aria-label="Soporte" title="¿Necesitas ayuda? Soporte">' + u.icon('flag', { size: 20 }) + '</a>';
+    u.qs('#site-header').innerHTML = '';
+    u.qs('#bottom-nav').innerHTML = '';
+    root.innerHTML = shellHTML(activeRoute, title, contentHtml);
     document.title = title + ' — Panel del asesor · InmoMaps';
+
+    var shell = u.qs('#agent-shell', root);
+    u.qs('[data-agent-open-nav]', root).addEventListener('click', function () { shell.classList.add('is-nav-open'); });
+    u.qs('[data-agent-close-nav]', root).addEventListener('click', function () { shell.classList.remove('is-nav-open'); });
+    var logoutLink = u.qs('[data-agent-logout]', root);
+    if (logoutLink) logoutLink.addEventListener('click', async function (e) {
+      e.preventDefault();
+      await state.agents.logout();
+      window.location.hash = '#/';
+    });
   }
 
   window.App.agent.components = {
-    PRIMARY: PRIMARY,
-    MENU_ITEMS: MENU_ITEMS,
-    menuBadgeCount: menuBadgeCount,
+    NAV: NAV,
     statusPill: statusPill,
     hbarListHTML: hbarListHTML,
     kpiCardHTML: kpiCardHTML,
