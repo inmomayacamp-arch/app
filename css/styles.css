@@ -992,6 +992,10 @@ body.is-admin .site-header { display: none; }
 .agenda-card__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.74rem; color: var(--color-ink-muted); margin-bottom: 4px; }
 .dashboard-card strong { font-size: 0.92rem; }
 .dashboard-card span { font-size: 0.78rem; color: var(--color-ink-muted); }
+/* .dashboard-card span de arriba le ganaba a .badge-count por especificidad
+   (selector descendiente + 1 clase vs. 1 sola clase) y el "2" del contador
+   se veía gris sobre el círculo rojo en vez de blanco. */
+.dashboard-card .badge-count { color: #fff; font-size: 0.68rem; }
 
 .dashboard-hero {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
