@@ -325,12 +325,38 @@
         '</button>';
     }
 
+    // Con texto en el buscador, la búsqueda es universal: recorre TODOS los
+    // estados y ciudades del catálogo (no solo el estado en el que se está
+    // navegando), para poder escribir "m" y elegir cualquier coincidencia
+    // directamente sin tener que entrar primero a su estado.
+    function searchResultsHTML(q) {
+      var results = [];
+      Object.keys(states).forEach(function (sk) {
+        var st = states[sk];
+        if (normalizeLocationQuery(st.label).indexOf(q) !== -1) {
+          var count = Object.keys(st.cities).length;
+          results.push({ stateKey: sk, cityKey: null, label: st.label, meta: count + ' ciudad' + (count === 1 ? '' : 'es') });
+        }
+        Object.keys(st.cities).forEach(function (ck) {
+          var city = st.cities[ck];
+          if (normalizeLocationQuery(city.label).indexOf(q) !== -1) {
+            results.push({ stateKey: sk, cityKey: ck, label: city.label, meta: st.label });
+          }
+        });
+      });
+      results.sort(function (a, b) { return a.label.localeCompare(b.label, 'es'); });
+      if (!results.length) return '<p class="location-picker__empty">Sin resultados para "' + u.escapeHtml(query) + '"</p>';
+      return results.map(function (r) {
+        var active = working.stateKey === r.stateKey && working.cityKey === r.cityKey;
+        return locationRowHTML(r.label, r.meta, active, 'data-search-row data-search-state="' + r.stateKey + '" data-search-city="' + (r.cityKey || '') + '"');
+      }).join('');
+    }
+
     function listHTML() {
       var q = normalizeLocationQuery(query);
+      if (q) return searchResultsHTML(q);
       if (!working.stateKey) {
         var stateKeys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
-        if (q) stateKeys = stateKeys.filter(function (k) { return normalizeLocationQuery(states[k].label).indexOf(q) !== -1; });
-        if (!stateKeys.length) return '<p class="location-picker__empty">Sin resultados para "' + u.escapeHtml(query) + '"</p>';
         return stateKeys.map(function (k) {
           var count = Object.keys(states[k].cities).length;
           return locationRowHTML(states[k].label, count + ' ciudad' + (count === 1 ? '' : 'es'), false, 'data-state-row="' + k + '"');
@@ -338,9 +364,7 @@
       }
       var state = states[working.stateKey];
       var cityKeys = Object.keys(state.cities).sort(function (a, b) { return state.cities[a].label.localeCompare(state.cities[b].label, 'es'); });
-      if (q) cityKeys = cityKeys.filter(function (k) { return normalizeLocationQuery(state.cities[k].label).indexOf(q) !== -1; });
-      var rows = q ? '' : locationRowHTML('Todo ' + state.label, 'Sin filtrar por ciudad', !working.cityKey, 'data-city-row=""');
-      if (!cityKeys.length) return rows + (q ? '<p class="location-picker__empty">Sin ciudades para "' + u.escapeHtml(query) + '"</p>' : '');
+      var rows = locationRowHTML('Todo ' + state.label, 'Sin filtrar por ciudad', !working.cityKey, 'data-city-row=""');
       return rows + cityKeys.map(function (k) {
         return locationRowHTML(state.cities[k].label, null, working.cityKey === k, 'data-city-row="' + k + '"');
       }).join('');
@@ -352,7 +376,7 @@
         '<div class="location-picker">' +
         (state ? '<button type="button" class="location-picker__crumb" data-back>' + u.icon('chevronLeft', { size: 16 }) + '<strong>' + u.escapeHtml(state.label) + '</strong></button>' : '') +
         '<label class="location-picker__search">' + u.icon('search', { size: 16 }) +
-        '<input type="text" inputmode="search" placeholder="' + (state ? 'Buscar ciudad' : 'Buscar estado') + '" value="' + u.escapeHtml(query) + '" data-location-search />' +
+        '<input type="text" inputmode="search" placeholder="Buscar ciudad o estado" value="' + u.escapeHtml(query) + '" data-location-search />' +
         '<button type="button" class="location-picker__search-clear" data-clear-search aria-label="Limpiar búsqueda"' + (query ? '' : ' hidden') + '>' + u.icon('x', { size: 12 }) + '</button>' +
         '</label>' +
         (navigator.geolocation ? (
@@ -380,6 +404,16 @@
       u.qsa('[data-city-row]', scope).forEach(function (btn) {
         btn.addEventListener('click', function () {
           working.cityKey = btn.getAttribute('data-city-row') || null;
+          refreshList();
+        });
+      });
+      // Resultado del buscador universal: puede pertenecer a cualquier estado,
+      // así que fija estado y ciudad juntos. Se queda en modo búsqueda (no
+      // navega ni limpia el texto) para poder seguir afinando o aplicar ya.
+      u.qsa('[data-search-row]', scope).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          working.stateKey = btn.getAttribute('data-search-state');
+          working.cityKey = btn.getAttribute('data-search-city') || null;
           refreshList();
         });
       });
