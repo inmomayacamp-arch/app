@@ -35,6 +35,8 @@
     var sharedCatalog = (window.App.agent.state.sharedPool ? window.App.agent.state.sharedPool.catalog() : []).map(function (row) { return row.property; });
     var allSelectable = myProperties.concat(sharedCatalog);
     var clientLabel = "";
+    var clientPhone = "";
+    var clientEmail = "";
     var message = "";
     var selected = [];
 
@@ -54,6 +56,10 @@
     var content =
       '<div class="admin-section" style="max-width:640px">' +
       '  <div class="form-field"><label>Nombre del cliente</label><input type="text" data-client-label placeholder="Nombre del cliente" /></div>' +
+      '  <div class="form-row">' +
+      '  <div class="form-field"><label>WhatsApp del cliente</label><input type="text" inputmode="tel" data-client-phone placeholder="9811234567" /></div>' +
+      '  <div class="form-field"><label>Correo (opcional)</label><input type="email" data-client-email placeholder="cliente@correo.com" /></div>' +
+      '  </div>' +
       '  <div class="form-field"><label>Mensaje personalizado (opcional)</label><textarea rows="3" data-message placeholder="Hola, te comparto estas propiedades que seleccioné especialmente para ti."></textarea></div>' +
       '  <div class="form-field"><label>Selecciona las propiedades para este cliente</label></div>' +
       '  <div data-rows>' + rowsHTML() + '</div>' +
@@ -64,6 +70,8 @@
     ac.mount('enlaces', 'Nuevo enlace personalizado', content, root);
 
     u.qs('[data-client-label]', root).addEventListener('input', function (e) { clientLabel = e.target.value; });
+    u.qs('[data-client-phone]', root).addEventListener('input', function (e) { clientPhone = e.target.value; });
+    u.qs('[data-client-email]', root).addEventListener('input', function (e) { clientEmail = e.target.value; });
     u.qs('[data-message]', root).addEventListener('input', function (e) { message = e.target.value; });
 
     var rowsContainer = u.qs('[data-rows]', root);
@@ -80,11 +88,12 @@
 
     u.qs('[data-create]', root).addEventListener('click', async function () {
       if (!clientLabel.trim()) { u.toast('Escribe el nombre del cliente'); return; }
+      if (!clientPhone.trim()) { u.toast('Escribe el WhatsApp del cliente'); return; }
       if (!selected.length) { u.toast('Selecciona al menos una propiedad'); return; }
       var createBtn = u.qs('[data-create]', root);
       createBtn.disabled = true;
       try {
-        var link = await state.links.create({ clientLabel: clientLabel.trim(), message: message.trim(), propertyIds: selected });
+        var link = await state.links.create({ clientLabel: clientLabel.trim(), clientPhone: clientPhone.trim(), clientEmail: clientEmail.trim(), message: message.trim(), propertyIds: selected });
         u.toast('Enlace creado', { tone: 'success' });
         window.location.hash = '#/dashboard/enlaces/' + link.clientSlug;
       } catch (err) {

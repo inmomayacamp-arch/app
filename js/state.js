@@ -400,6 +400,8 @@
       agentSlug: row.agent_slug,
       clientSlug: row.client_slug,
       clientLabel: row.client_label,
+      clientPhone: row.client_phone || "",
+      clientEmail: row.client_email || "",
       message: row.message || "",
       propertyIds: row.property_ids || [],
       stats: row.stats || {},
@@ -435,6 +437,8 @@
       agent_slug: cachedCurrentProfile.slug,
       client_slug: clientSlug,
       client_label: payload.clientLabel,
+      client_phone: payload.clientPhone || "",
+      client_email: payload.clientEmail || "",
       message: payload.message || "",
       property_ids: payload.propertyIds,
       stats: {

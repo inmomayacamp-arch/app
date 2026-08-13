@@ -26,10 +26,16 @@
     var favorites = (stats.favoritePropertyIds || []).map(function (id) { return state.properties.get(id); }).filter(Boolean);
 
     var content =
-      '  <p class="text-secondary" style="margin-bottom:10px">Selección para <strong>' + u.escapeHtml(link.clientLabel) + '</strong></p>' +
+      '  <p class="text-secondary" style="margin-bottom:2px">Selección para <strong>' + u.escapeHtml(link.clientLabel) + '</strong></p>' +
+      (link.clientPhone || link.clientEmail
+        ? '<p class="text-muted" style="font-size:0.82rem;margin-bottom:10px">' + [link.clientPhone, link.clientEmail].filter(Boolean).map(u.escapeHtml).join(' · ') + '</p>'
+        : '') +
       c.shareBarHTML(url) +
       '  <div class="row gap-2" style="margin-top:10px">' +
-      '  <a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + link.clientLabel + ', te comparto la selección de propiedades: ' + url) + '">' + u.icon('chat', { size: 15 }) + ' Enviar por WhatsApp</a>' +
+      (link.clientPhone
+        ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(link.clientPhone, 'Hola ' + link.clientLabel + ', te comparto la selección de propiedades: ' + url) + '">' + u.icon('chat', { size: 15 }) + ' Enviar por WhatsApp</a>'
+        : '') +
+      (link.clientEmail ? '<a class="btn btn--outline btn--sm" href="mailto:' + u.escapeHtml(link.clientEmail) + '">' + u.icon('mail', { size: 15 }) + ' Enviar por correo</a>' : '') +
       '  </div>' +
 
       '<div class="admin-section"><div class="admin-section__head"><div class="admin-section__title">Últimos 7 días</div></div>' +

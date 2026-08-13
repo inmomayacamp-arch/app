@@ -15,6 +15,7 @@
     share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>',
     phone: '<rect x="7.5" y="2" width="9" height="20" rx="2.5" transform="rotate(45 12 12)"/>',
     chat: '<rect x="2" y="3" width="20" height="14" rx="4"/><polygon points="9,17 9,21 13,17"/>',
+    mail: '<rect x="2" y="4" width="20" height="16" rx="2.5"/><polyline points="2.5,5.5 12,13 21.5,5.5"/>',
     user: '<circle cx="12" cy="8" r="4"/><polyline points="4,20 4,18 8,15 16,15 20,18 20,20"/>',
     plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
     x: '<line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/>',
