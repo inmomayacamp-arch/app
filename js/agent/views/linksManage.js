@@ -37,7 +37,7 @@
     var clientLabel = "";
     var clientPhone = "";
     var clientEmail = "";
-    var message = "";
+    var message = "Hola, te comparto mi selección de propiedades en InmoMaps. Aquí podrás ver todas sus características, fotos y ubicación en el mapa.";
     var selected = [];
 
     function rowHTML(p) {
@@ -60,7 +60,8 @@
       '  <div class="form-field"><label>WhatsApp del cliente</label><input type="text" inputmode="tel" data-client-phone placeholder="9811234567" /></div>' +
       '  <div class="form-field"><label>Correo (opcional)</label><input type="email" data-client-email placeholder="cliente@correo.com" /></div>' +
       '  </div>' +
-      '  <div class="form-field"><label>Mensaje personalizado (opcional)</label><textarea rows="3" data-message placeholder="Hola, te comparto estas propiedades que seleccioné especialmente para ti."></textarea></div>' +
+      '  <div class="form-field"><label>Mensaje de bienvenida (opcional)</label><textarea rows="3" data-message>' + u.escapeHtml(message) + '</textarea>' +
+      '  <p class="text-muted" style="font-size:0.76rem;margin-top:6px">Es lo primero que verá tu cliente al abrir el enlace. Ya te dejamos un mensaje listo — puedes editarlo o borrarlo.</p></div>' +
       '  <div class="form-field"><label>Selecciona las propiedades para este cliente</label></div>' +
       '  <div data-rows>' + rowsHTML() + '</div>' +
       (allSelectable.length === 0 ? '<div class="empty-state"><p>Primero publica una propiedad o agrega una de la Bolsa Compartida para poder incluirla en un enlace.</p><a class="btn btn--primary" href="#/dashboard/publicar">Publicar propiedad</a></div>' : '') +
