@@ -912,14 +912,16 @@ body.is-admin .site-header { display: none; }
   background: var(--color-surface); border: 1px solid var(--color-border); text-align: left;
 }
 .dashboard-card__badge { position: absolute; top: 12px; right: 12px; }
+/* Relleno sólido + ícono blanco: el fondo clarito con ícono del mismo tono
+   (usado antes) perdía casi todo el contraste en tamaño de ícono chico. */
 .dashboard-card__icon {
   width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
-  background: var(--color-primary-light); color: var(--color-primary);
+  background: var(--color-primary); color: #fff;
 }
 .dashboard-card__icon--venta { background: var(--color-venta); color: #fff; }
-.dashboard-card__icon--renta { background: var(--color-renta-bg); color: var(--color-renta); }
-.dashboard-card__icon--terreno { background: var(--color-terreno-bg); color: var(--color-terreno); }
-.dashboard-card__icon--otro { background: var(--color-otro-bg); color: var(--color-otro); }
+.dashboard-card__icon--renta { background: var(--color-renta); color: #fff; }
+.dashboard-card__icon--terreno { background: var(--color-terreno); color: #fff; }
+.dashboard-card__icon--otro { background: var(--color-otro); color: #fff; }
 
 .attention-card {
   display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--radius-md);
