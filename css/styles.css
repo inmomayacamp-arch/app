@@ -351,8 +351,11 @@ body.is-admin .site-header { display: none; }
 }
 .search-bar input::placeholder { color: var(--color-ink-muted); }
 
+/* Sin position:absolute quedaba en el flujo normal del documento, justo
+   encima de la fila de chips/controles del mapa (que sí son absolutos) —
+   se veían encimados en cuanto aparecía este botón al mover el mapa. */
 .search-this-area {
-  align-self: center;
+  position: absolute; top: 112px; left: 50%; transform: translateX(-50%); z-index: var(--z-overlay);
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-full);
