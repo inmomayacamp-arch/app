@@ -35,17 +35,23 @@
     );
   }
 
+  function tileHTML(opts) {
+    return '<a class="dashboard-card" href="' + opts.href + '">' +
+      '<span class="dashboard-card__icon' + (opts.iconClass ? ' ' + opts.iconClass : '') + '">' + u.icon(opts.icon, { size: 18 }) + '</span>' +
+      (opts.badge ? '<span class="dashboard-card__badge badge-count">' + opts.badge + '</span>' : '') +
+      '<strong>' + opts.title + '</strong><span>' + opts.desc + '</span></a>';
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
     var myLinks = state.links.byAgent(agent.slug);
     var myClients = agentState.clients.all();
     var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
+    var pendingPoolRequests = agentState.sharedPool.isPremium(agent.slug) ? agentState.sharedPool.pendingRequests().length : 0;
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
     var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
-    var poolPremium = agentState.sharedPool.isPremium(agent.slug);
-    var poolCount = poolPremium ? agentState.sharedPool.search({}).length : 0;
 
     var pipeline = PIPELINE_STAGES.map(function (s, i) {
       return { label: s.label, value: myClients.filter(function (c) { return c.status === s.value; }).length, opacity: (0.35 + i * 0.16).toFixed(2) };
@@ -54,7 +60,6 @@
 
     var content =
       '<div class="agent-greeting">' +
-      '  <img src="' + agent.photo + '" width="44" height="44" alt="" />' +
       '  <div class="agent-greeting__text"><strong>' + greetingWord() + ', ' + u.escapeHtml(agent.name.split(' ')[0]) + '</strong><span>Esto es lo que pasa en tu negocio hoy</span></div>' +
       '</div>' +
 
@@ -66,12 +71,19 @@
           '</a>'
         : '') +
 
-      '<div class="dashboard-grid">' +
-      '  <a class="dashboard-card" href="#/dashboard/perfil-profesional"><span class="dashboard-card__icon dashboard-card__icon--renta">' + u.icon('user', { size: 18 }) + '</span><strong>Editar perfil</strong><span>Tu información pública</span></a>' +
-      '  <a class="dashboard-card" href="#/dashboard/publicar"><span class="dashboard-card__icon">' + u.icon('plus', { size: 18 }) + '</span><strong>Publicar propiedad</strong><span>Sube una propiedad nueva</span></a>' +
-      '  <a class="dashboard-card" href="#/dashboard/enlaces/nuevo"><span class="dashboard-card__icon dashboard-card__icon--terreno">' + u.icon('link', { size: 18 }) + '</span><strong>Crear enlace</strong><span>Comparte propiedades con un cliente</span></a>' +
-      '  <a class="dashboard-card" href="#/dashboard/propiedades"><span class="dashboard-card__icon dashboard-card__icon--otro">' + u.icon('home', { size: 18 }) + '</span><strong>Mis propiedades</strong><span>Administra tus publicaciones</span></a>' +
-      '</div>' +
+      '<a class="agent-cta-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
+
+      '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu negocio</div><div class="dashboard-grid">' +
+      tileHTML({ href: '#/dashboard/propiedades', icon: 'home', iconClass: 'dashboard-card__icon--otro', title: 'Propiedades', desc: 'Administra tus publicaciones' }) +
+      tileHTML({ href: '#/dashboard/clientes', icon: 'users', iconClass: 'dashboard-card__icon--renta', title: 'Clientes', desc: uncontacted ? uncontacted + ' sin contactar' : 'Tu CRM de clientes', badge: uncontacted || null }) +
+      tileHTML({ href: '#/dashboard/bolsa', icon: 'exchange', iconClass: 'dashboard-card__icon--terreno', title: 'Bolsa Compartida', desc: 'Colabora con otros asesores', badge: pendingPoolRequests || null }) +
+      tileHTML({ href: '#/dashboard/enlaces', icon: 'link', title: 'Enlaces', desc: 'Selecciones para tus clientes' }) +
+      '</div></div>' +
+
+      '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
+      tileHTML({ href: '#/dashboard/perfil-profesional', icon: 'user', title: 'Perfil profesional', desc: 'Tu información pública' }) +
+      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: agent.plan === 'profesional' ? 'Plan Profesional' : 'Plan Básico' }) +
+      '</div></div>' +
 
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Contactos recientes</div></div>' +
@@ -85,17 +97,6 @@
       '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMaps con tus clientes y en tus redes.</p>' +
       c.shareBarHTML(profileUrl) +
       '</div>' +
-
-      '<a class="pool-promo-card" href="#/dashboard/bolsa" style="margin-top:16px">' +
-      '  <span class="pool-promo-card__icon">' + u.icon('exchange', { size: 20 }) + '</span>' +
-      '  <div class="pool-promo-card__text">' +
-      '    <strong>Bolsa Inmobiliaria Compartida</strong>' +
-      '    <span>' + (poolPremium
-        ? (poolCount ? poolCount + (poolCount === 1 ? ' propiedad disponible' : ' propiedades disponibles') + ' para compartir comisión' : 'Descubre propiedades de otros asesores y gana comisión')
-        : 'Colabora con otros asesores y gana comisión por cada operación conjunta') + '</span>' +
-      '  </div>' +
-      '  <span class="pool-promo-card__arrow">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
-      '</a>' +
 
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div><div class="admin-section__title">Pipeline de clientes</div><div class="admin-section__subtitle">' + myClients.length + ' clientes en tu CRM</div></div><a href="#/dashboard/clientes" class="btn btn--outline btn--sm">Ver tablero</a></div>' +
@@ -124,6 +125,13 @@
             '</a>';
         }).join('') + '</div>'
         : '<p class="text-muted" style="font-size:0.85rem;margin-top:10px">Aún no has creado enlaces personalizados para clientes.</p>') +
+      '</div>' +
+
+      '<div class="agent-footer-links">' +
+      '  <a href="#/' + agent.slug + '">' + u.icon('eye', { size: 16 }) + ' Ver mi perfil público</a>' +
+      '  <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
+      '  <a href="#/soporte">' + u.icon('flag', { size: 16 }) + ' Soporte</a>' +
+      '  <a href="#" data-agent-logout>' + u.icon('logout', { size: 16 }) + ' Cerrar sesión</a>' +
       '</div>';
 
     ac.mount('dashboard', 'Dashboard', content, root);

@@ -861,56 +861,42 @@ body.is-admin .site-header { display: none; }
 .page-wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 32px; }
 
 /* ==========================================================================
-   Panel del asesor: sidebar fija (calcada del mismo patrón que usa el panel
-   admin — ver .admin-shell en css/admin.css — con su propio juego de clases
-   para poder evolucionar cada superficie por separado).
+   Panel del asesor: sin barra lateral — "Inicio" es el centro de control
+   (botones grandes a cada sección); las demás pantallas usan el mismo
+   .page-header que el resto de la app, con flecha de regreso a Inicio.
    ========================================================================== */
 
-.agent-shell { display: flex; min-height: 100dvh; background: var(--color-bg); }
+.agent-shell { min-height: 100dvh; background: var(--color-bg); }
+.agent-content { padding: 16px 16px 48px; max-width: 1100px; margin: 0 auto; }
+@media (min-width: 900px) { .agent-content { padding: 22px 24px 60px; } }
 
-.agent-sidebar {
-  width: 248px; flex-shrink: 0; background: #111827; color: #E5E7EB;
-  position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 50;
-  padding: 18px 12px 24px; transition: transform 0.2s ease;
-  display: flex; flex-direction: column;
-}
-.agent-sidebar__logo { display: flex; align-items: center; gap: 8px; padding: 8px 10px 16px; font-weight: 800; color: #fff; font-size: 1.05rem; }
-.agent-sidebar__publish-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  background: var(--color-primary); color: #fff; font-weight: 800; font-size: 0.86rem;
-  border-radius: var(--radius-md); padding: 12px; margin: 0 2px 16px;
-}
-.agent-sidebar__publish-btn:hover { background: var(--color-primary-dark); }
-.agent-nav-link {
-  display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: var(--radius-sm);
-  color: #D1D5DB; font-size: 0.86rem; font-weight: 600; margin-bottom: 2px;
-}
-.agent-nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
-.agent-nav-link.is-active { background: var(--color-primary); color: #fff; }
-.agent-nav-link .badge-count { margin-left: auto; background: rgba(255,255,255,0.15); font-size: 0.68rem; padding: 1px 7px; border-radius: var(--radius-full); }
-.agent-sidebar__footer { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
-.agent-sidebar__footer a { color: #9CA3AF; font-size: 0.82rem; display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
-.agent-sidebar__footer a:hover { color: #fff; }
-
-.agent-sidebar-backdrop { position: fixed; inset: 0; background: var(--color-overlay); z-index: 45; display: none; }
-
-.agent-main { flex: 1; min-width: 0; margin-left: 248px; }
-.agent-topbar {
+/* Centro de control: la pantalla "Inicio" reemplaza por completo la barra
+   lateral — es el único menú, con botones que llevan a cada sección. Las
+   demás pantallas del panel solo llevan un encabezado simple (el mismo
+   .page-header que usa el resto de la app) con una flecha de regreso al
+   centro de control, sin barra fija ni hamburguesa. */
+.agent-hub-topbar {
   position: sticky; top: 0; z-index: 20; background: var(--color-surface); border-bottom: 1px solid var(--color-border);
-  padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
 }
-.agent-topbar__title { font-size: 1.05rem; font-weight: 800; flex: 1; }
-.agent-menu-toggle { display: none; }
-.agent-content { padding: 22px 24px 60px; max-width: 1100px; }
+@media (min-width: 900px) { .agent-hub-topbar { padding: 14px 24px; } }
+.agent-hub-topbar img.avatar { width: 36px; height: 36px; }
 
-@media (max-width: 899px) {
-  .agent-sidebar { transform: translateX(-100%); }
-  .agent-shell.is-nav-open .agent-sidebar { transform: translateX(0); }
-  .agent-shell.is-nav-open .agent-sidebar-backdrop { display: block; }
-  .agent-main { margin-left: 0; }
-  .agent-menu-toggle { display: inline-flex; }
-  .agent-content { padding: 16px 16px 48px; }
+.agent-cta-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  background: var(--color-primary); color: #fff; font-weight: 800; font-size: 0.9rem;
+  border-radius: var(--radius-full); padding: 14px; margin-bottom: 22px; box-shadow: var(--shadow-md);
 }
+.agent-cta-btn:hover { background: var(--color-primary-dark); }
+
+.agent-tile-group { margin-bottom: 24px; }
+.agent-tile-group__label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink-muted); margin-bottom: 10px; }
+
+.agent-footer-links { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-border); display: flex; flex-direction: column; }
+.agent-footer-links a { display: flex; align-items: center; gap: 10px; padding: 12px 4px; font-size: 0.85rem; font-weight: 700; color: var(--color-ink-secondary); border-bottom: 1px solid var(--color-border); }
+.agent-footer-links a:last-child { border-bottom: none; color: var(--color-primary); }
+.agent-footer-links .icon { color: var(--color-ink-muted); flex-shrink: 0; }
+
 .badge-count {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--color-primary); color: #fff; font-size: 0.68rem; font-weight: 800;

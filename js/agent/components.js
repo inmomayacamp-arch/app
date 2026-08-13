@@ -1,24 +1,12 @@
-// Shell del panel del asesor: sidebar fija en escritorio (cajón deslizable +
-// hamburguesa en celular), calcada del mismo patrón que ya usa el panel
-// admin (js/admin/components.js + css/admin.css, quiebre en 900px) — en vez
-// de la barra inferior que usaba el sitio público. Con solo 7 secciones,
-// todas caben directo en la sidebar sin necesitar una pestaña "Menú" aparte.
+// Shell del panel del asesor: sin barra lateral — "Inicio" (dashboardHome.js)
+// es el único menú, con botones grandes que llevan a cada sección; el resto
+// de las pantallas solo lleva un encabezado simple con flecha de regreso al
+// centro de control, igual que cualquier otra pantalla secundaria de la app.
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var state = window.App.state;
-  var as = window.App.agent.state;
-
-  var NAV = [
-    { route: "dashboard", href: "#/dashboard", label: "Inicio", icon: "grid" },
-    { route: "propiedades", href: "#/dashboard/propiedades", label: "Propiedades", icon: "home" },
-    { route: "clientes", href: "#/dashboard/clientes", label: "Clientes", icon: "users", badge: function () { return as.clients.all().filter(function (cl) { return cl.status === 'nuevo'; }).length; } },
-    { route: "bolsa", href: "#/dashboard/bolsa", label: "Bolsa Compartida", icon: "exchange", badge: function () { return as.sharedPool ? as.sharedPool.pendingRequests().length : 0; } },
-    { route: "enlaces", href: "#/dashboard/enlaces", label: "Enlaces", icon: "link" },
-    { route: "perfil-profesional", href: "#/dashboard/perfil-profesional", label: "Perfil profesional", icon: "user" },
-    { route: "suscripcion", href: "#/dashboard/suscripcion", label: "Suscripción", icon: "dollar" }
-  ];
 
   function statusPill(status) {
     return window.App.admin.components.statusPill(status);
@@ -53,34 +41,18 @@
 
   function shellHTML(activeRoute, title, contentHtml) {
     var agent = state.agents.current();
-    var navHtml = NAV.map(function (item) {
-      var count = item.badge ? item.badge() : 0;
-      return '<a class="agent-nav-link' + (item.route === activeRoute ? ' is-active' : '') + '" href="' + item.href + '">' +
-        u.icon(item.icon, { size: 17 }) + '<span>' + item.label + '</span>' +
-        (count ? '<span class="badge-count">' + count + '</span>' : '') + '</a>';
-    }).join('');
+    var header = activeRoute === 'dashboard'
+      ? ('<div class="agent-hub-topbar">' + u.logoHTML() +
+        '<a href="#/dashboard/perfil-profesional" aria-label="Perfil profesional"><img class="avatar" src="' + agent.photo + '" width="36" height="36" alt="" /></a></div>')
+      : ('<div class="page-header">' +
+        '<a class="btn btn--icon" href="#/dashboard" aria-label="Volver al panel">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
+        '<h1 class="page-header__title">' + u.escapeHtml(title) + '</h1>' +
+        '</div>');
 
     return (
-      '<div class="agent-shell" id="agent-shell">' +
-      '  <div class="agent-sidebar-backdrop" data-agent-close-nav></div>' +
-      '  <aside class="agent-sidebar">' +
-      '    <div class="agent-sidebar__logo">' + u.logoHTML({ tone: 'light' }) + ' <span class="logo-tag">Panel</span></div>' +
-      '    <a class="agent-sidebar__publish-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
-      '    <nav>' + navHtml + '</nav>' +
-      '    <div class="agent-sidebar__footer">' +
-      (agent ? '<a href="#/' + agent.slug + '">' + u.icon('eye', { size: 16 }) + ' Ver mi perfil público</a>' : '') +
-      '      <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
-      '      <a href="#/soporte">' + u.icon('flag', { size: 16 }) + ' Soporte</a>' +
-      '      <a href="#" data-agent-logout>' + u.icon('logout', { size: 16 }) + ' Cerrar sesión</a>' +
-      '    </div>' +
-      '  </aside>' +
-      '  <div class="agent-main">' +
-      '    <div class="agent-topbar">' +
-      '      <button type="button" class="btn btn--icon agent-menu-toggle" data-agent-open-nav aria-label="Abrir menú">' + u.icon('menu', { size: 18 }) + '</button>' +
-      '      <h1 class="agent-topbar__title">' + u.escapeHtml(title) + '</h1>' +
-      '    </div>' +
-      '    <div class="agent-content">' + contentHtml + '</div>' +
-      '  </div>' +
+      '<div class="agent-shell">' +
+      header +
+      '  <div class="agent-content">' + contentHtml + '</div>' +
       '</div>'
     );
   }
@@ -92,9 +64,6 @@
     root.innerHTML = shellHTML(activeRoute, title, contentHtml);
     document.title = title + ' — Panel del asesor · InmoMaps';
 
-    var shell = u.qs('#agent-shell', root);
-    u.qs('[data-agent-open-nav]', root).addEventListener('click', function () { shell.classList.add('is-nav-open'); });
-    u.qs('[data-agent-close-nav]', root).addEventListener('click', function () { shell.classList.remove('is-nav-open'); });
     var logoutLink = u.qs('[data-agent-logout]', root);
     if (logoutLink) logoutLink.addEventListener('click', async function (e) {
       e.preventDefault();
@@ -104,7 +73,6 @@
   }
 
   window.App.agent.components = {
-    NAV: NAV,
     statusPill: statusPill,
     hbarListHTML: hbarListHTML,
     kpiCardHTML: kpiCardHTML,
