@@ -225,6 +225,11 @@
         '</select></div>' +
         '</div>' +
         '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre"' + dis + ' /></div>' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Calle</label><input type="text" data-field="street" value="' + u.escapeHtml(payload.street) + '" placeholder="Calle 10"' + dis + ' /></div>' +
+        '<div class="form-field"><label>Número exterior</label><input type="text" data-field="extNumber" value="' + u.escapeHtml(payload.extNumber) + '" placeholder="123"' + dis + ' /></div>' +
+        '</div>' +
+        '<div class="form-field"><label>Código postal</label><input type="text" data-field="postalCode" value="' + u.escapeHtml(payload.postalCode) + '" placeholder="24000"' + dis + ' /></div>' +
         (locationLocked ? '<div class="form-field" style="padding-top:0"><p class="text-muted" style="font-size:0.78rem">Elige estado y ciudad para continuar con la ubicación.</p></div>' : '') +
         '<div class="form-field" style="padding:0 16px"><label>Ubicación en el mapa</label>' +
         (locationLocked
@@ -241,16 +246,9 @@
         '</div>' +
         '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">La ubicación aproximada protege la privacidad del propietario: el pin público se muestra unos metros desplazado.</p>' +
         '</div>' +
-        '<details class="form-disclosure"><summary>Agregar dirección exacta (opcional)</summary><div class="form-disclosure__body">' +
+        '<details class="form-disclosure"><summary>Más datos de dirección (opcional)</summary><div class="form-disclosure__body">' +
         '<div class="form-field"><label>Municipio</label><input type="text" data-field="municipality" value="' + u.escapeHtml(payload.municipality) + '" placeholder="Campeche"' + dis + ' /></div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Calle</label><input type="text" data-field="street" value="' + u.escapeHtml(payload.street) + '" placeholder="Calle 10"' + dis + ' /></div>' +
-        '<div class="form-field"><label>Número exterior</label><input type="text" data-field="extNumber" value="' + u.escapeHtml(payload.extNumber) + '" placeholder="123"' + dis + ' /></div>' +
-        '</div>' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Código postal</label><input type="text" data-field="postalCode" value="' + u.escapeHtml(payload.postalCode) + '" placeholder="24000"' + dis + ' /></div>' +
-        '<div class="form-field"><label>Referencias</label><input type="text" data-field="addressNote" value="' + u.escapeHtml(payload.addressNote) + '" placeholder="A 5 min del malecón"' + dis + ' /></div>' +
-        '</div>' +
+        '<div class="form-field" style="margin-bottom:0"><label>Referencias</label><input type="text" data-field="addressNote" value="' + u.escapeHtml(payload.addressNote) + '" placeholder="A 5 min del malecón"' + dis + ' /></div>' +
         '</div></details>' +
         '</div>'
       );
