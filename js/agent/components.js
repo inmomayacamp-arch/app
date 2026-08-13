@@ -47,12 +47,16 @@
       : ('<div class="page-header">' +
         '<a class="btn btn--icon" href="#/dashboard" aria-label="Volver al panel">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
         '<h1 class="page-header__title">' + u.escapeHtml(title) + '</h1>' +
+        '<a class="btn btn--icon" href="#/soporte" aria-label="Soporte">' + u.icon('flag', { size: 18 }) + '</a>' +
         '</div>');
+
+    var footerLogo = activeRoute === 'dashboard' ? '' :
+      '<a class="agent-footer-logo" href="#/" aria-label="Ir a InmoMaps">' + u.logoHTML() + '</a>';
 
     return (
       '<div class="agent-shell">' +
       header +
-      '  <div class="agent-content">' + contentHtml + '</div>' +
+      '  <div class="agent-content">' + contentHtml + footerLogo + '</div>' +
       '</div>'
     );
   }

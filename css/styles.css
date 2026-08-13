@@ -926,6 +926,9 @@ body.is-admin .site-header { display: none; }
 .agent-footer-links a:last-child { border-bottom: none; color: var(--color-primary); }
 .agent-footer-links .icon { color: var(--color-ink-muted); flex-shrink: 0; }
 
+.agent-footer-logo { display: flex; justify-content: center; padding: 32px 0 12px; opacity: 0.6; }
+.agent-footer-logo:hover { opacity: 1; }
+
 .badge-count {
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--color-primary); color: #fff; font-size: 0.68rem; font-weight: 800;
@@ -976,10 +979,6 @@ body.is-admin .site-header { display: none; }
 .agent-greeting__text strong { font-size: 1rem; }
 .agent-greeting__text span { font-size: 0.8rem; color: var(--color-ink-muted); }
 
-.crm-pipeline-bar { display: flex; gap: 2px; height: 8px; border-radius: var(--radius-full); overflow: hidden; background: var(--color-bg); }
-.crm-pipeline-bar span { display: block; background: var(--color-primary); }
-.crm-pipeline-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px; font-size: 0.76rem; color: var(--color-ink-secondary); }
-.crm-pipeline-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-primary); margin-right: 5px; vertical-align: middle; }
 
 .calendar-month { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px; }
 .calendar-month__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-weight: 800; font-size: 0.9rem; text-transform: capitalize; }
