@@ -53,7 +53,7 @@
 
     var content =
       '<div class="admin-section" style="max-width:640px">' +
-      '  <div class="form-field"><label>Nombre del cliente</label><input type="text" data-client-label placeholder="Familia García" /></div>' +
+      '  <div class="form-field"><label>Nombre del cliente</label><input type="text" data-client-label placeholder="Nombre del cliente" /></div>' +
       '  <div class="form-field"><label>Mensaje personalizado (opcional)</label><textarea rows="3" data-message placeholder="Hola, te comparto estas propiedades que seleccioné especialmente para ti."></textarea></div>' +
       '  <div class="form-field"><label>Selecciona las propiedades para este cliente</label></div>' +
       '  <div data-rows>' + rowsHTML() + '</div>' +
