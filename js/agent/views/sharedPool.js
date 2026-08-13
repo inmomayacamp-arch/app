@@ -9,10 +9,10 @@
   var ac = window.App.agent.components;
 
   var TABS = [
-    { key: "buscar", label: "Buscar" },
-    { key: "compartidas", label: "Mis compartidas" },
-    { key: "catalogo", label: "Mi catálogo" },
-    { key: "liquidaciones", label: "Liquidaciones" }
+    { key: "buscar", label: "Buscar", icon: "search", descOne: "disponible", descMany: "disponibles" },
+    { key: "compartidas", label: "Mis compartidas", icon: "exchange", descOne: "propiedad", descMany: "propiedades" },
+    { key: "catalogo", label: "Mi catálogo", icon: "clipboard", descOne: "propiedad", descMany: "propiedades" },
+    { key: "liquidaciones", label: "Liquidaciones", icon: "dollar", descOne: "activa", descMany: "activas" }
   ];
 
   function commissionLabel(sharing) {
@@ -41,12 +41,13 @@
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
       '    <img src="' + u.thumbUrl(p.photos[0], 480, 360) + '" alt="" loading="lazy" />' +
       '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
-      (inCatalog ? '<span class="admin-property-card__pills"><span class="status-pill status-pill--activo">En tu catálogo</span></span>' : '') +
+      (inCatalog ? '<span class="pool-card__cat-corner" title="En tu catálogo">' + u.icon('check', { size: 13 }) + '</span>' : '') +
       '  </a>' +
       '  <div class="property-card__body">' +
       '    <div class="property-card__price">' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</div>' +
       '    <div class="property-card__title">' + u.escapeHtml(p.title) + '</div>' +
       '    <div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div>' +
+      (inCatalog ? '<div class="pool-card__pillrow"><span class="pool-card__pill">En tu catálogo</span></div>' : '') +
       '    <div class="pool-card__agent">' + (owner ? '<img src="' + owner.photo + '" alt="" />' : '') + '<span>' + u.escapeHtml(owner ? owner.name : p.agentSlug) + '</span></div>' +
       '    <div class="pool-card__commission">' + u.icon('dollar', { size: 11 }) + ' ' + commissionLabel(p.sharing) + '</div>' +
       '    <div class="pool-card__footer">' + footerHTML + '</div>' +
@@ -71,15 +72,62 @@
     var activeTab = "buscar";
     var filters = { city: '', type: '', operation: '', neighborhood: '', minCommission: 0, priceMax: '' };
 
+    // Mismas tarjetas cuadradas que ya usan el centro de control y Clientes,
+    // en vez de las pestañas de texto con scroll lateral — caben las 4 en
+    // una fila sin desplazarse, y cada una ya dice cuánto hay adentro.
     function tabsHTML() {
-      return '<div class="tabs" style="padding:0 0 16px">' + TABS.map(function (t) {
-        return '<button type="button" class="tab' + (t.key === activeTab ? ' is-active' : '') + '" data-tab="' + t.key + '">' + t.label + '</button>';
+      var counts = {
+        buscar: sp.search({}).length,
+        compartidas: sp.mine().length,
+        catalogo: sp.catalog().length,
+        liquidaciones: sp.collaboratorsForMyProperties().length
+      };
+      var pendingCount = sp.pendingRequests().length;
+      return '<div class="dashboard-grid" style="margin-bottom:20px">' + TABS.map(function (t) {
+        var n = counts[t.key] || 0;
+        return '<button type="button" class="dashboard-card' + (t.key === activeTab ? ' is-active-stage' : '') + '" data-tab="' + t.key + '">' +
+          '<span class="dashboard-card__icon">' + u.icon(t.icon, { size: 26 }) + '</span>' +
+          (t.key === 'compartidas' && pendingCount ? '<span class="dashboard-card__badge badge-count">' + pendingCount + '</span>' : '') +
+          '<strong>' + t.label + '</strong><span>' + n + ' ' + (n === 1 ? t.descOne : t.descMany) + '</span>' +
+          '</button>';
       }).join('') + '</div>';
+    }
+
+    function poolFilterCount() {
+      return ['city', 'type', 'operation'].filter(function (k) { return !!filters[k]; }).length + (filters.minCommission ? 1 : 0);
+    }
+
+    // Ciudad/tipo/operación/comisión mínima ya no están siempre abiertos en
+    // 4 cajas: viven en esta hoja, detrás de un solo botón "Filtros" — igual
+    // que el resto de la app (p. ej. Explorar). La colonia sigue como campo
+    // de búsqueda directo porque es lo que más se escribe.
+    function openPoolFiltersSheet() {
+      var cities = Array.from(new Set(window.App.state.properties.all().map(function (p) { return p.city; }))).filter(Boolean);
+      c.openSheet({
+        title: 'Filtros',
+        body:
+          '<div class="form-field"><label>Ciudad</label><select data-pf-city><option value="">Todas las ciudades</option>' +
+          cities.map(function (ci) { return '<option value="' + ci + '"' + (filters.city === ci ? ' selected' : '') + '>' + ci + '</option>'; }).join('') + '</select></div>' +
+          '<div class="form-field"><label>Tipo de propiedad</label><select data-pf-type><option value="">Cualquier tipo</option>' +
+          ['casa', 'departamento', 'terreno', 'local', 'oficina'].map(function (t) { return '<option value="' + t + '"' + (filters.type === t ? ' selected' : '') + '>' + u.propertyTypeLabel(t) + '</option>'; }).join('') + '</select></div>' +
+          '<div class="form-field"><label>Operación</label><select data-pf-operation><option value="">Venta o renta</option><option value="venta"' + (filters.operation === 'venta' ? ' selected' : '') + '>Venta</option><option value="renta"' + (filters.operation === 'renta' ? ' selected' : '') + '>Renta</option></select></div>' +
+          '<div class="form-field"><label>Comisión mínima (%)</label><input type="number" data-pf-commission placeholder="Ej. 5" value="' + (filters.minCommission || '') + '" /></div>' +
+          '<button type="button" class="btn btn--primary btn--block" data-pf-apply>Aplicar filtros</button>'
+      });
+      var sheetRoot = u.qs('#sheet-root');
+      u.qs('[data-pf-apply]', sheetRoot).addEventListener('click', function () {
+        filters.city = u.qs('[data-pf-city]', sheetRoot).value;
+        filters.type = u.qs('[data-pf-type]', sheetRoot).value;
+        filters.operation = u.qs('[data-pf-operation]', sheetRoot).value;
+        filters.minCommission = Number(u.qs('[data-pf-commission]', sheetRoot).value) || 0;
+        c.closeSheet();
+        refresh();
+      });
     }
 
     function buscarHTML() {
       var results = sp.search(filters);
-      var cities = Array.from(new Set(window.App.state.properties.all().map(function (p) { return p.city; }))).filter(Boolean);
+      var filterCount = poolFilterCount();
 
       var cards = results.map(function (p) {
         var inCatalog = sp.isInCatalog(p.id);
@@ -92,13 +140,10 @@
 
       return (
         '<div class="admin-section">' +
-        '  <div class="admin-toolbar">' +
-        '    <select data-f-city><option value="">Todas las ciudades</option>' + cities.map(function (ci) { return '<option value="' + ci + '"' + (filters.city === ci ? ' selected' : '') + '>' + ci + '</option>'; }).join('') + '</select>' +
-        '    <select data-f-type><option value="">Cualquier tipo</option>' +
-        ['casa', 'departamento', 'terreno', 'local', 'oficina'].map(function (t) { return '<option value="' + t + '"' + (filters.type === t ? ' selected' : '') + '>' + u.propertyTypeLabel(t) + '</option>'; }).join('') + '</select>' +
-        '    <select data-f-operation><option value="">Venta o renta</option><option value="venta"' + (filters.operation === 'venta' ? ' selected' : '') + '>Venta</option><option value="renta"' + (filters.operation === 'renta' ? ' selected' : '') + '>Renta</option></select>' +
-        '    <input type="text" data-f-neighborhood placeholder="Colonia" value="' + u.escapeHtml(filters.neighborhood) + '" />' +
-        '    <input type="number" data-f-commission placeholder="Comisión mín. %" style="max-width:150px" value="' + (filters.minCommission || '') + '" />' +
+        '  <div class="pool-searchbar">' +
+        '    <input type="text" data-f-neighborhood placeholder="Buscar por colonia..." value="' + u.escapeHtml(filters.neighborhood) + '" />' +
+        '    <button type="button" class="pool-searchbar__filters" data-open-pool-filters aria-label="Filtros">' + u.icon('sliders', { size: 16 }) +
+        (filterCount ? '<span class="badge-count">' + filterCount + '</span>' : '') + '</button>' +
         '  </div>' +
         (cards ? '<div class="pool-grid">' + cards + '</div>' : '<p class="text-muted" style="font-size:0.85rem">No hay propiedades compartidas por otros asesores que coincidan con tu búsqueda.</p>') +
         '</div>'
@@ -148,9 +193,9 @@
       var rows = sp.catalog();
       var cards = rows.map(function (row) {
         var footer =
-          '<div class="row gap-2">' +
-          '<a class="btn btn--sm btn--outline" style="flex:1" href="#/dashboard/enlaces/nuevo">Incluir en enlace</a>' +
-          '<button type="button" class="btn btn--sm btn--outline" data-remove-catalog="' + row.collaboration.id + '">Quitar</button>' +
+          '<div class="stack gap-2">' +
+          '<a class="btn btn--sm btn--outline btn--block" href="#/dashboard/enlaces/nuevo">Incluir en enlace</a>' +
+          '<button type="button" class="btn btn--sm btn--outline btn--block" data-remove-catalog="' + row.collaboration.id + '">Quitar</button>' +
           '</div>';
         return poolCardHTML(row.property, footer);
       }).join('');
@@ -212,14 +257,10 @@
       });
 
       if (activeTab === 'buscar') {
-        ['city', 'type', 'operation'].forEach(function (key) {
-          var el = u.qs('[data-f-' + key + ']', root);
-          if (el) el.addEventListener('change', function () { filters[key] = el.value; refresh(); });
-        });
         var neighborhoodEl = u.qs('[data-f-neighborhood]', root);
         if (neighborhoodEl) neighborhoodEl.addEventListener('input', u.debounce(function () { filters.neighborhood = neighborhoodEl.value; refresh(); }, 250));
-        var commissionEl = u.qs('[data-f-commission]', root);
-        if (commissionEl) commissionEl.addEventListener('input', u.debounce(function () { filters.minCommission = Number(commissionEl.value) || 0; refresh(); }, 250));
+        var openFiltersBtn = u.qs('[data-open-pool-filters]', root);
+        if (openFiltersBtn) openFiltersBtn.addEventListener('click', openPoolFiltersSheet);
         u.qsa('[data-add-catalog]', root).forEach(function (btn) {
           btn.addEventListener('click', async function () {
             try {
