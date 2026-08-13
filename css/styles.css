@@ -912,8 +912,6 @@ body.is-admin .site-header { display: none; }
   background: var(--color-surface); border: 1px solid var(--color-border); text-align: left;
 }
 .dashboard-card__badge { position: absolute; top: 12px; right: 12px; }
-/* Relleno sólido + ícono blanco: el fondo clarito con ícono del mismo tono
-   (usado antes) perdía casi todo el contraste en tamaño de ícono chico. */
 .dashboard-card__icon {
   width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
   background: var(--color-primary); color: #fff;
@@ -922,6 +920,18 @@ body.is-admin .site-header { display: none; }
 .dashboard-card__icon--renta { background: var(--color-renta); color: #fff; }
 .dashboard-card__icon--terreno { background: var(--color-terreno); color: #fff; }
 .dashboard-card__icon--otro { background: var(--color-otro); color: #fff; }
+
+/* Ícono flotante sin contenedor: solo para los íconos grandes de las
+   tarjetas de navegación (.dashboard-card), no para las insignias chicas
+   dentro de .ranked-row, que sí conservan el cuadrito de color de arriba. */
+.dashboard-card > .dashboard-card__icon {
+  width: auto; height: auto; background: none; color: var(--color-primary);
+}
+.dashboard-card > .dashboard-card__icon--venta { color: var(--color-venta); }
+.dashboard-card > .dashboard-card__icon--renta { color: var(--color-renta); }
+.dashboard-card > .dashboard-card__icon--terreno { color: var(--color-terreno); }
+.dashboard-card > .dashboard-card__icon--otro { color: var(--color-otro); }
+.dashboard-card > .dashboard-card__icon svg { stroke-width: 1.8; }
 
 .attention-card {
   display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--radius-md);

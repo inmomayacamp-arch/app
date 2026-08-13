@@ -37,7 +37,7 @@
 
   function tileHTML(opts) {
     return '<a class="dashboard-card" href="' + opts.href + '">' +
-      '<span class="dashboard-card__icon' + (opts.iconClass ? ' ' + opts.iconClass : '') + '">' + u.icon(opts.icon, { size: 18 }) + '</span>' +
+      '<span class="dashboard-card__icon' + (opts.iconClass ? ' ' + opts.iconClass : '') + '">' + u.icon(opts.icon, { size: 26 }) + '</span>' +
       (opts.badge ? '<span class="dashboard-card__badge badge-count">' + opts.badge + '</span>' : '') +
       '<strong>' + opts.title + '</strong><span>' + opts.desc + '</span></a>';
   }

@@ -40,10 +40,10 @@
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div><div class="admin-section__title">Acciones pendientes</div><div class="admin-section__subtitle">Elementos que necesitan tu revisión</div></div></div>' +
       '  <div class="admin-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">' +
-      '    <a class="dashboard-card" href="#/admin/agentes"><span class="dashboard-card__icon">' + u.icon('briefcase', { size: 18 }) + '</span><strong>' + s.agents.pending().length + ' solicitudes de agente</strong><span>Revisar y aprobar</span></a>' +
-      '    <a class="dashboard-card" href="#/admin/propiedades"><span class="dashboard-card__icon">' + u.icon('flag', { size: 18 }) + '</span><strong>' + s.properties.pending().length + ' propiedades por aprobar</strong><span>Revisar publicaciones nuevas</span></a>' +
-      '    <a class="dashboard-card" href="#/admin/moderacion"><span class="dashboard-card__icon">' + u.icon('flag', { size: 18 }) + '</span><strong>' + s.reports.all().filter(function (r) { return r.status === 'pendiente'; }).length + ' reportes sin resolver</strong><span>Contenido reportado</span></a>' +
-      '    <a class="dashboard-card" href="#/admin/pagos"><span class="dashboard-card__icon">' + u.icon('dollar', { size: 18 }) + '</span><strong>' + s.payments.all().filter(function (p) { return p.status === 'pendiente'; }).length + ' pagos pendientes</strong><span>Ver detalle de pagos</span></a>' +
+      '    <a class="dashboard-card" href="#/admin/agentes"><span class="dashboard-card__icon">' + u.icon('briefcase', { size: 26 }) + '</span><strong>' + s.agents.pending().length + ' solicitudes de agente</strong><span>Revisar y aprobar</span></a>' +
+      '    <a class="dashboard-card" href="#/admin/propiedades"><span class="dashboard-card__icon">' + u.icon('flag', { size: 26 }) + '</span><strong>' + s.properties.pending().length + ' propiedades por aprobar</strong><span>Revisar publicaciones nuevas</span></a>' +
+      '    <a class="dashboard-card" href="#/admin/moderacion"><span class="dashboard-card__icon">' + u.icon('flag', { size: 26 }) + '</span><strong>' + s.reports.all().filter(function (r) { return r.status === 'pendiente'; }).length + ' reportes sin resolver</strong><span>Contenido reportado</span></a>' +
+      '    <a class="dashboard-card" href="#/admin/pagos"><span class="dashboard-card__icon">' + u.icon('dollar', { size: 26 }) + '</span><strong>' + s.payments.all().filter(function (p) { return p.status === 'pendiente'; }).length + ' pagos pendientes</strong><span>Ver detalle de pagos</span></a>' +
       '  </div>' +
       '</div>' +
 

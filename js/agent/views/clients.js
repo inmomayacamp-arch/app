@@ -94,7 +94,7 @@
 
   function stageTileHTML(stage, count, isActive) {
     return '<button type="button" class="dashboard-card' + (isActive ? ' is-active-stage' : '') + '" data-stage-filter="' + stage.value + '">' +
-      '<span class="dashboard-card__icon' + (STAGE_ICON_CLASS[stage.value] ? ' ' + STAGE_ICON_CLASS[stage.value] : '') + '">' + u.icon(STAGE_ICONS[stage.value], { size: 18 }) + '</span>' +
+      '<span class="dashboard-card__icon' + (STAGE_ICON_CLASS[stage.value] ? ' ' + STAGE_ICON_CLASS[stage.value] : '') + '">' + u.icon(STAGE_ICONS[stage.value], { size: 26 }) + '</span>' +
       (count ? '<span class="dashboard-card__badge badge-count">' + count + '</span>' : '') +
       '<strong>' + stage.label + '</strong><span>' + count + (count === 1 ? ' cliente' : ' clientes') + '</span>' +
       '</button>';

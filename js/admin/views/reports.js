@@ -66,7 +66,7 @@
   function render(params, root) {
     var cards = REPORTS_DEF.map(function (def) {
       return '<div class="dashboard-card">' +
-        '<span class="dashboard-card__icon">' + u.icon(def.icon, { size: 18 }) + '</span>' +
+        '<span class="dashboard-card__icon">' + u.icon(def.icon, { size: 26 }) + '</span>' +
         '<strong>' + def.label + '</strong><span>' + def.rows().length + ' registros</span>' +
         '<div class="row gap-2" style="margin-top:10px">' +
         '<button type="button" class="btn btn--sm btn--outline" data-csv="' + def.key + '">CSV / Excel</button>' +
