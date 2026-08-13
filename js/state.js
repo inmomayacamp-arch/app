@@ -509,6 +509,15 @@
       create: createLead,
       updateStatus: updateLeadStatus
     },
+    providers: {
+      bootstrap: bootstrapProviders,
+      all: allProviders,
+      publicList: publicProviders,
+      get: getProvider,
+      create: createProvider,
+      update: updateProvider,
+      remove: removeProvider
+    },
     tracking: {
       bootstrap: bootstrapTracking,
       clear: clearTracking,
@@ -568,6 +577,85 @@
     var lead = mapLeadRow(updateResult.data);
     cachedLeads = cachedLeads.map(function (l) { return l.id === id ? lead : l; });
     return lead;
+  }
+
+  // --- Directorio de proveedores de servicios (notario, valuadores, arquitectos,
+  // servicios, sofom): cualquiera puede leer los activos (RLS: active = true);
+  // solo el admin (perfil role = 'admin') puede crear/editar/borrar y ver los
+  // inactivos — por eso, igual que "leads", el admin vuelve a llamar bootstrap()
+  // justo después de iniciar sesión, para refrescar el caché con permisos plenos. ---
+  var cachedProviders = [];
+
+  function mapProviderRow(row) {
+    return {
+      id: row.id, category: row.category, name: row.name, description: row.description || "",
+      phone: row.phone || "", whatsapp: row.whatsapp || "", photo: row.photo || "",
+      state: row.state || "", city: row.city || "", active: !!row.active, createdAt: row.created_at
+    };
+  }
+
+  function providerFieldsToRow(fields) {
+    var map = {
+      category: "category", name: "name", description: "description", phone: "phone",
+      whatsapp: "whatsapp", photo: "photo", state: "state", city: "city", active: "active"
+    };
+    var row = {};
+    Object.keys(fields).forEach(function (key) {
+      if (map[key] && fields[key] !== undefined) row[map[key]] = fields[key];
+    });
+    return row;
+  }
+
+  async function bootstrapProviders() {
+    if (!supabaseClient) return;
+    try {
+      var result = await supabaseClient.from("service_providers").select("*").order("created_at", { ascending: false });
+      if (result.data) cachedProviders = result.data.map(mapProviderRow);
+    } catch (e) {
+      console.error("No se pudieron cargar los proveedores del directorio", e);
+    }
+  }
+
+  function allProviders() { return cachedProviders; }
+  function getProvider(id) { return cachedProviders.filter(function (p) { return p.id === id; })[0] || null; }
+
+  // stateLabel/cityLabel vienen resueltos desde MEXICO_STATES (el mismo picker
+  // que usa el admin al capturar al proveedor), así que la comparación es
+  // exacta contra texto limpio — no hace falta matching difuso como en propiedades.
+  function publicProviders(category, stateLabel, cityLabel) {
+    return cachedProviders.filter(function (p) {
+      if (!p.active) return false;
+      if (category && p.category !== category) return false;
+      if (stateLabel && p.state !== stateLabel) return false;
+      if (cityLabel && p.city && p.city !== cityLabel) return false;
+      return true;
+    });
+  }
+
+  async function createProvider(payload) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var row = Object.assign(providerFieldsToRow(payload), { active: payload.active !== false });
+    var insertResult = await supabaseClient.from("service_providers").insert(row).select().single();
+    if (insertResult.error) throw insertResult.error;
+    var provider = mapProviderRow(insertResult.data);
+    cachedProviders = [provider].concat(cachedProviders);
+    return provider;
+  }
+
+  async function updateProvider(id, fields) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var updateResult = await supabaseClient.from("service_providers").update(providerFieldsToRow(fields)).eq("id", id).select().single();
+    if (updateResult.error) throw updateResult.error;
+    var provider = mapProviderRow(updateResult.data);
+    cachedProviders = cachedProviders.map(function (p) { return p.id === id ? provider : p; });
+    return provider;
+  }
+
+  async function removeProvider(id) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var deleteResult = await supabaseClient.from("service_providers").delete().eq("id", id);
+    if (deleteResult.error) throw deleteResult.error;
+    cachedProviders = cachedProviders.filter(function (p) { return p.id !== id; });
   }
 
   // --- Seguimiento real de vistas, contactos y favoritos (link_events) ---

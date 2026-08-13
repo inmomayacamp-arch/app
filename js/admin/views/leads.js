@@ -9,6 +9,10 @@
   var TYPE_LABELS = { casa: "Casa", departamento: "Departamento", terreno: "Terreno", local: "Local", oficina: "Oficina", "": "Cualquiera" };
   var SUBJECT_LABELS = { reporte: "Reportar un problema", cuenta: "Ayuda con mi cuenta", otro: "Otro" };
 
+  function categoryLabel(key) {
+    return (u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key === key; })[0] || {}).label || 'Sin especificar';
+  }
+
   function contactHTML(lead) {
     var parts = [];
     if (lead.phone) parts.push('<a href="tel:' + u.escapeHtml(lead.phone) + '">' + u.escapeHtml(lead.phone) + '</a>');
@@ -21,6 +25,7 @@
       var all = window.App.state.leads.all();
       var solicitudes = all.filter(function (l) { return l.kind === 'solicitud'; });
       var soporte = all.filter(function (l) { return l.kind === 'soporte'; });
+      var directorio = all.filter(function (l) { return l.kind === 'directorio'; });
 
       function actionCell(lead) {
         return '<td class="actions"><div class="icon-btn-row">' +
@@ -56,12 +61,32 @@
           '</tr>';
       }
 
+      function directorioRow(lead) {
+        var d = lead.details || {};
+        return '<tr>' +
+          '<td class="admin-table__name">' + u.escapeHtml(lead.name) + '<div class="admin-table__meta">' + contactHTML(lead) + '</div></td>' +
+          '<td>' + categoryLabel(d.category) + '</td>' +
+          '<td>' + u.escapeHtml(d.city || '—') + '</td>' +
+          '<td class="admin-table__meta">' + u.escapeHtml(lead.message || '—') + '</td>' +
+          '<td class="admin-table__meta">' + u.relativeTime(lead.createdAt) + '</td>' +
+          '<td>' + ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') + '</td>' +
+          actionCell(lead) +
+          '</tr>';
+      }
+
       var content =
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">Solicitudes de propiedad (' + solicitudes.length + ')</div>' +
         '  <div class="admin-section__subtitle">Visitantes que no encontraron lo que buscaban</div></div></div>' +
         '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Contacto</th><th>Tipo</th><th>Ciudad</th><th>Presupuesto</th><th>Detalle</th><th>Enviado</th><th>Estado</th><th></th></tr></thead>' +
         '  <tbody>' + (solicitudes.map(solicitudRow).join('') || '<tr><td colspan="8" class="admin-table__meta">Sin solicitudes por ahora</td></tr>') + '</tbody></table></div>' +
+        '</div>' +
+
+        '<div class="admin-section">' +
+        '  <div class="admin-section__head"><div><div class="admin-section__title">Anúnciate aquí (' + directorio.length + ')</div>' +
+        '  <div class="admin-section__subtitle">Profesionales interesados en aparecer en el directorio de servicios</div></div></div>' +
+        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Contacto</th><th>Categoría</th><th>Ciudad</th><th>Mensaje</th><th>Enviado</th><th>Estado</th><th></th></tr></thead>' +
+        '  <tbody>' + (directorio.map(directorioRow).join('') || '<tr><td colspan="7" class="admin-table__meta">Sin solicitudes por ahora</td></tr>') + '</tbody></table></div>' +
         '</div>' +
 
         '<div class="admin-section">' +

@@ -466,11 +466,14 @@
       return (
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Ubicación</span>' +
+        '<div class="row gap-2">' +
         '<button type="button" class="location-picker-trigger" data-open-location>' +
         u.icon('pin', { size: 15 }) +
         '<span>' + u.escapeHtml(locationLabelFor(working.stateKey, working.cityKey) || 'Todo México') + '</span>' +
         u.icon('chevronRight', { size: 15 }) +
-        '</button></div>' +
+        '</button>' +
+        (navigator.geolocation ? '<button type="button" class="location-picker-trigger location-picker-trigger--locate" data-locate-me aria-label="Usar mi ubicación actual">' + u.icon('locate', { size: 16 }) + '</button>' : '') +
+        '</div></div>' +
 
         '<div class="filter-sheet__section">' +
         '<span class="filter-sheet__label">Operación</span>' +
@@ -560,6 +563,21 @@
           working.stateKey = loc.stateKey;
           working.cityKey = loc.cityKey;
           openFilterSheet(working, allProperties, onApply);
+        });
+      });
+      var locateBtn = u.qs('[data-locate-me]', root);
+      if (locateBtn) locateBtn.addEventListener('click', function () {
+        locateBtn.disabled = true;
+        navigator.geolocation.getCurrentPosition(function (pos) {
+          var loc = u.nearestMexicoLocation([pos.coords.longitude, pos.coords.latitude], 120);
+          locateBtn.disabled = false;
+          if (!loc) { u.toast('No encontramos una ciudad cercana a tu ubicación en el catálogo.'); return; }
+          working.stateKey = loc.stateKey;
+          working.cityKey = loc.cityKey;
+          rerender();
+        }, function () {
+          locateBtn.disabled = false;
+          u.toast('No pudimos acceder a tu ubicación. Revisa los permisos del navegador.');
         });
       });
       u.qsa('[data-credit]', root).forEach(function (btn) {

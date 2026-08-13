@@ -7,22 +7,10 @@
   var state = window.App.state;
   var data = window.App.data;
 
-  // Directorio de servicios inmobiliarios (notario, valuadores, etc.): todavía
-  // no existe un directorio real detrás de estas categorías, así que por ahora
-  // solo avisan que viene pronto. Cuando se construya esa sección, este es el
-  // lugar para cambiar el handler de "data-service" por una navegación real.
   // Radio máximo (km) para asumir que la geolocalización "está" en una ciudad
   // del catálogo nacional. Más amplio que antes porque ahora la cobertura es
   // todo México, no solo 3 ciudades cercanas entre sí.
   var AUTO_LOCATION_RADIUS_KM = 120;
-
-  var SERVICE_CATEGORIES = [
-    { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
-    { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
-    { key: "arquitectos", label: "Arquitectos", icon: "penTool", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
-    { key: "servicios", label: "Servicios", icon: "tool", color: "var(--color-venta)", bg: "var(--color-venta-bg)" },
-    { key: "sofom", label: "SOFOM", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
-  ];
 
   function render(params, root) {
     var filters = u.defaultFilters();
@@ -72,7 +60,10 @@
       '    <div class="map-top-overlay">' +
       '      <div class="row" style="justify-content:space-between;align-items:center;width:100%">' +
       '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
+      '        <div class="row gap-2">' +
+      (navigator.geolocation ? '        <button type="button" class="map-locate-btn" data-locate-me aria-label="Usar mi ubicación actual">' + u.icon('locate', { size: 15 }) + '</button>' : '') +
       '        <button type="button" class="city-chip" data-open-location aria-label="Ubicación">' + u.icon('pin', { size: 13 }) + ' <span data-location-label>' + u.escapeHtml(locationLabel()) + '</span></button>' +
+      '        </div>' +
       '      </div>' +
       '      <div class="map-chip-overlay">' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
@@ -99,10 +90,13 @@
       '  <div class="explore-discover">' +
       '    <div class="container">' +
       '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
+      '      <button type="button" class="promo-card promo-card--action" data-all-properties>' +
+      '        <span class="promo-card__icon">' + u.icon('home', { size: 28 }) + '</span>' +
+      '        <div class="promo-card__body"><strong>Ver todas las casas</strong><p style="margin-bottom:0">Explora el catálogo completo de propiedades disponibles</p></div>' +
+      u.icon('chevronRight', { size: 18 }) +
+      '      </button>' +
       '      <div class="category-grid" data-categories>' +
-      '        <button type="button" class="category-card" data-all-properties style="--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' +
-      '          <span class="category-card__icon">' + u.icon('home', { size: 22 }) + '</span><strong>Ver todas las casas</strong></button>' +
-      SERVICE_CATEGORIES.map(function (cat) {
+      u.SERVICE_CATEGORIES.map(function (cat) {
         return '<button type="button" class="category-card" data-service="' + cat.key + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
           '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
       }).join('') +
@@ -183,6 +177,23 @@
       });
     });
 
+    // Ícono discreto sobre el mapa: mismo atajo de geolocalización, sin abrir la hoja
+    var locateBtn = u.qs('[data-locate-me]', root);
+    if (locateBtn) locateBtn.addEventListener('click', function () {
+      locateBtn.disabled = true;
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        locateBtn.disabled = false;
+        var loc = u.nearestMexicoLocation([pos.coords.longitude, pos.coords.latitude], AUTO_LOCATION_RADIUS_KM);
+        if (!loc) { u.toast('No encontramos una ciudad cercana a tu ubicación en el catálogo.'); return; }
+        applyLocation(loc.stateKey, loc.cityKey);
+        var target = resolveLocation(loc.stateKey, loc.cityKey);
+        if (target && mapCtrl.ready) mapCtrl.flyTo(target.center, target.zoom);
+      }, function () {
+        locateBtn.disabled = false;
+        u.toast('No pudimos acceder a tu ubicación. Revisa los permisos del navegador.');
+      });
+    });
+
     // Categorías
     var allPropertiesBtn = u.qs('[data-all-properties]', root);
     if (allPropertiesBtn) allPropertiesBtn.addEventListener('click', function () {
@@ -191,8 +202,7 @@
 
     u.qsa('[data-service]', root).forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var cat = SERVICE_CATEGORIES.filter(function (c) { return c.key === btn.getAttribute('data-service'); })[0];
-        u.toast((cat ? cat.label : 'Este directorio') + ': muy pronto disponible.');
+        window.location.hash = '#/servicios/' + btn.getAttribute('data-service');
       });
     });
 

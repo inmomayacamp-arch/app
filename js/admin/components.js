@@ -10,6 +10,7 @@
     { route: "usuarios", href: "#/admin/usuarios", label: "Usuarios", icon: "users" },
     { route: "agentes", href: "#/admin/agentes", label: "Agentes", icon: "briefcase", badge: function () { return s.agents.pending().length; } },
     { route: "propiedades", href: "#/admin/propiedades", label: "Propiedades", icon: "home", badge: function () { return s.properties.pending().length; } },
+    { route: "directorio", href: "#/admin/directorio", label: "Directorio", icon: "award" },
     { route: "mapa", href: "#/admin/mapa", label: "Mapa", icon: "map" },
     { route: "suscripciones", href: "#/admin/suscripciones", label: "Suscripciones", icon: "link" },
     { route: "pagos", href: "#/admin/pagos", label: "Pagos", icon: "dollar" },

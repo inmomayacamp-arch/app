@@ -205,6 +205,17 @@
     { value: "otro", label: "Otro", icon: "home" }
   ];
 
+  // Directorio de servicios inmobiliarios (notario, valuadores, etc.), usado
+  // tanto por las tarjetas de categoría en Explorar como por el directorio
+  // público (js/views/serviceDirectory.js) y el panel admin que lo administra.
+  var SERVICE_CATEGORIES = [
+    { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
+    { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
+    { key: "arquitectos", label: "Arquitectos", icon: "penTool", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
+    { key: "servicios", label: "Servicios", icon: "tool", color: "var(--color-venta)", bg: "var(--color-venta-bg)" },
+    { key: "sofom", label: "SOFOM", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
+  ];
+
   var CREDIT_TYPES = [
     { value: "infonavit", label: "Infonavit" },
     { value: "fovissste", label: "FOVISSSTE" },
@@ -415,6 +426,7 @@
     matchesLocation: matchesLocation,
     applyFilters: applyFilters,
     PROPERTY_TYPES: PROPERTY_TYPES,
+    SERVICE_CATEGORIES: SERVICE_CATEGORIES,
     CREDIT_TYPES: CREDIT_TYPES,
     AMENITIES: AMENITIES,
     SPECIAL_TAGS: SPECIAL_TAGS,

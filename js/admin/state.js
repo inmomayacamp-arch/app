@@ -61,6 +61,7 @@
     var agent = await window.App.state.agents.login(email, password);
     if (agent && agent.role === "admin") {
       await window.App.state.leads.bootstrap();
+      await window.App.state.providers.bootstrap();
       logAction("Inicio de sesión", email);
       return true;
     }
