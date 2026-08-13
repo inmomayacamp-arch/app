@@ -71,7 +71,10 @@
           '</a>'
         : '') +
 
-      '<a class="agent-cta-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
+      '<div class="agent-cta-row">' +
+      '  <a class="agent-cta-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar propiedad</a>' +
+      '  <a class="agent-cta-btn" href="#/dashboard/enlaces/nuevo">' + u.icon('link', { size: 16 }) + ' Crear enlace personalizado</a>' +
+      '</div>' +
 
       '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu negocio</div><div class="dashboard-grid">' +
       tileHTML({ href: '#/dashboard/propiedades', icon: 'home', iconClass: 'dashboard-card__icon--otro', title: 'Propiedades', desc: 'Administra tus publicaciones' }) +
