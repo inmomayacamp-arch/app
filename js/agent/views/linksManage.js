@@ -95,6 +95,17 @@
       createBtn.disabled = true;
       try {
         var link = await state.links.create({ clientLabel: clientLabel.trim(), clientPhone: clientPhone.trim(), clientEmail: clientEmail.trim(), message: message.trim(), propertyIds: selected });
+        // Cada enlace nuevo también da de alta al cliente en el CRM, para no
+        // tener que capturarlo dos veces — queda enlazado por linkedClientSlug
+        // para que "Clientes" pueda mostrar el enlace desde su ficha.
+        try {
+          await window.App.agent.state.clients.create({
+            name: clientLabel.trim(), phone: clientPhone.trim(), email: clientEmail.trim(),
+            status: 'nuevo', linkedClientSlug: link.clientSlug
+          });
+        } catch (crmErr) {
+          u.toast('Enlace creado, pero no se pudo agregar a Clientes: ' + (crmErr.message || ''));
+        }
         u.toast('Enlace creado', { tone: 'success' });
         window.location.hash = '#/dashboard/enlaces/' + link.clientSlug;
       } catch (err) {

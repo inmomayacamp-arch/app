@@ -7,7 +7,7 @@
   var ac = window.App.admin.components;
 
   var TYPE_LABELS = { casa: "Casa", departamento: "Departamento", terreno: "Terreno", local: "Local", oficina: "Oficina", "": "Cualquiera" };
-  var SUBJECT_LABELS = { reporte: "Reportar un problema", cuenta: "Ayuda con mi cuenta", otro: "Otro" };
+  var SUBJECT_LABELS = { reporte: "Reportar un problema", cuenta: "Ayuda con mi cuenta", ciudad: "Ciudad faltante en el catálogo", otro: "Otro" };
 
   function categoryLabel(key) {
     return (u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key === key; })[0] || {}).label || 'Sin especificar';

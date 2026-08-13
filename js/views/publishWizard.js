@@ -224,6 +224,8 @@
         }).join('') : '') +
         '</select></div>' +
         '</div>' +
+        '<p class="text-muted" style="font-size:0.78rem;margin:-6px 0 16px">¿No encuentras tu ciudad? ' +
+        '<button type="button" data-request-city style="background:none;border:none;padding:0;color:var(--color-primary);font-weight:700;text-decoration:underline;font-size:inherit;cursor:pointer">Solicítala aquí</button></p>' +
         '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre"' + dis + ' /></div>' +
         '<div class="form-row">' +
         '<div class="form-field"><label>Calle</label><input type="text" data-field="street" value="' + u.escapeHtml(payload.street) + '" placeholder="Calle 10"' + dis + ' /></div>' +
@@ -282,6 +284,44 @@
         '</div></details>' +
         '</div>'
       );
+    }
+
+    // Ciudad que no está en el catálogo: manda un mensaje de soporte (mismo
+    // buzón que ya revisa el admin) en vez de dejar al asesor sin poder
+    // publicar. No hace falta esperar en el formulario — se le avisa por
+    // correo cuando la ciudad quede agregada.
+    function openRequestCitySheet() {
+      c.openSheet({
+        title: 'Solicitar tu ciudad',
+        body:
+          '<p class="text-secondary" style="margin-bottom:14px">Cuéntanos qué ciudad te falta y te avisamos por correo en cuanto la agreguemos al catálogo.</p>' +
+          '<div class="form-field"><label>Ciudad</label><input type="text" data-rc-city placeholder="Ej. Playa del Carmen" /></div>' +
+          '<div class="form-field"><label>Estado</label><input type="text" data-rc-state placeholder="Ej. Quintana Roo" value="' + u.escapeHtml(payload.state || '') + '" /></div>' +
+          '<div class="form-field"><label>Tu correo</label><input type="email" data-rc-email placeholder="tu@correo.com" value="' + u.escapeHtml(agent.email || '') + '" /></div>' +
+          '<button type="button" class="btn btn--primary btn--block" data-rc-send>Enviar solicitud</button>'
+      });
+      var sheetRoot = u.qs('#sheet-root');
+      u.qs('[data-rc-send]', sheetRoot).addEventListener('click', async function () {
+        var city = u.qs('[data-rc-city]', sheetRoot).value.trim();
+        var stateVal = u.qs('[data-rc-state]', sheetRoot).value.trim();
+        var email = u.qs('[data-rc-email]', sheetRoot).value.trim();
+        if (!city) { u.toast('Escribe la ciudad que buscas'); return; }
+        if (!email) { u.toast('Escribe tu correo para poder avisarte'); return; }
+        var btn = u.qs('[data-rc-send]', sheetRoot);
+        btn.disabled = true;
+        try {
+          await state.leads.create({
+            kind: 'soporte', name: agent.name, email: email, phone: agent.phone || '',
+            message: 'Solicita agregar la ciudad "' + city + '"' + (stateVal ? ' (' + stateVal + ')' : '') + ' al catálogo.',
+            details: { subject: 'ciudad', agentSlug: agent.slug, city: city, state: stateVal }
+          });
+          c.closeSheet();
+          u.toast('Listo, te avisaremos por correo cuando esté disponible', { tone: 'success' });
+        } catch (err) {
+          btn.disabled = false;
+          u.toast(err.message || 'No se pudo enviar tu solicitud');
+        }
+      });
     }
 
     /* ---------- Descripción automática ---------- */
@@ -607,6 +647,8 @@
           }
           renderStep();
         });
+        var requestCityBtn = u.qs('[data-request-city]', root);
+        if (requestCityBtn) requestCityBtn.addEventListener('click', openRequestCitySheet);
       }
 
       if (key === 'caracteristicas') {
