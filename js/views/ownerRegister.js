@@ -246,7 +246,7 @@
 
       publishBtn.disabled = true;
       try {
-        var published = await state.properties.publishOwner({
+        await state.properties.publishOwner({
           title: title || (u.propertyTypeLabel(type) + ' en ' + (neighborhood || city)),
           type: type, operation: operation,
           price: operation === 'venta' ? price : 0,
@@ -258,13 +258,55 @@
           featured: destacar,
           ownerName: name, ownerPhone: phone, ownerEmail: email
         });
-        window.location.hash = '#/propiedad/' + published.id;
-        u.toast('¡Tu propiedad fue publicada!', { tone: 'success' });
+        await state.ownerVerification.request(email);
+        renderCheckEmail(email);
       } catch (err) {
         publishBtn.disabled = false;
         u.toast(err.message || 'No se pudo publicar tu propiedad');
       }
     });
+
+    function renderCheckEmail(email) {
+      document.title = 'Revisa tu correo — InmoMaps';
+      var resendCooldown = 0;
+      root.innerHTML =
+        '<div class="signup-checkout">' +
+        '  <div class="signup-checkout__card">' +
+        '    <div class="empty-state" style="padding-top:24px">' +
+        '      <span class="empty-state__icon" style="color:var(--color-venta)">' + u.icon('mail', { size: 40 }) + '</span>' +
+        '      <h3>Revisa tu correo</h3>' +
+        '      <p>Te mandamos un enlace a <strong>' + u.escapeHtml(email) + '</strong>. Ábrelo desde este mismo celular o computadora para confirmar y publicar tu propiedad.</p>' +
+        '      <p class="text-muted" style="font-size:0.82rem">¿No te llegó? Revisa spam o correo no deseado.</p>' +
+        '      <button type="button" class="btn btn--secondary" data-resend>Reenviar correo</button>' +
+        '      <a class="btn btn--primary" style="margin-top:8px" href="#/">Volver al mapa</a>' +
+        '    </div>' +
+        '  </div>' +
+        '</div>';
+
+      var resendBtn = u.qs('[data-resend]', root);
+      resendBtn.addEventListener('click', async function () {
+        if (resendCooldown > 0) return;
+        resendBtn.disabled = true;
+        try {
+          await state.ownerVerification.request(email);
+          u.toast('Te mandamos el correo de nuevo', { tone: 'success' });
+          resendCooldown = 60;
+          var tick = setInterval(function () {
+            resendCooldown -= 1;
+            if (resendCooldown <= 0) {
+              clearInterval(tick);
+              resendBtn.disabled = false;
+              resendBtn.textContent = 'Reenviar correo';
+            } else {
+              resendBtn.textContent = 'Reenviar correo (' + resendCooldown + 's)';
+            }
+          }, 1000);
+        } catch (err) {
+          resendBtn.disabled = false;
+          u.toast(err.message || 'No se pudo reenviar el correo');
+        }
+      });
+    }
   }
 
   window.App.views = window.App.views || {};

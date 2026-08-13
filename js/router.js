@@ -29,6 +29,7 @@
       { pattern: "/soporte", view: v.support.render, key: "explore" },
       { pattern: "/terminos", view: v.terms.render, key: "explore" },
       { pattern: "/privacidad", view: v.privacy.render, key: "explore" },
+      { pattern: "/confirmar-publicacion", view: v.confirmOwnerListing.render, key: "explore" },
       { pattern: "/servicios/:category/:id", view: v.serviceProviderDetail.render, key: "explore" },
       { pattern: "/servicios/:category", view: v.serviceDirectory.render, key: "explore" },
       { pattern: "/anunciate", view: v.advertiseWithUs.render, key: "explore" },

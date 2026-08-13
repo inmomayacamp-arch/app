@@ -59,13 +59,13 @@
   // Plan simple para propietarios que solo quieren publicar una propiedad,
   // sin crear una cuenta de asesor ni acceder a un panel de trabajo.
   var OWNER_PLAN = {
-    id: "propietario", name: "Publicación individual", price: 100, period: "1 mes", limit: 1,
-    tagline: "Publica tu propiedad en venta o renta, sin necesidad de una cuenta de asesor.",
+    id: "propietario", name: "Publicación individual", price: 0, period: "1 mes", limit: 1,
+    tagline: "Publica tu propiedad en venta o renta, gratis y sin necesidad de una cuenta de asesor.",
     features: [
-      "1 propiedad publicada por 30 días", "Aparece en el mapa y en las búsquedas",
-      "Contacto directo por WhatsApp y llamadas", "Sin necesidad de crear un negocio"
+      "1 propiedad publicada por 30 días, gratis", "Confirmas tu correo para activarla",
+      "Aparece en el mapa y en las búsquedas", "Contacto directo por WhatsApp y llamadas"
     ],
-    featuredAddon: { price: 200, period: "1 mes", label: "Destacar mi propiedad", description: "Aparece primero en los resultados de búsqueda durante 1 mes." }
+    featuredAddon: { price: 100, period: "1 mes", label: "Destacar mi propiedad", description: "Aparece primero en los resultados de búsqueda durante 1 mes." }
   };
 
   var COUPONS = [

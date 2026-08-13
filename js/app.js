@@ -72,6 +72,19 @@
       await bootstrapAgentPanel();
     }
 
+    // El enlace de verificación de correo (publicación gratuita de
+    // propietario) regresa aquí con ?ownerVerify=1; la sesión ya quedó
+    // resuelta arriba en agents.bootstrap(). Si hay sesión, saltamos
+    // directo a la pantalla que activa la publicación pendiente.
+    if (window.location.search.indexOf("ownerVerify=1") !== -1 && window.App.supabase) {
+      try {
+        var ownerVerifySession = await window.App.supabase.auth.getSession();
+        if (ownerVerifySession && ownerVerifySession.data && ownerVerifySession.data.session) {
+          window.location.hash = "#/confirmar-publicacion";
+        }
+      } catch (e) { /* se ignora: la vista de confirmación maneja el caso sin sesión */ }
+    }
+
     window.App.router.init();
     window.App.swipeNav.init();
 

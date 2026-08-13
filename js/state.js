@@ -315,7 +315,7 @@
   }
   function isPubliclyVisible(p) {
     var status = p.publishStatus || "publicada";
-    if (status === "borrador" || status === "oculta") return false;
+    if (status === "borrador" || status === "oculta" || status === "pendiente_verificacion") return false;
     if (status === "programada") return !!p.scheduledAt && new Date(p.scheduledAt) <= new Date();
     return true;
   }
@@ -362,6 +362,53 @@
     if (insertResult.error) throw insertResult.error;
     var property = mapPropertyRow(insertResult.data);
     cachedProperties = cachedProperties.concat([property]);
+    emit("properties:change", cachedProperties);
+    return property;
+  }
+  // Candado contra abuso de publicaciones gratuitas: la propiedad recién
+  // insertada por publishOwnerProperty queda como "pendiente_verificacion"
+  // (lo fuerza un trigger en Supabase, no este cliente). Se le manda un
+  // "magic link" al correo del propietario solo para probar que es suyo —
+  // no crea ninguna cuenta con contraseña ni perfil público.
+  async function requestOwnerEmailVerification(email) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    // Sin hash de ruta a propósito: Supabase agrega el token de sesión como
+    // su propio fragmento #access_token=... al final de esta URL, y el
+    // router de la app también usa el hash para navegar — dos "#" chocarían.
+    // Por eso la señal de a dónde ir va en la query (?ownerVerify=1) y es
+    // js/app.js quien decide navegar a #/confirmar-publicacion una vez que
+    // la sesión ya quedó resuelta.
+    var redirectTo = window.location.origin + window.location.pathname + "?ownerVerify=1";
+    var result = await supabaseClient.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+      options: { emailRedirectTo: redirectTo, shouldCreateUser: true }
+    });
+    if (result.error) throw result.error;
+  }
+  async function pendingOwnerListingForEmail(email) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var result = await supabaseClient.from("properties").select("*")
+      .is("agent_id", null)
+      .eq("publish_status", "pendiente_verificacion")
+      .ilike("owner_email", email.trim())
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (result.error) throw result.error;
+    var row = result.data && result.data[0];
+    return row ? mapPropertyRow(row) : null;
+  }
+  async function confirmOwnerListing(propertyId) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var result = await supabaseClient.rpc("confirm_owner_listing", { p_property_id: propertyId });
+    if (result.error) throw result.error;
+    var property = mapPropertyRow(result.data);
+    var found = false;
+    cachedProperties = cachedProperties.map(function (p) {
+      if (p.id !== property.id) return p;
+      found = true;
+      return property;
+    });
+    if (!found) cachedProperties = cachedProperties.concat([property]);
     emit("properties:change", cachedProperties);
     return property;
   }
@@ -506,6 +553,11 @@
       update: updateProperty,
       remove: removeProperty,
       duplicate: duplicateProperty
+    },
+    ownerVerification: {
+      request: requestOwnerEmailVerification,
+      findPending: pendingOwnerListingForEmail,
+      confirm: confirmOwnerListing
     },
     links: {
       bootstrap: bootstrapLinks,
