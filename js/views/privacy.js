@@ -14,8 +14,6 @@
       '<div class="legal-content">' +
       '<p class="legal-content__updated">Última actualización: 13 de agosto de 2026</p>' +
 
-      '<div class="legal-content__notice">' + u.icon('flag', { size: 14 }) + ' Este documento es una base de trabajo conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Antes de publicarlo como definitivo, hazlo revisar por un abogado especializado en protección de datos en México, y completa los datos de contacto del responsable que falten.</div>' +
-
       '<h2>1. Responsable del tratamiento de tus datos</h2>' +
       '<p>InmoMaps (en adelante, "el responsable") es el operador de esta plataforma y es responsable del tratamiento de tus datos personales conforme a este aviso. Puedes contactarnos a través de la sección <a href="#/soporte" style="color:var(--color-primary);font-weight:700">Soporte y contacto</a>.</p>' +
 

@@ -14,8 +14,6 @@
       '<div class="legal-content">' +
       '<p class="legal-content__updated">Última actualización: 13 de agosto de 2026</p>' +
 
-      '<div class="legal-content__notice">' + u.icon('flag', { size: 14 }) + ' Este documento es una base de trabajo. Antes de considerarlo definitivo, hazlo revisar por un abogado especializado en México — no sustituye asesoría legal profesional.</div>' +
-
       '<h2>1. Quiénes somos</h2>' +
       '<p>InmoMaps ("nosotros", "la plataforma") es un servicio en línea que permite a compradores y arrendatarios explorar propiedades inmobiliarias sobre un mapa interactivo, y a asesores inmobiliarios y propietarios publicar y administrar sus propiedades. Al usar InmoMaps, aceptas estos términos.</p>' +
 
