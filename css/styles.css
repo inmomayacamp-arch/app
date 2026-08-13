@@ -225,6 +225,9 @@ body.is-admin .site-header { display: none; }
   width: 44px; height: 44px; padding: 0; border-radius: var(--radius-full);
   background: var(--color-surface); box-shadow: var(--shadow-sm); border: 1px solid var(--color-border);
 }
+/* Variante con tinte de marca: para íconos que necesitan distinguirse del
+   blanco/gris de las tarjetas (p. ej. "más opciones" sobre una tarjeta). */
+.btn--icon-tinted { background: var(--color-primary-light); color: var(--color-primary); border-color: transparent; }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
 .chip {
