@@ -49,6 +49,8 @@
         '  <div class="form-field"><label>Mensaje</label><textarea rows="5" data-message placeholder="Cuéntanos qué pasó o en qué te podemos ayudar."></textarea></div>' +
 
         '  <button type="button" class="btn btn--primary btn--block" data-submit>Enviar mensaje</button>' +
+        '  <p class="text-muted" style="font-size:0.78rem;margin-top:18px;text-align:center">' +
+        '<a href="#/terminos" style="color:inherit">Términos y condiciones</a> · <a href="#/privacidad" style="color:inherit">Aviso de privacidad</a></p>' +
         '</div>'
       );
 

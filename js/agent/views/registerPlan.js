@@ -71,6 +71,7 @@
       '      <p class="payment-section__note">Estamos integrando el cobro en línea. Por ahora tu cuenta se activa sin costo con el Plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '; podrás agregar tu método de pago desde tu panel en cuanto esté disponible.</p>' +
       '    </div>' +
 
+      '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al crear tu cuenta aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
       '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta y activar Plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '</button>' +
       '    <p class="signup-checkout__footer">¿Ya tienes cuenta? <a href="#/dashboard/login">Inicia sesión</a></p>' +
       '  </div>' +

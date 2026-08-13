@@ -27,6 +27,8 @@
       { pattern: "/registro-propietario", view: v.ownerRegister.render, key: "perfil" },
       { pattern: "/solicitud", view: v.propertyRequest.render, key: "explore" },
       { pattern: "/soporte", view: v.support.render, key: "explore" },
+      { pattern: "/terminos", view: v.terms.render, key: "explore" },
+      { pattern: "/privacidad", view: v.privacy.render, key: "explore" },
       { pattern: "/servicios/:category/:id", view: v.serviceProviderDetail.render, key: "explore" },
       { pattern: "/servicios/:category", view: v.serviceDirectory.render, key: "explore" },
       { pattern: "/anunciate", view: v.advertiseWithUs.render, key: "explore" },

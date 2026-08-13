@@ -130,6 +130,7 @@
       '      <p class="payment-section__note">Estamos integrando el cobro en línea. Por ahora tu propiedad se publica sin costo; podrás agregar tu método de pago en cuanto esté disponible.</p>' +
       '    </div>' +
 
+      '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al publicar aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
       '    <button type="button" class="btn btn--primary btn--block" data-publish>Publicar mi propiedad ($<span data-total>' + totalPrice() + '</span> MXN)</button>' +
       '  </div>' +
       '</div>';
