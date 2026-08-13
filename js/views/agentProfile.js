@@ -20,6 +20,11 @@
     var mapCtrl = null;
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
     var social = agent.social || {};
+    var subtitle = [agent.specialty, agent.company].filter(Boolean).join(' · ') || agent.title;
+    var metaLine = [
+      agent.city ? { icon: 'pin', text: agent.city } : null,
+      agent.schedule ? { icon: 'clock', text: agent.schedule } : null
+    ].filter(Boolean);
     var SOCIAL_LINKS = [
       { key: "facebook", icon: "facebook", label: "Facebook" },
       { key: "instagram", icon: "instagram", label: "Instagram" },
@@ -50,7 +55,10 @@
       '<div class="agent-hero">' +
       '  <img class="avatar agent-hero__photo" src="' + agent.photo + '" width="88" height="88" alt="" />' +
       '  <div class="agent-hero__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 16 }) + '</span></div>' +
-      '  <div class="agent-hero__title">' + u.escapeHtml(agent.title) + '</div>' +
+      '  <div class="agent-hero__title">' + u.escapeHtml(subtitle) + '</div>' +
+      (metaLine.length ? '<div class="row gap-3" style="justify-content:center;flex-wrap:wrap;margin-top:6px">' + metaLine.map(function (m) {
+        return '<span class="detail-location" style="margin-top:0">' + u.icon(m.icon, { size: 14 }) + ' ' + u.escapeHtml(m.text) + '</span>';
+      }).join('') + '</div>' : '') +
       '  <div class="agent-hero__actions">' +
       '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--call" data-track-agent="' + agent.id + '" href="tel:' + u.escapeHtml(agent.phone) + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +

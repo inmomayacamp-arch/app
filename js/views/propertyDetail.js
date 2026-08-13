@@ -162,7 +162,7 @@
         '  <img class="avatar" src="' + agent.photo + '" width="52" height="52" alt="" />' +
         '  <div class="agent-card__info">' +
         '    <div class="agent-card__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 14 }) + '</span></div>' +
-        '    <span class="text-secondary" style="font-size:0.82rem">' + u.escapeHtml(agent.title) + '</span>' +
+        '    <span class="text-secondary" style="font-size:0.82rem">' + u.escapeHtml([agent.specialty, agent.company].filter(Boolean).join(' · ') || agent.title) + '</span>' +
         '  </div>' +
         '  <span class="btn btn--outline btn--sm">Ver perfil</span>' +
         '</a>'
