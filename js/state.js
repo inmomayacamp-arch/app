@@ -459,6 +459,13 @@
     emit("links:change", cachedLinks);
     return link;
   }
+  async function removeLink(id) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var result = await supabaseClient.from("client_links").delete().eq("id", id);
+    if (result.error) throw result.error;
+    cachedLinks = cachedLinks.filter(function (l) { return l.id !== id; });
+    emit("links:change", cachedLinks);
+  }
 
   window.App.state = {
     on: on,
@@ -505,7 +512,8 @@
       all: allLinks,
       byAgent: linksByAgent,
       get: getLink,
-      create: createLink
+      create: createLink,
+      remove: removeLink
     },
     leads: {
       bootstrap: bootstrapLeads,

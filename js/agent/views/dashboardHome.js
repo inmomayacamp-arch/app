@@ -75,16 +75,16 @@
       '</div></div>' +
 
       '<div class="admin-section">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu perfil</div></div>' +
+      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMaps con tus clientes y en tus redes.</p>' +
+      c.shareBarHTML(profileUrl) +
+      '</div>' +
+
+      '<div class="admin-section" style="margin-top:20px">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Contactos recientes</div></div>' +
       (recentContacts.length
         ? '<div class="stack gap-2">' + recentContacts.map(contactRowHTML).join('') + '</div>'
         : '<p class="text-muted" style="font-size:0.85rem">Aún no has recibido contactos por WhatsApp o llamada.</p>') +
-      '</div>' +
-
-      '<div class="admin-section" style="margin-top:20px">' +
-      '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu perfil</div></div>' +
-      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMaps con tus clientes y en tus redes.</p>' +
-      c.shareBarHTML(profileUrl) +
       '</div>' +
 
       '<div class="admin-section">' +

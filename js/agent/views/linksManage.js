@@ -18,15 +18,33 @@
       (links.length
         ? '<div class="stack gap-2">' + links.map(function (link) {
           var url = window.location.origin + window.location.pathname + '#/' + agent.slug + '/' + link.clientSlug;
-          return '<a class="ranked-row" href="#/dashboard/enlaces/' + link.clientSlug + '">' +
+          return '<div class="ranked-row">' +
+            '<a href="#/dashboard/enlaces/' + link.clientSlug + '" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit">' +
             '<span class="dashboard-card__icon">' + u.icon('user', { size: 16 }) + '</span>' +
             '<div class="ranked-row__info"><strong>' + u.escapeHtml(link.clientLabel) + '</strong><span>' + link.propertyIds.length + ' propiedades · ' + u.escapeHtml(url.replace(window.location.origin, '')) + '</span></div>' +
             u.icon('chevronRight', { size: 16 }) +
-            '</a>';
+            '</a>' +
+            '<button type="button" class="btn btn--icon btn--icon-tinted" data-delete-link="' + link.id + '" aria-label="Eliminar enlace">' + u.icon('x', { size: 16 }) + '</button>' +
+            '</div>';
         }).join('') + '</div>'
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('link', { size: 30 }) + '</span><h3>Aún no tienes enlaces</h3><p>Crea un enlace personalizado seleccionando propiedades para un cliente específico.</p><a class="btn btn--primary" href="#/dashboard/enlaces/nuevo">Crear mi primer enlace</a></div>');
 
     ac.mount('enlaces', 'Enlaces para clientes', content, root);
+
+    u.qsa('[data-delete-link]', root).forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!window.confirm('¿Eliminar este enlace? El cliente ya no podrá acceder a él.')) return;
+        btn.disabled = true;
+        try {
+          await state.links.remove(btn.getAttribute('data-delete-link'));
+          u.toast('Enlace eliminado', { tone: 'success' });
+          renderList(params, root);
+        } catch (err) {
+          btn.disabled = false;
+          u.toast(err.message || 'No se pudo eliminar el enlace');
+        }
+      });
+    });
   }
 
   function renderCreate(params, root) {

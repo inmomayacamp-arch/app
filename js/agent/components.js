@@ -47,7 +47,7 @@
       : ('<div class="page-header">' +
         '<a class="btn btn--icon" href="#/dashboard" aria-label="Volver al panel">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
         '<h1 class="page-header__title">' + u.escapeHtml(title) + '</h1>' +
-        '<a class="btn btn--icon" href="#/soporte" aria-label="Soporte">' + u.icon('flag', { size: 18 }) + '</a>' +
+        '<a class="btn btn--icon btn--icon-tinted" href="#/soporte" aria-label="Soporte">' + u.icon('flag', { size: 18 }) + '</a>' +
         '</div>');
 
     var footerLogo = activeRoute === 'dashboard' ? '' :
