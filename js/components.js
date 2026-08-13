@@ -148,7 +148,7 @@
     return (
       '<a class="property-card property-card--' + variant + (opts.highlight ? ' is-highlighted' : '') + '" href="#/propiedad/' + p.id + '" data-property-id="' + p.id + '">' +
       '<div class="property-card__media">' +
-      '<img src="' + u.thumbUrl(p.photos[0], 480) + '" alt="" loading="lazy" />' +
+      '<img src="' + u.thumbUrl(p.photos[0], 480, variant === 'row' ? 480 : 360) + '" alt="" loading="lazy" />' +
       '<span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
       (p.tags && p.tags.length ? '<span class="property-card__tag">' + u.escapeHtml((u.SPECIAL_TAGS.filter(function (t) { return t.value === p.tags[0]; })[0] || {}).label || '') + '</span>' : '') +
       (opts.showFavorite === false ? '' : '<button type="button" class="property-card__fav' + (isFav ? ' is-active' : '') + '" data-fav-id="' + p.id + '"' + (opts.linkId ? ' data-track-link="' + opts.linkId + '"' : '') + ' aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +

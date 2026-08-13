@@ -156,7 +156,7 @@
 
       var rows = providers.map(function (p) {
         return '<tr>' +
-          '<td>' + (p.photo ? '<img src="' + u.thumbUrl(p.photo, 80) + '" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover" />' : '<span class="provider-card__icon-fallback" style="width:40px;height:40px;border-radius:50%;--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' + u.icon('award', { size: 16 }) + '</span>') + '</td>' +
+          '<td>' + (p.photo ? '<img src="' + u.thumbUrl(p.photo, 80, 80) + '" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover" />' : '<span class="provider-card__icon-fallback" style="width:40px;height:40px;border-radius:50%;--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' + u.icon('award', { size: 16 }) + '</span>') + '</td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.name) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.city || p.state || 'Sin ubicación') + '</div></td>' +
           '<td>' + u.escapeHtml(categoryLabel(p.category)) + '</td>' +
           '<td>' + ac.statusPill(p.active ? 'activo' : 'inactivo') + '</td>' +

@@ -17,7 +17,7 @@
       '<a class="property-card provider-card" href="#/servicios/' + cat.key + '/' + provider.id + '">' +
       '<div class="property-card__media" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
       (provider.photo
-        ? '<img src="' + u.thumbUrl(provider.photo, 480) + '" alt="" loading="lazy" />'
+        ? '<img src="' + u.thumbUrl(provider.photo, 480, 360) + '" alt="" loading="lazy" />'
         : '<span class="provider-card__icon-fallback">' + u.icon(cat.icon, { size: 30 }) + '</span>') +
       '</div>' +
       '<div class="property-card__body">' +

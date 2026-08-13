@@ -43,7 +43,7 @@
       '<div class="admin-section"><div class="admin-section__head"><div class="admin-section__title">Propiedades más vistas</div></div>' +
       (mostViewed.length
         ? '<div class="ranked-list">' + mostViewed.map(function (row) {
-          return '<div class="ranked-row"><img src="' + u.thumbUrl(row.property.photos[0], 100) + '" alt="" loading="lazy" />' +
+          return '<div class="ranked-row"><img src="' + u.thumbUrl(row.property.photos[0], 100, 100) + '" alt="" loading="lazy" />' +
             '<div class="ranked-row__info"><strong>' + u.escapeHtml(row.property.title) + '</strong><span>' + row.views + ' vistas</span></div></div>';
         }).join('') + '</div>'
         : '<p class="text-muted" style="font-size:0.85rem">Aún no hay suficientes visitas para mostrar un ranking. Comparte el enlace con tu cliente para empezar a ver estadísticas.</p>') +

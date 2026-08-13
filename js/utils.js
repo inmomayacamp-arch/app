@@ -298,10 +298,15 @@
   // transformación de imágenes de Supabase Storage, que solo aplica a URLs
   // públicas de ese bucket; cualquier otra URL (p. ej. la foto de respaldo de
   // Unsplash) se regresa igual, sin tocar.
-  function thumbUrl(url, width) {
+  // "resize=cover" solo recorta a una caja fija si se le da ancho Y alto —
+  // con solo el ancho, Supabase solo escala preservando la proporción
+  // original de la foto, así que una foto tomada en vertical sale enorme y
+  // descuadra cualquier fila/cuadrícula de tarjetas. Por eso height es
+  // obligatorio: todo llamador debe decir a qué caja recorta la miniatura.
+  function thumbUrl(url, width, height) {
     if (!url || url.indexOf('/storage/v1/object/public/') === -1) return url;
     return url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/') +
-      (url.indexOf('?') === -1 ? '?' : '&') + 'width=' + width + '&resize=cover&quality=75';
+      (url.indexOf('?') === -1 ? '?' : '&') + 'width=' + width + '&height=' + height + '&resize=cover&quality=75';
   }
 
   function toast(message, opts) {

@@ -27,6 +27,34 @@
     return { todos: 'Todos los asesores', seleccionados: 'Asesores seleccionados', inmobiliaria: 'Misma inmobiliaria', invitacion: 'Solo por invitación' }[v] || v;
   }
 
+  // Tarjeta de propiedad para las pestañas "Buscar" y "Mi catálogo": misma
+  // tarjeta de propiedad que se usa en toda la app (imagen, precio, título,
+  // ubicación, specs), con una franja extra para el asesor dueño y la
+  // comisión. Antes usaba .ranked-row (pensada para una sola línea de texto)
+  // con tres líneas de información encimadas — se veía informal y se
+  // distorsionaba con títulos o ciudades largas.
+  function poolCardHTML(p, footerHTML) {
+    var owner = window.App.data.getAgent(p.agentSlug);
+    var inCatalog = sp.isInCatalog(p.id);
+    return (
+      '<div class="property-card admin-property-card">' +
+      '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
+      '    <img src="' + u.thumbUrl(p.photos[0], 480, 360) + '" alt="" loading="lazy" />' +
+      '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
+      (inCatalog ? '<span class="admin-property-card__pills"><span class="status-pill status-pill--activo">En tu catálogo</span></span>' : '') +
+      '  </a>' +
+      '  <div class="property-card__body">' +
+      '    <div class="property-card__price">' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</div>' +
+      '    <div class="property-card__title">' + u.escapeHtml(p.title) + '</div>' +
+      '    <div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div>' +
+      '    <div class="pool-card__agent">' + (owner ? '<img src="' + owner.photo + '" alt="" />' : '') + '<span>' + u.escapeHtml(owner ? owner.name : p.agentSlug) + '</span></div>' +
+      '    <div class="pool-card__commission">' + u.icon('dollar', { size: 11 }) + ' ' + commissionLabel(p.sharing) + '</div>' +
+      '    <div class="pool-card__footer">' + footerHTML + '</div>' +
+      '  </div>' +
+      '</div>'
+    );
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
 
@@ -54,33 +82,25 @@
       var cities = Array.from(new Set(window.App.state.properties.all().map(function (p) { return p.city; }))).filter(Boolean);
 
       var cards = results.map(function (p) {
-        var owner = window.App.data.getAgent(p.agentSlug);
         var inCatalog = sp.isInCatalog(p.id);
         var needsRequest = sp.requiresRequest(p);
-        return '<div class="ranked-row" style="align-items:flex-start">' +
-          '<img src="' + u.thumbUrl(p.photos[0], 130) + '" alt="" loading="lazy" style="width:64px;height:64px;border-radius:8px;object-fit:cover" />' +
-          '<div class="ranked-row__info">' +
-          '<strong>' + u.escapeHtml(p.title) + '</strong>' +
-          '<span>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + ' · ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</span><br />' +
-          '<span>Asesor: ' + (owner ? u.escapeHtml(owner.name) : p.agentSlug) + ' · ' + commissionLabel(p.sharing) + '</span>' +
-          '</div>' +
-          (inCatalog
-            ? '<span class="status-pill status-pill--activo">En tu catálogo</span>'
-            : '<button type="button" class="btn btn--sm btn--primary" data-add-catalog="' + p.id + '">' + (needsRequest ? 'Solicitar acceso' : 'Agregar a mi catálogo') + '</button>') +
-          '</div>';
+        var footer = inCatalog
+          ? ''
+          : '<button type="button" class="btn btn--sm btn--primary btn--block" data-add-catalog="' + p.id + '">' + (needsRequest ? 'Solicitar acceso' : 'Agregar a mi catálogo') + '</button>';
+        return poolCardHTML(p, footer);
       }).join('');
 
       return (
         '<div class="admin-section">' +
-        '  <div class="admin-toolbar" style="flex-wrap:wrap">' +
-        '    <select data-f-city style="border:1px solid var(--color-border-strong);border-radius:8px;padding:9px"><option value="">Todas las ciudades</option>' + cities.map(function (ci) { return '<option value="' + ci + '"' + (filters.city === ci ? ' selected' : '') + '>' + ci + '</option>'; }).join('') + '</select>' +
-        '    <select data-f-type style="border:1px solid var(--color-border-strong);border-radius:8px;padding:9px"><option value="">Cualquier tipo</option>' +
+        '  <div class="admin-toolbar">' +
+        '    <select data-f-city><option value="">Todas las ciudades</option>' + cities.map(function (ci) { return '<option value="' + ci + '"' + (filters.city === ci ? ' selected' : '') + '>' + ci + '</option>'; }).join('') + '</select>' +
+        '    <select data-f-type><option value="">Cualquier tipo</option>' +
         ['casa', 'departamento', 'terreno', 'local', 'oficina'].map(function (t) { return '<option value="' + t + '"' + (filters.type === t ? ' selected' : '') + '>' + u.propertyTypeLabel(t) + '</option>'; }).join('') + '</select>' +
-        '    <select data-f-operation style="border:1px solid var(--color-border-strong);border-radius:8px;padding:9px"><option value="">Venta o renta</option><option value="venta"' + (filters.operation === 'venta' ? ' selected' : '') + '>Venta</option><option value="renta"' + (filters.operation === 'renta' ? ' selected' : '') + '>Renta</option></select>' +
+        '    <select data-f-operation><option value="">Venta o renta</option><option value="venta"' + (filters.operation === 'venta' ? ' selected' : '') + '>Venta</option><option value="renta"' + (filters.operation === 'renta' ? ' selected' : '') + '>Renta</option></select>' +
         '    <input type="text" data-f-neighborhood placeholder="Colonia" value="' + u.escapeHtml(filters.neighborhood) + '" />' +
         '    <input type="number" data-f-commission placeholder="Comisión mín. %" style="max-width:150px" value="' + (filters.minCommission || '') + '" />' +
         '  </div>' +
-        '  <div class="stack gap-2">' + (cards || '<p class="text-muted" style="font-size:0.85rem">No hay propiedades compartidas por otros asesores que coincidan con tu búsqueda.</p>') + '</div>' +
+        (cards ? '<div class="pool-grid">' + cards + '</div>' : '<p class="text-muted" style="font-size:0.85rem">No hay propiedades compartidas por otros asesores que coincidan con tu búsqueda.</p>') +
         '</div>'
       );
     }
@@ -126,20 +146,18 @@
 
     function catalogoHTML() {
       var rows = sp.catalog();
+      var cards = rows.map(function (row) {
+        var footer =
+          '<div class="row gap-2">' +
+          '<a class="btn btn--sm btn--outline" style="flex:1" href="#/dashboard/enlaces/nuevo">Incluir en enlace</a>' +
+          '<button type="button" class="btn btn--sm btn--outline" data-remove-catalog="' + row.collaboration.id + '">Quitar</button>' +
+          '</div>';
+        return poolCardHTML(row.property, footer);
+      }).join('');
       return '<div class="admin-section">' +
         '<div class="admin-section__head"><div><div class="admin-section__title">Propiedades en tu catálogo</div><div class="admin-section__subtitle">No puedes editar precio, fotos ni ubicación: siempre están sincronizadas con el asesor propietario</div></div></div>' +
-        (rows.length
-          ? '<div class="stack gap-2">' + rows.map(function (row) {
-            var owner = window.App.data.getAgent(row.property.agentSlug);
-            return '<div class="ranked-row">' +
-              '<img src="' + u.thumbUrl(row.property.photos[0], 110) + '" alt="" loading="lazy" style="width:52px;height:52px;border-radius:8px;object-fit:cover" />' +
-              '<div class="ranked-row__info"><strong>' + u.escapeHtml(row.property.title) + ' <span class="badge badge--otro" style="margin-left:4px">Compartida</span></strong>' +
-              '<span>' + u.formatPrice(u.effectivePrice(row.property)) + (row.property.operation === 'renta' ? '/mes' : '') + ' · Propietario: ' + (owner ? u.escapeHtml(owner.name) : row.property.agentSlug) + '</span></div>' +
-              '<div class="icon-btn-row">' +
-              '<a class="btn btn--sm btn--outline" href="#/dashboard/enlaces/nuevo">Incluir en enlace</a>' +
-              '<button type="button" class="btn btn--sm btn--outline" data-remove-catalog="' + row.collaboration.id + '">Quitar</button>' +
-              '</div></div>';
-          }).join('') + '</div>'
+        (cards
+          ? '<div class="pool-grid">' + cards + '</div>'
           : '<p class="text-muted" style="font-size:0.85rem">Aún no has agregado propiedades compartidas por otros asesores. Ve a la pestaña "Buscar".</p>') +
         '</div>';
     }

@@ -26,7 +26,7 @@
       '<div class="page-wrap">' +
       '  <div class="agent-hero">' +
       (provider.photo
-        ? '    <img class="avatar agent-hero__photo" src="' + u.thumbUrl(provider.photo, 200) + '" width="88" height="88" alt="" />'
+        ? '    <img class="avatar agent-hero__photo" src="' + u.thumbUrl(provider.photo, 200, 200) + '" width="88" height="88" alt="" />'
         : '    <span class="provider-hero__icon" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' + u.icon(cat.icon, { size: 30 }) + '</span>') +
       '    <div class="agent-hero__name">' + u.escapeHtml(provider.name) + '</div>' +
       '    <div class="agent-hero__title">' + u.escapeHtml(cat.label) + ' · ' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(locationLabel) + '</div>' +

@@ -38,7 +38,7 @@
 
       var pendingRows = pending.map(function (p) {
         return '<tr>' +
-          '<td><img src="' + u.thumbUrl(p.photos[0], 100) + '" alt="" loading="lazy" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
+          '<td><img src="' + u.thumbUrl(p.photos[0], 100, 100) + '" alt="" loading="lazy" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div></td>' +
           '<td>' + u.propertyTypeLabel(p.type) + ' · ' + u.operationLabel(p.operation) + '</td>' +
           '<td>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</td>' +
@@ -51,7 +51,7 @@
 
       var rows = properties.map(function (p) {
         return '<tr>' +
-          '<td><img src="' + u.thumbUrl(p.photos[0], 100) + '" alt="" loading="lazy" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
+          '<td><img src="' + u.thumbUrl(p.photos[0], 100, 100) + '" alt="" loading="lazy" style="width:44px;height:44px;border-radius:8px;object-fit:cover" /></td>' +
           '<td><div class="admin-table__name">' + u.escapeHtml(p.title) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.city) + '</div></td>' +
           '<td>' + u.propertyTypeLabel(p.type) + '</td>' +
           '<td>' + u.formatPrice(u.effectivePrice(p)) + (p.operation === 'renta' ? '/mes' : '') + '</td>' +
