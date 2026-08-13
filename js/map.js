@@ -86,7 +86,8 @@
       style: 'mapbox://styles/mapbox/streets-v12',
       center: opts.center || window.APP_CONFIG.DEFAULT_CENTER,
       zoom: opts.zoom || window.APP_CONFIG.DEFAULT_ZOOM,
-      attributionControl: true
+      attributionControl: true,
+      logoPosition: 'bottom-right'
     });
     map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
     if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');

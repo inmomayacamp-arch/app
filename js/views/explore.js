@@ -18,7 +18,6 @@
     filters.stateKey = savedLocation.stateKey;
     filters.cityKey = savedLocation.cityKey;
     var mapCtrl = null;
-    var boundsOnly = false;
     var mexicoStates = window.APP_CONFIG.MEXICO_STATES;
 
     // Resuelve un {stateKey, cityKey} al centro/zoom donde mover el mapa y a
@@ -45,10 +44,6 @@
           return (p.title + ' ' + p.neighborhood + ' ' + p.city).toLowerCase().indexOf(q) !== -1;
         });
       }
-      if (boundsOnly && mapCtrl && mapCtrl.ready) {
-        var bounds = mapCtrl.map.getBounds();
-        filtered = filtered.filter(function (p) { return p.coords && bounds.contains(p.coords); });
-      }
       return filtered;
     }
 
@@ -58,24 +53,23 @@
       '  <div class="explore-map">' +
       '    <div class="map-canvas" data-map></div>' +
       '    <div class="map-top-overlay">' +
-      '      <div class="row" style="justify-content:space-between;align-items:center;width:100%">' +
-      '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
-      '        <div class="row gap-2">' +
-      (navigator.geolocation ? '        <button type="button" class="map-locate-btn" data-locate-me aria-label="Usar mi ubicación actual">' + u.icon('locate', { size: 15 }) + '</button>' : '') +
-      '        <button type="button" class="city-chip" data-open-location aria-label="Ubicación">' + u.icon('pin', { size: 13 }) + ' <span data-location-label>' + u.escapeHtml(locationLabel()) + '</span></button>' +
-      '        </div>' +
-      '      </div>' +
       '      <div class="map-chip-overlay">' +
+      '        <div class="map-brand-badge">' + u.logoHTML() + '</div>' +
       '        <div class="chip-row" data-quick-ops style="flex:1;min-width:0">' +
       c.quickFilterChipsHTML(filters.operation) +
       '        </div>' +
       '        <button type="button" class="btn btn--icon" data-open-filters aria-label="Buscar y filtrar">' + u.icon('sliders', { size: 18 }) + '</button>' +
       '      </div>' +
       '    </div>' +
-      '    <button type="button" class="search-this-area" data-search-area hidden>' + u.icon('search', { size: 14 }) + ' Buscar en esta área</button>' +
-      '    <div class="map-legend">' +
-      '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-primary)"></span>Venta</span>' +
-      '      <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</span>' +
+      '    <div class="map-bottom-overlay">' +
+      '      <div class="row gap-2">' +
+      (navigator.geolocation ? '        <button type="button" class="map-locate-btn" data-locate-me aria-label="Usar mi ubicación actual">' + u.icon('locate', { size: 15 }) + '</button>' : '') +
+      '        <button type="button" class="city-chip" data-open-location aria-label="Ubicación">' + u.icon('pin', { size: 13 }) + ' <span data-location-label>' + u.escapeHtml(locationLabel()) + '</span></button>' +
+      '      </div>' +
+      '      <div class="map-legend">' +
+      '        <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-primary)"></span>Venta</span>' +
+      '        <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</span>' +
+      '      </div>' +
       '    </div>' +
       '  </div>' +
       '  <div class="explore-list">' +
@@ -204,20 +198,6 @@
       btn.addEventListener('click', function () {
         window.location.hash = '#/servicios/' + btn.getAttribute('data-service');
       });
-    });
-
-    // Buscar en esta área (al mover el mapa): el patrón estándar de Zillow/
-    // Redfin/Airbnb — arrastrar el mapa nunca cambia los resultados solo,
-    // siempre requiere este botón explícito.
-    var searchAreaBtn = u.qs('[data-search-area]', root);
-    if (mapCtrl.ready) {
-      mapCtrl.map.on('dragend', function () { searchAreaBtn.hidden = false; });
-      mapCtrl.map.on('zoomend', function () { searchAreaBtn.hidden = false; });
-    }
-    searchAreaBtn.addEventListener('click', function () {
-      boundsOnly = true;
-      searchAreaBtn.hidden = true;
-      refreshList();
     });
 
     // Al entrar sin ninguna ubicación activa, se detecta la ubicación real para
