@@ -1,5 +1,8 @@
-// Vista "Publicar propiedad": formulario completo, dividido en pasos, con
-// borrador/programación, fotos reales, compartir con agentes y vista previa.
+// Vista "Publicar propiedad": formulario dividido en pasos, más corto y con
+// valores predefinidos comunes en México, borrador/programación, fotos
+// reales, compartir con agentes y vista previa. Cada campo secundario sigue
+// disponible para personalizar, solo que plegado por defecto (<details>)
+// para no cansar al asesor con una ficha kilométrica.
 (function () {
   "use strict";
 
@@ -53,12 +56,18 @@
     { value: "USD", label: "USD — Dólares" }
   ];
 
+  // Amenidades más buscadas en fichas de propiedades en México (alberca,
+  // seguridad, acceso controlado, etc.): se muestran como cápsulas de un
+  // toque; el resto del catálogo queda a un "Ver más" para no alargar el
+  // paso con una lista larga por defecto.
+  var AMENITIES_TOP = ["Alberca", "Jardín", "Terraza", "Cocina integral", "Seguridad 24 horas", "Acceso controlado", "Aire acondicionado", "Pet friendly"];
+
   var STEP_TITLES = {
-    general: "Información general", precio: "Precio", creditos: "Créditos aceptados",
+    general: "Tipo y operación", precio: "Precio",
     condiciones_renta: "Condiciones de renta",
-    ubicacion: "Ubicación", caracteristicas: "Características", amenidades: "Amenidades",
-    descripcion: "Descripción", fotos: "Fotografías", video: "Video y recorrido virtual",
-    compartir: "Compartir con otros agentes", publicacion: "Publicación y etiquetas", vista_previa: "Vista previa"
+    ubicacion: "Ubicación", caracteristicas: "Características",
+    amenidades: "Amenidades y descripción", fotos: "Fotografías",
+    publicacion: "Publicación", vista_previa: "Vista previa"
   };
 
   function render(params, root) {
@@ -88,23 +97,23 @@
       privateNotes: "",
       photos: [],
       videoUrl: "", virtualTourUrl: "",
-      rentalDeposit: "", rentalMinContract: "", rentalFurnished: "",
+      // Valores más comunes en rentas en México, para no obligar al asesor a
+      // decidir todo desde cero: puede cambiarlos con un toque si su caso es distinto.
+      rentalDeposit: "1_mes", rentalMinContract: "12", rentalFurnished: "sin_amueblar",
       rentalGuarantees: [], rentalServicesIncluded: [], rentalAvailableFrom: "",
       sharing: { enabled: false, totalCommission: 5, collaboratorCommission: 50, fixedAmount: null, conditions: "", expiresAt: null, visibility: "todos", selectedAgentSlugs: [] },
       publishStatus: "publicada", scheduledAt: "", featured: false,
       tags: []
     };
 
-    // Los pasos de crédito (para comprar) y condiciones de renta solo aplican
-    // a su operación; "venta_renta" muestra ambos. Se recalcula cada vez
-    // porque solo puede cambiar desde el paso "general" (índice 0), donde
-    // renderStep() nunca avanza stepIndex, así que nunca queda apuntando a un
-    // paso que dejó de existir.
+    // El paso de condiciones de renta solo aplica si la operación incluye
+    // renta; se recalcula cada vez porque solo puede cambiar desde el paso
+    // "general" (índice 0), donde renderStep() nunca avanza stepIndex, así
+    // que nunca queda apuntando a un paso que dejó de existir.
     function activeStepKeys() {
-      var keys = ["general", "precio"];
-      if (payload.operation === 'venta' || payload.operation === 'venta_renta') keys.push('creditos');
+      var keys = ["general", "precio", "ubicacion", "caracteristicas"];
       if (payload.operation === 'renta' || payload.operation === 'venta_renta') keys.push('condiciones_renta');
-      return keys.concat(["ubicacion", "caracteristicas", "amenidades", "descripcion", "fotos", "video", "compartir", "publicacion", "vista_previa"]);
+      return keys.concat(["amenidades", "fotos", "publicacion", "vista_previa"]);
     }
 
     function progressHTML() {
@@ -117,11 +126,12 @@
         '<p class="wizard-progress__label">Paso ' + (stepIndex + 1) + ' de ' + keys.length + '</p>';
     }
 
-    /* ---------- Paso 1: Información general ---------- */
+    /* ---------- Paso 1: Tipo y operación ---------- */
     function stepGeneralHTML() {
       return (
         '<div class="page-wrap">' +
-        '<div class="form-field"><label>Título de la propiedad</label><input type="text" data-field="title" value="' + u.escapeHtml(payload.title) + '" placeholder="Casa moderna en Vista Alegre" /></div>' +
+        '<div class="form-field"><label>Título de la propiedad (opcional)</label><input type="text" data-field="title" value="' + u.escapeHtml(payload.title) + '" placeholder="Casa moderna en Vista Alegre" />' +
+        '<p class="text-muted" style="font-size:0.76rem">Si lo dejas vacío, generamos uno automáticamente con el tipo y la ubicación.</p></div>' +
         '<div class="form-field"><label>Tipo de operación</label>' +
         '<div class="filter-options">' + OPERATIONS.map(function (op) {
           return '<button type="button" class="filter-option' + (payload.operation === op.value ? ' is-active' : '') + '" data-op="' + op.value + '">' + op.label + '</button>';
@@ -134,7 +144,7 @@
       );
     }
 
-    /* ---------- Paso 2: Precio ---------- */
+    /* ---------- Paso 2: Precio (+ créditos aceptados) ---------- */
     function stepPrecioHTML() {
       var showVenta = payload.operation === 'venta' || payload.operation === 'venta_renta';
       var showRenta = payload.operation === 'renta' || payload.operation === 'venta_renta';
@@ -145,24 +155,18 @@
         '</select></div>' +
         (showVenta ? '<div class="form-field"><label>Precio de venta</label><div class="input-prefix"><span>$</span><input type="number" min="0" inputmode="numeric" placeholder="2,500,000" value="' + u.escapeHtml(payload.price) + '" data-field="price" /></div></div>' : '') +
         (showRenta ? '<div class="form-field"><label>Precio de renta (mensual)</label><div class="input-prefix"><span>$</span><input type="number" min="0" inputmode="numeric" placeholder="15,000" value="' + u.escapeHtml(payload.priceRent) + '" data-field="priceRent" /></div></div>' : '') +
+        (showVenta ? (
+          '<div class="form-field"><label>¿Qué créditos acepta? (opcional)</label>' +
+          '<div class="checkbox-list checkbox-list--grid">' + u.CREDIT_TYPES.map(function (cr) {
+            var checked = payload.creditsAccepted.indexOf(cr.value) !== -1;
+            return '<label class="checkbox-list__item"><input type="checkbox" data-credit="' + cr.value + '"' + (checked ? ' checked' : '') + ' /> ' + cr.label + '</label>';
+          }).join('') + '</div></div>'
+        ) : '') +
         '</div>'
       );
     }
 
-    /* ---------- Paso 3: Créditos aceptados ---------- */
-    function stepCreditosHTML() {
-      return (
-        '<div class="page-wrap">' +
-        '<div class="form-field"><label>¿Qué créditos acepta esta propiedad?</label>' +
-        '<div class="checkbox-list">' + u.CREDIT_TYPES.map(function (cr) {
-          var checked = payload.creditsAccepted.indexOf(cr.value) !== -1;
-          return '<label class="checkbox-list__item"><input type="checkbox" data-credit="' + cr.value + '"' + (checked ? ' checked' : '') + ' /> ' + cr.label + '</label>';
-        }).join('') + '</div></div>' +
-        '</div>'
-      );
-    }
-
-    /* ---------- Paso: Condiciones de renta ---------- */
+    /* ---------- Paso condicional: Condiciones de renta ---------- */
     function stepCondicionesRentaHTML() {
       return (
         '<div class="page-wrap">' +
@@ -178,6 +182,7 @@
         '<div class="form-field"><label>Contrato mínimo (meses)</label><input type="number" min="0" data-field="rentalMinContract" value="' + u.escapeHtml(payload.rentalMinContract) + '" placeholder="12" /></div>' +
         '<div class="form-field"><label>Disponible a partir de</label><input type="date" data-field="rentalAvailableFrom" value="' + u.escapeHtml(payload.rentalAvailableFrom) + '" /></div>' +
         '</div>' +
+        '<details class="form-disclosure"><summary>Más opciones (opcional)</summary><div class="form-disclosure__body">' +
         '<div class="form-field"><label>Garantías que aceptas</label>' +
         '<div class="checkbox-list">' + u.RENTAL_GUARANTEES.map(function (g) {
           var checked = payload.rentalGuarantees.indexOf(g.value) !== -1;
@@ -188,11 +193,12 @@
           var checked = payload.rentalServicesIncluded.indexOf(s) !== -1;
           return '<label class="checkbox-list__item"><input type="checkbox" data-service="' + u.escapeHtml(s) + '"' + (checked ? ' checked' : '') + ' /> ' + u.escapeHtml(s) + '</label>';
         }).join('') + '</div></div>' +
+        '</div></details>' +
         '</div>'
       );
     }
 
-    /* ---------- Paso 4: Ubicación ---------- */
+    /* ---------- Paso 3: Ubicación ---------- */
     function stepUbicacionHTML() {
       var states = window.APP_CONFIG.MEXICO_STATES;
       var stateKeys = Object.keys(states).sort(function (a, b) { return states[a].label.localeCompare(states[b].label, 'es'); });
@@ -218,22 +224,25 @@
         }).join('') : '') +
         '</select></div>' +
         '</div>' +
+        '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre"' + dis + ' /></div>' +
         (locationLocked ? '<div class="form-field" style="padding-top:0"><p class="text-muted" style="font-size:0.78rem">Elige estado y ciudad para continuar con la ubicación.</p></div>' : '') +
-
         '<div class="form-field" style="padding:0 16px"><label>Ubicación en el mapa</label>' +
         (locationLocked
           ? '<div class="map-picker map-picker--locked"><p class="text-muted" style="margin:0;text-align:center;padding:0 24px">Selecciona estado y ciudad arriba para ubicar tu propiedad en el mapa</p></div>'
           : '<div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div><span class="map-picker__pin">' + u.icon('pin', { size: 34 }) + '</span></div>') +
-        '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">Mueve el mapa hasta ubicar el pin en la propiedad, o busca la dirección abajo.</p></div>' +
+        '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">Mueve el mapa hasta ubicar el pin en la propiedad.</p>' +
+        '</div>' +
+        '</div>' +
         '<div class="page-wrap" style="padding-top:0">' +
         '<div class="form-field"><label>Privacidad de la ubicación</label>' +
         '<div class="filter-options">' +
         '<button type="button" class="filter-option' + (payload.locationPrivacy === 'exacta' ? ' is-active' : '') + '" data-privacy="exacta"' + dis + '>Ubicación exacta</button>' +
         '<button type="button" class="filter-option' + (payload.locationPrivacy === 'aproximada' ? ' is-active' : '') + '" data-privacy="aproximada"' + dis + '>Ubicación aproximada</button>' +
         '</div>' +
-        '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">La ubicación aproximada protege la privacidad del propietario: el pin público se muestra unos metros desplazado.</p></div>' +
+        '<p class="text-muted" style="font-size:0.78rem;margin-top:6px">La ubicación aproximada protege la privacidad del propietario: el pin público se muestra unos metros desplazado.</p>' +
+        '</div>' +
+        '<details class="form-disclosure"><summary>Agregar dirección exacta (opcional)</summary><div class="form-disclosure__body">' +
         '<div class="form-field"><label>Municipio</label><input type="text" data-field="municipality" value="' + u.escapeHtml(payload.municipality) + '" placeholder="Campeche"' + dis + ' /></div>' +
-        '<div class="form-field"><label>Colonia</label><input type="text" data-field="neighborhood" value="' + u.escapeHtml(payload.neighborhood) + '" placeholder="Vista Alegre"' + dis + ' /></div>' +
         '<div class="form-row">' +
         '<div class="form-field"><label>Calle</label><input type="text" data-field="street" value="' + u.escapeHtml(payload.street) + '" placeholder="Calle 10"' + dis + ' /></div>' +
         '<div class="form-field"><label>Número exterior</label><input type="text" data-field="extNumber" value="' + u.escapeHtml(payload.extNumber) + '" placeholder="123"' + dis + ' /></div>' +
@@ -242,54 +251,42 @@
         '<div class="form-field"><label>Código postal</label><input type="text" data-field="postalCode" value="' + u.escapeHtml(payload.postalCode) + '" placeholder="24000"' + dis + ' /></div>' +
         '<div class="form-field"><label>Referencias</label><input type="text" data-field="addressNote" value="' + u.escapeHtml(payload.addressNote) + '" placeholder="A 5 min del malecón"' + dis + ' /></div>' +
         '</div>' +
+        '</div></details>' +
         '</div>'
       );
     }
 
-    /* ---------- Paso 5: Características ---------- */
+    /* ---------- Paso 4: Características ---------- */
     function stepCaracteristicasHTML() {
       return (
         '<div class="page-wrap">' +
         '<div class="form-row">' +
         '<div class="form-field"><label>Recámaras</label><input type="number" min="0" data-field="bedrooms" value="' + u.escapeHtml(payload.bedrooms) + '" /></div>' +
-        '<div class="form-field"><label>Niveles</label><input type="number" min="0" data-field="levels" value="' + u.escapeHtml(payload.levels) + '" /></div>' +
-        '</div>' +
-        '<div class="form-row">' +
         '<div class="form-field"><label>Baños completos</label><input type="number" min="0" data-field="bathrooms" value="' + u.escapeHtml(payload.bathrooms) + '" /></div>' +
-        '<div class="form-field"><label>Medios baños</label><input type="number" min="0" data-field="halfBathrooms" value="' + u.escapeHtml(payload.halfBathrooms) + '" /></div>' +
         '</div>' +
         '<div class="form-row">' +
         '<div class="form-field"><label>Estacionamientos</label><input type="number" min="0" data-field="parking" value="' + u.escapeHtml(payload.parking) + '" /></div>' +
-        '<div class="form-field"><label>Antigüedad (años)</label><input type="number" min="0" data-field="age" value="' + u.escapeHtml(payload.age) + '" /></div>' +
-        '</div>' +
-        '<div class="form-row">' +
         '<div class="form-field"><label>Construcción (m²)</label><input type="number" min="0" data-field="builtArea" value="' + u.escapeHtml(payload.builtArea) + '" /></div>' +
+        '</div>' +
         '<div class="form-field"><label>Terreno (m²)</label><input type="number" min="0" data-field="lotArea" value="' + u.escapeHtml(payload.lotArea) + '" /></div>' +
+        '<details class="form-disclosure"><summary>Más detalles (opcional)</summary><div class="form-disclosure__body">' +
+        '<div class="form-row">' +
+        '<div class="form-field"><label>Niveles</label><input type="number" min="0" data-field="levels" value="' + u.escapeHtml(payload.levels) + '" /></div>' +
+        '<div class="form-field"><label>Medios baños</label><input type="number" min="0" data-field="halfBathrooms" value="' + u.escapeHtml(payload.halfBathrooms) + '" /></div>' +
         '</div>' +
         '<div class="form-row">' +
+        '<div class="form-field"><label>Antigüedad (años)</label><input type="number" min="0" data-field="age" value="' + u.escapeHtml(payload.age) + '" /></div>' +
         '<div class="form-field"><label>Frente (m)</label><input type="number" min="0" data-field="frontage" value="' + u.escapeHtml(payload.frontage) + '" /></div>' +
-        '<div class="form-field"><label>Fondo (m)</label><input type="number" min="0" data-field="depth" value="' + u.escapeHtml(payload.depth) + '" /></div>' +
         '</div>' +
+        '<div class="form-field"><label>Fondo (m)</label><input type="number" min="0" data-field="depth" value="' + u.escapeHtml(payload.depth) + '" /></div>' +
         '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-check="hasLivingRoom"' + (payload.hasLivingRoom ? ' checked' : '') + ' style="width:18px;height:18px" /> Tiene sala</label></div>' +
         '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-check="hasLibrary"' + (payload.hasLibrary ? ' checked' : '') + ' style="width:18px;height:18px" /> Tiene biblioteca</label></div>' +
+        '</div></details>' +
         '</div>'
       );
     }
 
-    /* ---------- Paso 6: Amenidades ---------- */
-    function stepAmenidadesHTML() {
-      return (
-        '<div class="page-wrap">' +
-        '<div class="form-field"><label>Selecciona las amenidades de la propiedad</label>' +
-        '<div class="checkbox-list checkbox-list--grid">' + u.AMENITIES.map(function (a) {
-          var checked = payload.features.indexOf(a) !== -1;
-          return '<label class="checkbox-list__item"><input type="checkbox" data-amenity="' + u.escapeHtml(a) + '"' + (checked ? ' checked' : '') + ' /> ' + u.escapeHtml(a) + '</label>';
-        }).join('') + '</div></div>' +
-        '</div>'
-      );
-    }
-
-    /* ---------- Paso 7: Descripción ---------- */
+    /* ---------- Descripción automática ---------- */
     function generateDescription() {
       var typeLabel = u.propertyTypeLabel(payload.type).toLowerCase();
       var opLabel = payload.operation === 'venta_renta' ? 'venta y renta' : (payload.operation === 'renta' ? 'renta' : 'venta');
@@ -311,10 +308,23 @@
       return parts.join(' ');
     }
 
-    function stepDescripcionHTML() {
+    /* ---------- Paso 5: Amenidades y descripción ---------- */
+    function stepAmenidadesHTML() {
+      var restAmenities = u.AMENITIES.filter(function (a) { return AMENITIES_TOP.indexOf(a) === -1; });
       return (
         '<div class="page-wrap">' +
-        '<div class="form-field">' +
+        '<div class="form-field"><label>Amenidades más buscadas</label>' +
+        '<div class="filter-options">' + AMENITIES_TOP.map(function (a) {
+          var active = payload.features.indexOf(a) !== -1;
+          return '<button type="button" class="filter-option' + (active ? ' is-active' : '') + '" data-amenity-chip="' + u.escapeHtml(a) + '">' + u.escapeHtml(a) + '</button>';
+        }).join('') + '</div></div>' +
+        '<details class="form-disclosure"><summary>Ver más amenidades</summary><div class="form-disclosure__body">' +
+        '<div class="checkbox-list checkbox-list--grid">' + restAmenities.map(function (a) {
+          var checked = payload.features.indexOf(a) !== -1;
+          return '<label class="checkbox-list__item"><input type="checkbox" data-amenity="' + u.escapeHtml(a) + '"' + (checked ? ' checked' : '') + ' /> ' + u.escapeHtml(a) + '</label>';
+        }).join('') + '</div>' +
+        '</div></details>' +
+        '<div class="form-field" style="margin-top:16px">' +
         '<label class="row" style="justify-content:space-between;align-items:center">' +
         '<span>Descripción</span>' +
         '<button type="button" class="btn btn--outline btn--sm" data-generate-desc>' + u.icon('sparkles', { size: 13 }) + ' Generar descripción</button>' +
@@ -322,12 +332,12 @@
         '<textarea rows="6" data-field="description" placeholder="Describe los acabados, ubicación y puntos fuertes de la propiedad.">' + u.escapeHtml(payload.description) + '</textarea>' +
         '<p class="text-muted" style="font-size:0.76rem;margin-top:6px">Generamos un borrador automático con los datos que ya capturaste; siempre puedes editarlo.</p>' +
         '</div>' +
-        '<div class="form-field"><label>Observaciones privadas</label><textarea rows="2" data-field="privateNotes" placeholder="Solo visibles para ti">' + u.escapeHtml(payload.privateNotes) + '</textarea></div>' +
+        '<div class="form-field"><label>Observaciones privadas (opcional)</label><textarea rows="2" data-field="privateNotes" placeholder="Solo visibles para ti">' + u.escapeHtml(payload.privateNotes) + '</textarea></div>' +
         '</div>'
       );
     }
 
-    /* ---------- Paso 8: Fotografías ---------- */
+    /* ---------- Paso 6: Fotografías (+ video y tour virtual) ---------- */
     function photoTileHTML(photo, index) {
       if (photo.uploading) {
         return '<div class="photo-slot photo-slot--uploading"><span class="spinner"></span></div>';
@@ -356,51 +366,16 @@
         '</div>' +
         '<input type="file" accept="image/*" multiple data-photo-input style="display:none" />' +
         '<p class="text-muted" style="font-size:0.78rem;margin-top:8px">Arrastra una foto para cambiar el orden, o usa las flechas. Toca la estrella para elegirla como principal. Las imágenes se optimizan automáticamente al subirlas.</p>' +
-        '</div></div>'
-      );
-    }
-
-    /* ---------- Paso 9: Video y recorrido virtual ---------- */
-    function stepVideoHTML() {
-      return (
-        '<div class="page-wrap">' +
+        '</div>' +
+        '<details class="form-disclosure"><summary>Agregar video o recorrido virtual (opcional)</summary><div class="form-disclosure__body">' +
         '<div class="form-field"><label>Enlace de video (YouTube)</label><input type="text" data-field="videoUrl" value="' + u.escapeHtml(payload.videoUrl) + '" placeholder="https://youtube.com/watch?v=..." /></div>' +
-        '<p class="text-muted" style="font-size:0.76rem;margin-top:-8px;margin-bottom:16px">El video se mostrará incrustado dentro de la publicación. Solo aceptamos enlaces de YouTube para no sobrecargar el servidor.</p>' +
-        '<div class="form-field"><label>Recorrido virtual (Matterport, Kuula u otro)</label><input type="text" data-field="virtualTourUrl" value="' + u.escapeHtml(payload.virtualTourUrl) + '" placeholder="https://my.matterport.com/show/?m=..." /></div>' +
+        '<div class="form-field" style="margin-bottom:0"><label>Recorrido virtual (Matterport, Kuula u otro)</label><input type="text" data-field="virtualTourUrl" value="' + u.escapeHtml(payload.virtualTourUrl) + '" placeholder="https://my.matterport.com/show/?m=..." /></div>' +
+        '</div></details>' +
         '</div>'
       );
     }
 
-    /* ---------- Paso 10: Compartir con otros agentes ---------- */
-    function stepCompartirHTML() {
-      if (!isPremium) {
-        return (
-          '<div class="page-wrap">' +
-          '<div class="promo-card"><span class="promo-card__icon">' + u.icon('exchange', { size: 28 }) + '</span>' +
-          '<div class="promo-card__body"><strong>Disponible en el Plan Profesional</strong>' +
-          '<p>Comparte tus propiedades con otros asesores y define una comisión de colaboración. Esta función es exclusiva del Plan Profesional.</p>' +
-          '<a class="btn btn--primary btn--sm" href="#/dashboard/suscripcion">Mejorar mi plan</a></div></div>' +
-          '</div>'
-        );
-      }
-      var s = payload.sharing;
-      return (
-        '<div class="page-wrap">' +
-        '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-check="sharingEnabled"' + (s.enabled ? ' checked' : '') + ' style="width:18px;height:18px" /> Compartir esta propiedad con otros asesores</label>' +
-        '<p class="text-muted" style="font-size:0.78rem;margin-top:4px">Solo la verán otros asesores con sesión iniciada.</p></div>' +
-        '<div data-sharing-fields style="display:' + (s.enabled ? 'block' : 'none') + '">' +
-        '<div class="form-row">' +
-        '<div class="form-field"><label>Comisión total (%)</label><input type="number" min="0" max="100" data-field="totalCommission" value="' + s.totalCommission + '" /></div>' +
-        '<div class="form-field"><label>% para colaborador</label><input type="number" min="0" max="100" data-field="collaboratorCommission" value="' + s.collaboratorCommission + '" /></div>' +
-        '</div>' +
-        '<div class="form-field"><label>Monto fijo (opcional, MXN)</label><input type="number" min="0" data-field="fixedAmount" value="' + (s.fixedAmount || '') + '" /></div>' +
-        '<div class="form-field"><label>Condiciones de colaboración</label><textarea rows="2" data-field="conditions" placeholder="Ej. Solo clientes nuevos.">' + u.escapeHtml(s.conditions) + '</textarea></div>' +
-        '</div>' +
-        '</div>'
-      );
-    }
-
-    /* ---------- Paso 11: Publicación y etiquetas ---------- */
+    /* ---------- Paso 7: Publicación (+ etiquetas y compartir con agentes) ---------- */
     function stepPublicacionHTML() {
       var statusOptions = [
         { value: "publicada", label: "Publicar inmediatamente" },
@@ -408,6 +383,7 @@
         { value: "programada", label: "Programar publicación" },
         { value: "oculta", label: "Ocultar temporalmente" }
       ];
+      var s = payload.sharing;
       return (
         '<div class="page-wrap">' +
         '<div class="form-field"><label>Configuración de publicación</label>' +
@@ -420,16 +396,33 @@
           ? '<label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-check="featured"' + (payload.featured ? ' checked' : '') + ' style="width:18px;height:18px" /> Publicación destacada (aparece primero en resultados)</label>'
           : '<div class="text-muted" style="font-size:0.82rem"><strong>Publicación destacada:</strong> disponible únicamente para el Plan Profesional. <a href="#/dashboard/suscripcion" style="color:var(--color-primary);font-weight:700">Mejorar mi plan</a></div>') +
         '</div>' +
-        '<div class="form-field"><label>Etiquetas especiales</label>' +
+        '<div class="form-field"><label>Etiquetas especiales (opcional)</label>' +
         '<div class="checkbox-list">' + u.SPECIAL_TAGS.map(function (t) {
           var checked = payload.tags.indexOf(t.value) !== -1;
           return '<label class="checkbox-list__item"><input type="checkbox" data-tag="' + t.value + '"' + (checked ? ' checked' : '') + ' /> ' + t.label + '</label>';
         }).join('') + '</div></div>' +
+        (isPremium ? (
+          '<details class="form-disclosure"><summary>Compartir con otros asesores (opcional)</summary><div class="form-disclosure__body">' +
+          '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-sharing-toggle' + (s.enabled ? ' checked' : '') + ' style="width:18px;height:18px" /> Compartir esta propiedad con otros asesores</label>' +
+          '<p class="text-muted" style="font-size:0.78rem;margin-top:4px">Solo la verán otros asesores con sesión iniciada.</p></div>' +
+          '<div data-sharing-fields style="display:' + (s.enabled ? 'block' : 'none') + '">' +
+          '<div class="form-row">' +
+          '<div class="form-field"><label>Comisión total (%)</label><input type="number" min="0" max="100" data-field="totalCommission" value="' + s.totalCommission + '" /></div>' +
+          '<div class="form-field"><label>% para colaborador</label><input type="number" min="0" max="100" data-field="collaboratorCommission" value="' + s.collaboratorCommission + '" /></div>' +
+          '</div>' +
+          '<div class="form-field"><label>Monto fijo (opcional, MXN)</label><input type="number" min="0" data-field="fixedAmount" value="' + (s.fixedAmount || '') + '" /></div>' +
+          '<div class="form-field" style="margin-bottom:0"><label>Condiciones de colaboración</label><textarea rows="2" placeholder="Ej. Solo clientes nuevos." data-field="conditions">' + u.escapeHtml(s.conditions) + '</textarea></div>' +
+          '</div>' +
+          '</div></details>'
+        ) : (
+          '<div class="promo-card"><span class="promo-card__icon">' + u.icon('exchange', { size: 24 }) + '</span>' +
+          '<div class="promo-card__body"><strong>Comparte con otros asesores</strong><p style="margin-bottom:0">Disponible en el Plan Profesional. <a href="#/dashboard/suscripcion">Mejorar mi plan</a></p></div></div>'
+        )) +
         '</div>'
       );
     }
 
-    /* ---------- Paso 12: Vista previa ---------- */
+    /* ---------- Paso 8: Vista previa ---------- */
     function stepVistaPreviaHTML() {
       var priceLabel = payload.operation === 'venta_renta'
         ? (payload.price ? u.formatPrice(Number(payload.price)) + ' venta' : '') + (payload.price && payload.priceRent ? ' · ' : '') + (payload.priceRent ? u.formatPrice(Number(payload.priceRent)) + '/mes renta' : '')
@@ -460,10 +453,10 @@
     }
 
     var STEP_RENDERERS = {
-      general: stepGeneralHTML, precio: stepPrecioHTML, creditos: stepCreditosHTML,
+      general: stepGeneralHTML, precio: stepPrecioHTML,
       condiciones_renta: stepCondicionesRentaHTML, ubicacion: stepUbicacionHTML,
-      caracteristicas: stepCaracteristicasHTML, amenidades: stepAmenidadesHTML, descripcion: stepDescripcionHTML,
-      fotos: stepFotosHTML, video: stepVideoHTML, compartir: stepCompartirHTML, publicacion: stepPublicacionHTML,
+      caracteristicas: stepCaracteristicasHTML, amenidades: stepAmenidadesHTML,
+      fotos: stepFotosHTML, publicacion: stepPublicacionHTML,
       vista_previa: stepVistaPreviaHTML
     };
 
@@ -511,15 +504,17 @@
       if (key === 'condiciones_renta') { payload.rentalMinContract = readField('rentalMinContract'); payload.rentalAvailableFrom = readField('rentalAvailableFrom'); }
       if (key === 'ubicacion') ['state', 'municipality', 'city', 'neighborhood', 'street', 'extNumber', 'postalCode', 'addressNote'].forEach(function (n) { payload[n] = readField(n); });
       if (key === 'caracteristicas') ['bedrooms', 'bathrooms', 'halfBathrooms', 'parking', 'levels', 'age', 'builtArea', 'lotArea', 'frontage', 'depth'].forEach(function (n) { payload[n] = readField(n); });
-      if (key === 'descripcion') { payload.description = readField('description'); payload.privateNotes = readField('privateNotes'); }
-      if (key === 'video') { payload.videoUrl = readField('videoUrl'); payload.virtualTourUrl = readField('virtualTourUrl'); }
-      if (key === 'compartir' && payload.sharing.enabled) {
-        payload.sharing.totalCommission = Number(readField('totalCommission')) || 0;
-        payload.sharing.collaboratorCommission = Number(readField('collaboratorCommission')) || 0;
-        payload.sharing.fixedAmount = readField('fixedAmount') ? Number(readField('fixedAmount')) : null;
-        payload.sharing.conditions = readField('conditions');
+      if (key === 'amenidades') { payload.description = readField('description'); payload.privateNotes = readField('privateNotes'); }
+      if (key === 'fotos') { payload.videoUrl = readField('videoUrl'); payload.virtualTourUrl = readField('virtualTourUrl'); }
+      if (key === 'publicacion') {
+        if (payload.publishStatus === 'programada') payload.scheduledAt = readField('scheduledAt');
+        if (isPremium && payload.sharing.enabled) {
+          payload.sharing.totalCommission = Number(readField('totalCommission')) || 0;
+          payload.sharing.collaboratorCommission = Number(readField('collaboratorCommission')) || 0;
+          payload.sharing.fixedAmount = readField('fixedAmount') ? Number(readField('fixedAmount')) : null;
+          payload.sharing.conditions = readField('conditions');
+        }
       }
-      if (key === 'publicacion' && payload.publishStatus === 'programada') { payload.scheduledAt = readField('scheduledAt'); }
     }
 
     function validateStep() {
@@ -545,7 +540,7 @@
         u.qsa('[data-type]', root).forEach(function (btn) { btn.addEventListener('click', function () { collectStepFields(); payload.type = btn.getAttribute('data-type'); renderStep(); }); });
       }
 
-      if (key === 'creditos') {
+      if (key === 'precio') {
         u.qsa('[data-credit]', root).forEach(function (cb) {
           cb.addEventListener('change', function () {
             var v = cb.getAttribute('data-credit');
@@ -623,6 +618,14 @@
       }
 
       if (key === 'amenidades') {
+        u.qsa('[data-amenity-chip]', root).forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var v = btn.getAttribute('data-amenity-chip');
+            var idx = payload.features.indexOf(v);
+            if (idx === -1) payload.features.push(v); else payload.features.splice(idx, 1);
+            btn.classList.toggle('is-active');
+          });
+        });
         u.qsa('[data-amenity]', root).forEach(function (cb) {
           cb.addEventListener('change', function () {
             var v = cb.getAttribute('data-amenity');
@@ -631,9 +634,6 @@
             if (!cb.checked && idx !== -1) payload.features.splice(idx, 1);
           });
         });
-      }
-
-      if (key === 'descripcion') {
         u.qs('[data-generate-desc]', root).addEventListener('click', function () {
           payload.description = readField('description') || payload.description;
           payload.description = generateDescription();
@@ -701,14 +701,6 @@
         });
       }
 
-      if (key === 'compartir' && isPremium) {
-        var enabledCb = u.qs('[data-check="sharingEnabled"]', root);
-        enabledCb.addEventListener('change', function () {
-          payload.sharing.enabled = enabledCb.checked;
-          u.qs('[data-sharing-fields]', root).style.display = enabledCb.checked ? 'block' : 'none';
-        });
-      }
-
       if (key === 'publicacion') {
         u.qsa('[data-publish-status]', root).forEach(function (radio) {
           radio.addEventListener('change', function () { collectStepFields(); payload.publishStatus = radio.getAttribute('data-publish-status'); renderStep(); });
@@ -723,6 +715,12 @@
             if (cb.checked && idx === -1) payload.tags.push(v);
             if (!cb.checked && idx !== -1) payload.tags.splice(idx, 1);
           });
+        });
+        var sharingToggle = u.qs('[data-sharing-toggle]', root);
+        if (sharingToggle) sharingToggle.addEventListener('change', function () {
+          payload.sharing.enabled = sharingToggle.checked;
+          var fieldsEl = u.qs('[data-sharing-fields]', root);
+          if (fieldsEl) fieldsEl.style.display = sharingToggle.checked ? 'block' : 'none';
         });
       }
 

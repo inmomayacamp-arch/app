@@ -1086,6 +1086,26 @@ body.is-admin .site-header { display: none; }
   background: var(--color-bg); color: var(--color-ink-muted); cursor: not-allowed; opacity: 0.7;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Sección plegable para campos secundarios/opcionales del formulario de
+   publicar propiedad: mantiene el flujo corto por defecto, sin esconder la
+   posibilidad de personalizar cada detalle. */
+.form-disclosure { border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: 16px; overflow: hidden; }
+.form-disclosure summary {
+  display: flex; align-items: center; gap: 8px; padding: 13px 14px; font-weight: 700; font-size: 0.86rem;
+  list-style: none; color: var(--color-ink-secondary);
+}
+.form-disclosure summary::-webkit-details-marker { display: none; }
+.form-disclosure summary::after {
+  content: ''; width: 7px; height: 7px; margin-left: auto; flex-shrink: 0;
+  border-right: 2px solid var(--color-ink-muted); border-bottom: 2px solid var(--color-ink-muted);
+  transform: rotate(45deg); transition: transform 0.15s ease;
+}
+.form-disclosure[open] summary { border-bottom: 1px solid var(--color-border); color: var(--color-ink); }
+.form-disclosure[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+.form-disclosure__body { padding: 14px 14px 2px; }
+.form-disclosure__body .form-field:last-child { margin-bottom: 12px; }
+
 .input-prefix { position: relative; }
 .input-prefix span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-ink-muted); font-weight: 700; }
 .input-prefix input { padding-left: 28px !important; }
