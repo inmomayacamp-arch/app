@@ -30,16 +30,16 @@
   --color-good: #16A34A;
   --color-bad: #DC2626;
 
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06), 0 1px 1px rgba(17, 24, 39, 0.04);
-  --shadow-md: 0 4px 12px rgba(17, 24, 39, 0.10), 0 2px 4px rgba(17, 24, 39, 0.06);
-  --shadow-lg: 0 12px 32px rgba(17, 24, 39, 0.16), 0 4px 8px rgba(17, 24, 39, 0.06);
+  --shadow-sm: 0 1px 2px rgba(20, 22, 27, 0.04), 0 1px 1px rgba(20, 22, 27, 0.03);
+  --shadow-md: 0 8px 20px rgba(20, 22, 27, 0.08), 0 2px 6px rgba(20, 22, 27, 0.05);
+  --shadow-lg: 0 16px 40px rgba(20, 22, 27, 0.14), 0 4px 10px rgba(20, 22, 27, 0.06);
 
   --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
   --radius-full: 999px;
 
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-outfit: "Outfit", var(--font-sans);
 
   --header-h: 64px;
@@ -201,7 +201,7 @@ body.is-admin .site-header { display: none; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   border: 1px solid transparent; border-radius: var(--radius-full);
   padding: 12px 20px; font-weight: 700; font-size: 0.95rem;
-  background: var(--color-bg); color: var(--color-ink);
+  background: var(--color-bg); color: var(--color-ink); box-shadow: var(--shadow-sm);
   min-height: 44px;
   transition: transform 0.06s ease, background 0.15s ease, box-shadow 0.15s ease;
 }
@@ -230,10 +230,10 @@ body.is-admin .site-header { display: none; }
 .chip {
   display: inline-flex; align-items: center;
   padding: 9px 18px; border-radius: var(--radius-full);
-  background: var(--color-surface); border: 1.5px solid var(--color-border);
+  background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
   font-weight: 700; font-size: 0.85rem; color: var(--color-ink-secondary);
   white-space: nowrap;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 .chip.is-active {
   background: var(--chip-color, var(--color-primary));
@@ -282,20 +282,27 @@ body.is-admin .site-header { display: none; }
   position: absolute; top: 12px; left: 12px; right: 12px; z-index: var(--z-overlay);
   display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
 }
+/* Vidrio esmerilado: los controles que flotan directo sobre el mapa (no
+   sobre una hoja o fondo sólido) llevan blur + fondo semitransparente, para
+   que se sientan parte de una capa de cristal sobre el mapa en vez de
+   tarjetas opacas pegadas encima. */
 .map-brand-badge {
-  background: var(--color-surface); border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-full);
   padding: 7px 14px; box-shadow: var(--shadow-md); font-size: 1.05rem;
 }
 /* En escritorio el encabezado ya muestra el logotipo; repetirlo sobre el mapa sobra. */
 @media (min-width: 900px) { .map-brand-badge { display: none; } }
 .city-chip {
-  background: var(--color-surface); border: none; border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: none; border-radius: var(--radius-full);
   padding: 7px 14px; box-shadow: var(--shadow-md); font-size: 0.85rem; font-weight: 700;
   color: var(--color-ink); font-family: inherit; cursor: pointer; flex-shrink: 0;
 }
 .map-locate-btn {
   width: 34px; height: 34px; flex-shrink: 0; padding: 0; border: none; border-radius: 50%;
-  background: var(--color-surface); box-shadow: var(--shadow-md); color: var(--color-ink-secondary);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md); color: var(--color-ink-secondary);
   display: flex; align-items: center; justify-content: center;
 }
 .map-locate-btn:hover { color: var(--color-primary); }
@@ -304,7 +311,10 @@ body.is-admin .site-header { display: none; }
 .map-chip-overlay { display: flex; align-items: center; gap: 8px; width: 100%; }
 .map-chip-overlay .chip-row { padding: 2px 2px 2px; }
 .map-chip-overlay .chip { box-shadow: var(--shadow-md); }
-.map-chip-overlay [data-open-filters] { flex-shrink: 0; box-shadow: var(--shadow-md); }
+.map-chip-overlay [data-open-filters] {
+  flex-shrink: 0; box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
 @media (min-width: 900px) { .explore-map { height: 520px; border-radius: var(--radius-lg); overflow: hidden; } }
 .explore-list { grid-area: list; }
 .explore-discover { grid-area: discover; }
@@ -332,7 +342,8 @@ body.is-admin .site-header { display: none; }
 
 .search-bar {
   display: flex; align-items: center; gap: 10px;
-  background: var(--color-surface); border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-md); padding: 10px 8px 10px 16px;
 }
 .search-bar input {
@@ -343,13 +354,15 @@ body.is-admin .site-header { display: none; }
 .search-this-area {
   align-self: center;
   display: inline-flex; align-items: center; gap: 6px;
-  background: var(--color-surface); border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-md); padding: 8px 16px; font-size: 0.82rem; font-weight: 700;
 }
 
 .map-legend {
   position: absolute; bottom: 12px; left: 12px; z-index: var(--z-overlay);
-  background: var(--color-surface); border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md); padding: 10px 12px; font-size: 0.72rem;
   display: none; gap: 8px 14px; flex-wrap: wrap; max-width: 220px;
 }
