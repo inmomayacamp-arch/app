@@ -1,11 +1,11 @@
-// Vista "Agentes": lista de solo lectura de las cuentas de asesor reales.
+// Vista "Propietarios": lista de solo lectura de las cuentas de propietario
+// particular reales (publican 1 propiedad, sin panel de asesor).
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var ac = window.App.admin.components;
   var s = window.App.admin.state;
-  var d = window.App.admin.data;
 
   function contactHTML(a) {
     var parts = [];
@@ -15,10 +15,9 @@
   }
 
   function render(params, root) {
-    var agents = s.agents.all();
+    var owners = s.owners.all();
 
-    var rows = agents.map(function (a) {
-      var planName = (d.PLANS.filter(function (p) { return p.id === a.plan; })[0] || {}).name || a.plan || '—';
+    var rows = owners.map(function (a) {
       var propsCount = window.App.state.properties.byAgent(a.slug).length;
       return (
         '<div class="admin-row-card">' +
@@ -26,11 +25,10 @@
         '    <img class="admin-row-card__avatar" src="' + u.thumbUrl(a.photo, 88, 88) + '" alt="" loading="lazy" />' +
         '    <div class="admin-row-card__body">' +
         '      <strong>' + u.escapeHtml(a.name) + '</strong>' +
-        '      <span class="admin-row-card__meta">' + u.escapeHtml(a.city || 'Sin ciudad') + ' · ' + u.escapeHtml(planName) + '</span>' +
+        '      <span class="admin-row-card__meta">' + u.escapeHtml(a.city || 'Sin ciudad') + '</span>' +
         '      <span class="admin-row-card__meta">' + contactHTML(a) + '</span>' +
         '      <span class="admin-row-card__meta admin-row-card__meta--wrap">' + propsCount + ' propiedad' + (propsCount === 1 ? '' : 'es') +
-        (a.createdAt ? ' · registrado ' + new Date(a.createdAt).toLocaleDateString('es-MX') : '') +
-        (a.planExpiresAt ? ' · vence ' + new Date(a.planExpiresAt).toLocaleDateString('es-MX') : '') + '</span>' +
+        (a.createdAt ? ' · registrado ' + new Date(a.createdAt).toLocaleDateString('es-MX') : '') + '</span>' +
         '    </div>' +
         '  </div>' +
         '  <div class="admin-row-card__foot">' +
@@ -43,13 +41,13 @@
 
     var content =
       '<div class="admin-section">' +
-      '  <div class="admin-section__head"><div class="admin-section__title">Agentes activos (' + agents.length + ')</div></div>' +
-      '  <div class="admin-row-list">' + (rows || '<p class="text-muted" style="font-size:0.85rem">Aún no hay agentes registrados.</p>') + '</div>' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Propietarios (' + owners.length + ')</div></div>' +
+      '  <div class="admin-row-list">' + (rows || '<p class="text-muted" style="font-size:0.85rem">Aún no hay propietarios registrados.</p>') + '</div>' +
       '</div>';
 
-    ac.mount('agentes', 'Agentes', content, root);
+    ac.mount('propietarios', 'Propietarios', content, root);
   }
 
   window.App.admin.views = window.App.admin.views || {};
-  window.App.admin.views.agents = { render: render };
+  window.App.admin.views.owners = { render: render };
 })();

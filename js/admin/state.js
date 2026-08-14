@@ -46,9 +46,17 @@
   }
   async function logout() { await window.App.state.agents.logout(); }
 
-  // --- Agentes (perfiles reales con role = "asesor") ---
+  // --- Agentes y propietarios ---
+  // "role" en Supabase solo distingue "agent" (cualquier cuenta con perfil)
+  // de "admin"; quién es asesor y quién es propietario particular se guarda
+  // en "plan" ("asesor" vs "propietario"), asignado al registrarse. Se
+  // excluyen las cuentas admin/staff (su "plan" es un valor por defecto del
+  // registro, no un plan real que deba listarse).
   function allAgents() {
-    return window.App.data.getAllAgents().filter(function (a) { return a.role === 'asesor'; });
+    return window.App.data.getAllAgents().filter(function (a) { return a.plan === 'asesor' && a.role !== 'admin'; });
+  }
+  function allOwners() {
+    return window.App.data.getAllAgents().filter(function (a) { return a.plan === 'propietario' && a.role !== 'admin'; });
   }
 
   // --- Propiedades (tabla real "properties") ---
@@ -59,7 +67,7 @@
   // --- KPIs del dashboard (solo con datos reales) ---
   function computeKPIs() {
     var agents = allAgents();
-    var owners = window.App.data.getAllAgents().filter(function (a) { return a.role === 'propietario'; });
+    var owners = allOwners();
     var properties = allProperties();
 
     return {
@@ -76,6 +84,7 @@
   window.App.admin.state = {
     auth: { isAuthed: isAuthed, login: login, logout: logout },
     agents: { all: allAgents },
+    owners: { all: allOwners },
     properties: { all: allProperties },
     kpis: computeKPIs
   };
