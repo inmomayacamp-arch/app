@@ -200,8 +200,7 @@
     var payFeatureBtn = u.qs('[data-act="pay-feature"]', sheetRoot);
     if (payFeatureBtn) payFeatureBtn.addEventListener('click', function () {
       c.closeSheet();
-      u.toast('Aún estamos integrando el cobro en línea. Escríbenos a soporte para destacarla mientras tanto.');
-      window.location.hash = '#/soporte';
+      window.location.hash = '#/dashboard/destacar/' + p.id;
     });
 
     u.qsa('[data-act="status"]', sheetRoot).forEach(function (btn) {

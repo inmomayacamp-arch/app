@@ -22,30 +22,13 @@
       return;
     }
 
-    var photoUrl = '';
-    var uploadingPhoto = false;
-
-    function avatarHTML() {
-      return (
-        '<button type="button" class="profile-avatar-picker" data-avatar-picker aria-label="Agregar foto de perfil">' +
-        (uploadingPhoto
-          ? '<span class="spinner"></span>'
-          : (photoUrl ? '<img src="' + photoUrl + '" alt="" />' : u.icon('camera', { size: 22 }))) +
-        '<span class="profile-avatar-picker__badge">' + u.icon('camera', { size: 13 }) + '</span>' +
-        '</button>'
-      );
-    }
-
     root.innerHTML =
       '<div class="signup-checkout">' +
       '  <div class="signup-checkout__card">' +
       '    <a class="signup-checkout__back" href="#/planes-propietario">' + u.icon('chevronLeft', { size: 16 }) + ' Volver</a>' +
 
       '    <h1 class="signup-checkout__title">Crea tu cuenta</h1>' +
-      '    <p class="signup-checkout__subtitle">Solo lo esencial — con esto puedes publicar tu propiedad gratis y volver cuando quieras para editarla o destacarla.</p>' +
-
-      '    <div class="row" style="justify-content:center;margin-bottom:18px" data-avatar-wrap>' + avatarHTML() + '</div>' +
-      '    <input type="file" accept="image/*" data-avatar-input style="display:none" />' +
+      '    <p class="signup-checkout__subtitle">Solo lo esencial — con esto puedes publicar tu propiedad gratis y volver cuando quieras para editarla o destacarla. Tu foto de perfil la agregas después, desde tu panel.</p>' +
 
       '    <div class="form-field"><label>Nombre completo</label><input type="text" data-name placeholder="Tu nombre" /></div>' +
       '    <div class="form-row">' +
@@ -60,27 +43,6 @@
       '  </div>' +
       '</div>';
 
-    var fileInput = u.qs('[data-avatar-input]', root);
-    u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
-    fileInput.addEventListener('change', function () {
-      var file = fileInput.files && fileInput.files[0];
-      fileInput.value = '';
-      if (!file) return;
-      uploadingPhoto = true;
-      u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
-      window.App.photoUpload.uploadImage(file, 'avatars/propietarios').then(function (url) {
-        photoUrl = url;
-        uploadingPhoto = false;
-        u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
-        u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
-      }).catch(function (err) {
-        uploadingPhoto = false;
-        u.qs('[data-avatar-wrap]', root).innerHTML = avatarHTML();
-        u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
-        u.toast(err.message || 'No se pudo subir tu foto');
-      });
-    });
-
     var registerBtn = u.qs('[data-register]', root);
     registerBtn.addEventListener('click', async function () {
       var name = u.qs('[data-name]', root).value.trim();
@@ -92,7 +54,7 @@
 
       registerBtn.disabled = true;
       try {
-        await state.agents.register({ name: name, email: email, phone: phone, password: password, plan: 'propietario', photo: photoUrl || undefined });
+        await state.agents.register({ name: name, email: email, phone: phone, password: password, plan: 'propietario' });
         u.toast('¡Cuenta creada! Ahora publica tu propiedad', { tone: 'success' });
         window.location.hash = '#/dashboard/publicar';
       } catch (err) {

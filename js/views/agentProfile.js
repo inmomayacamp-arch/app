@@ -20,7 +20,7 @@
     var mapCtrl = null;
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
     var social = agent.social || {};
-    var subtitle = [agent.specialty, agent.company].filter(Boolean).join(' · ') || agent.title;
+    var subtitle = u.agentTitleLabel(agent);
     var metaLine = [
       agent.city ? { icon: 'pin', text: agent.city } : null,
       agent.schedule ? { icon: 'clock', text: agent.schedule } : null
@@ -71,7 +71,7 @@
       '</div>';
 
     c.mountChrome('explore');
-    document.title = agent.name + ' — Asesor inmobiliario en InmoMaps';
+    document.title = agent.name + ' — ' + subtitle + ' en InmoMaps';
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), { compactPins: false });
     window.App.router.onLeave(function () { mapCtrl.destroy(); });

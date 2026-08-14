@@ -22,6 +22,8 @@
       );
     }
 
+    var isOwner = agent.plan === 'propietario';
+
     var content =
       '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
       '  <a class="btn btn--outline btn--sm" href="#/' + agent.slug + '" target="_blank" rel="noopener">' + u.icon('home', { size: 14 }) + ' Ver mi perfil público</a>' +
@@ -34,17 +36,21 @@
       '  <div style="flex:1;min-width:220px">' +
       '    <p class="text-muted" style="font-size:0.78rem;margin-top:4px">Toca tu foto para cambiarla.</p>' +
       '  </div></div>' +
-      '  <div class="form-row">' +
-      '  <div class="form-field"><label>Nombre</label><input type="text" data-f="name" value="' + u.escapeHtml(agent.name) + '" /></div>' +
-      '  <div class="form-field"><label>Empresa (opcional)</label><input type="text" data-f="company" value="' + u.escapeHtml(agent.company || '') + '" /></div>' +
-      '  </div>' +
-      '  <div class="form-row">' +
-      '  <div class="form-field"><label>Especialidad</label><input type="text" data-f="specialty" placeholder="Ej. Residencial, terrenos..." value="' + u.escapeHtml(agent.specialty || '') + '" /></div>' +
-      '  <div class="form-field"><label>Ciudad</label><input type="text" data-f="city" value="' + u.escapeHtml(agent.city) + '" /></div>' +
-      '  </div>' +
-      '  <div class="form-field"><label>Biografía</label><textarea rows="4" data-f="bio">' + u.escapeHtml(agent.bio) + '</textarea></div>' +
+      (isOwner
+        ? '  <div class="form-field"><label>Nombre</label><input type="text" data-f="name" value="' + u.escapeHtml(agent.name) + '" /></div>' +
+          '  <div class="form-field"><label>WhatsApp / Teléfono</label><input type="text" data-f="whatsapp" value="' + u.escapeHtml(agent.whatsapp) + '" /></div>'
+        : '  <div class="form-row">' +
+          '  <div class="form-field"><label>Nombre</label><input type="text" data-f="name" value="' + u.escapeHtml(agent.name) + '" /></div>' +
+          '  <div class="form-field"><label>Empresa (opcional)</label><input type="text" data-f="company" value="' + u.escapeHtml(agent.company || '') + '" /></div>' +
+          '  </div>' +
+          '  <div class="form-row">' +
+          '  <div class="form-field"><label>Especialidad</label><input type="text" data-f="specialty" placeholder="Ej. Residencial, terrenos..." value="' + u.escapeHtml(agent.specialty || '') + '" /></div>' +
+          '  <div class="form-field"><label>Ciudad</label><input type="text" data-f="city" value="' + u.escapeHtml(agent.city) + '" /></div>' +
+          '  </div>' +
+          '  <div class="form-field"><label>Biografía</label><textarea rows="4" data-f="bio">' + u.escapeHtml(agent.bio) + '</textarea></div>') +
       '</div>' +
 
+      (isOwner ? '' :
       '<div class="admin-section">' +
       '  <div class="admin-section__head"><div class="admin-section__title">Contacto y horario</div></div>' +
       '  <div class="form-row">' +
@@ -59,7 +65,7 @@
       '  <div class="form-field"><label>TikTok</label><input type="text" data-f="tiktok" placeholder="https://tiktok.com/@tu-usuario" value="' + u.escapeHtml((agent.social && agent.social.tiktok) || '') + '" /></div>' +
       '  <div class="form-field"><label>Sitio web (opcional)</label><input type="text" data-f="website" placeholder="https://tu-sitio.com" value="' + u.escapeHtml((agent.social && agent.social.website) || '') + '" /></div>' +
       '  </div>' +
-      '</div>' +
+      '</div>') +
 
       '<button type="button" class="btn btn--primary" data-save>Guardar cambios</button>';
 
@@ -88,22 +94,27 @@
 
     u.qs('[data-save]', root).addEventListener('click', async function () {
       try {
-        await state.agents.updateProfile(agent.slug, {
+        var fields = {
           photo: photoUrl,
           name: u.qs('[data-f="name"]', root).value,
-          company: u.qs('[data-f="company"]', root).value,
-          specialty: u.qs('[data-f="specialty"]', root).value,
-          city: u.qs('[data-f="city"]', root).value,
-          bio: u.qs('[data-f="bio"]', root).value,
-          whatsapp: u.qs('[data-f="whatsapp"]', root).value,
-          schedule: u.qs('[data-f="schedule"]', root).value,
-          social: {
-            facebook: u.qs('[data-f="facebook"]', root).value,
-            instagram: u.qs('[data-f="instagram"]', root).value,
-            tiktok: u.qs('[data-f="tiktok"]', root).value,
-            website: u.qs('[data-f="website"]', root).value
-          }
-        });
+          whatsapp: u.qs('[data-f="whatsapp"]', root).value
+        };
+        if (!isOwner) {
+          Object.assign(fields, {
+            company: u.qs('[data-f="company"]', root).value,
+            specialty: u.qs('[data-f="specialty"]', root).value,
+            city: u.qs('[data-f="city"]', root).value,
+            bio: u.qs('[data-f="bio"]', root).value,
+            schedule: u.qs('[data-f="schedule"]', root).value,
+            social: {
+              facebook: u.qs('[data-f="facebook"]', root).value,
+              instagram: u.qs('[data-f="instagram"]', root).value,
+              tiktok: u.qs('[data-f="tiktok"]', root).value,
+              website: u.qs('[data-f="website"]', root).value
+            }
+          });
+        }
+        await state.agents.updateProfile(agent.slug, fields);
         u.toast('Perfil actualizado', { tone: 'success' });
       } catch (err) {
         u.toast(err.message || 'No se pudo guardar el perfil');

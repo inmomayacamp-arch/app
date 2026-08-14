@@ -270,6 +270,11 @@
     { value: "inversion", label: "📈 Ideal para inversión" }
   ];
 
+  function agentTitleLabel(agent) {
+    if (agent.plan === 'propietario') return 'Propietario';
+    return [agent.specialty, agent.company].filter(Boolean).join(' · ') || agent.title;
+  }
+
   function propertyTypeLabel(type) {
     var found = PROPERTY_TYPES.filter(function (t) { return t.value === type; })[0];
     return found ? found.label : type;
@@ -405,6 +410,7 @@
     brandMark: brandMark,
     logoHTML: logoHTML,
     formatPrice: formatPrice,
+    agentTitleLabel: agentTitleLabel,
     formatCompact: formatCompact,
     formatNumber: formatNumber,
     effectivePrice: effectivePrice,

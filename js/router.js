@@ -38,6 +38,7 @@
       { pattern: "/dashboard/publicar", view: v.publishWizard.render, key: "publish" },
       { pattern: "/dashboard/publicar/:id", view: v.publishWizard.render, key: "publish" },
       { pattern: "/dashboard/propiedades", view: window.App.agent.views.properties.render, key: "dashboard" },
+      { pattern: "/dashboard/destacar/:id", view: window.App.agent.views.featurePay.render, key: "dashboard" },
       { pattern: "/dashboard/clientes/:id", view: window.App.agent.views.clients.renderDetail, key: "dashboard" },
       { pattern: "/dashboard/clientes", view: window.App.agent.views.clients.renderList, key: "dashboard" },
       { pattern: "/dashboard/bolsa", view: window.App.agent.views.sharedPool.render, key: "dashboard" },
@@ -136,7 +137,7 @@
     // Las cuentas de propietario (publicación individual) solo ven su propio
     // panel reducido: propiedades, publicar y su perfil. Nada de clientes,
     // Bolsa Compartida, enlaces ni suscripción — eso es solo para asesores.
-    var OWNER_ALLOWED_DASHBOARD_PREFIXES = ["/dashboard/propiedades", "/dashboard/publicar", "/dashboard/perfil-profesional"];
+    var OWNER_ALLOWED_DASHBOARD_PREFIXES = ["/dashboard/propiedades", "/dashboard/publicar", "/dashboard/perfil-profesional", "/dashboard/destacar"];
     if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login") {
       var loggedAgent = window.App.state.agents.current();
       if (loggedAgent && loggedAgent.plan === "propietario") {
