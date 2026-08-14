@@ -34,6 +34,7 @@
     copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><rect x="3" y="3" width="13" height="13" rx="2" fill="none"/>',
     edit: '<line x1="3" y1="21" x2="9" y2="21"/><polyline points="4,20 4,17 16,5 19,8 7,20"/>',
     eye: '<ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/>',
+    eyeOff: '<ellipse cx="12" cy="12" rx="9" ry="6"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/><line x1="4" y1="4" x2="20" y2="20"/>',
     clock: '<circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="16" y2="14"/>',
     arrowUp: '<polyline points="6,14 12,7 18,14"/><line x1="12" y1="7" x2="12" y2="19"/>',
     arrowDown: '<polyline points="6,10 12,17 18,10"/><line x1="12" y1="5" x2="12" y2="17"/>',
@@ -170,6 +171,28 @@
 
   function qs(sel, root) { return (root || document).querySelector(sel); }
   function qsa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  // Campo de contraseña con botón de ojo para mostrar/ocultar el texto
+  // mientras se escribe. wirePasswordToggles(root) debe llamarse después de
+  // insertar el HTML en el DOM para que el botón funcione.
+  function passwordFieldHTML(dataAttr, placeholder, autocomplete) {
+    return '<div class="password-field">' +
+      '<input type="password" data-' + dataAttr + ' placeholder="' + (placeholder || '') + '"' + (autocomplete ? ' autocomplete="' + autocomplete + '"' : '') + ' />' +
+      '<button type="button" class="password-field__toggle" data-toggle-password aria-label="Mostrar contraseña" tabindex="-1">' + icon('eye', { size: 16 }) + '</button>' +
+      '</div>';
+  }
+  function wirePasswordToggles(root) {
+    qsa('[data-toggle-password]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var input = btn.previousElementSibling;
+        if (!input) return;
+        var showing = input.type === 'text';
+        input.type = showing ? 'password' : 'text';
+        btn.innerHTML = icon(showing ? 'eye' : 'eyeOff', { size: 16 });
+        btn.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+      });
+    });
+  }
 
   function debounce(fn, wait) {
     var t;
@@ -411,6 +434,8 @@
     logoHTML: logoHTML,
     formatPrice: formatPrice,
     agentTitleLabel: agentTitleLabel,
+    passwordFieldHTML: passwordFieldHTML,
+    wirePasswordToggles: wirePasswordToggles,
     formatCompact: formatCompact,
     formatNumber: formatNumber,
     effectivePrice: effectivePrice,

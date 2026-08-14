@@ -35,7 +35,7 @@
       '    <div class="form-field"><label>Correo</label><input type="email" data-email placeholder="tu@correo.com" /></div>' +
       '    <div class="form-field"><label>Teléfono / WhatsApp</label><input type="text" data-phone placeholder="9811234567" /></div>' +
       '    </div>' +
-      '    <div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Crea una contraseña" /></div>' +
+      '    <div class="form-field"><label>Contraseña</label>' + u.passwordFieldHTML('password', 'Crea una contraseña', 'new-password') + '</div>' +
 
       '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al crear tu cuenta aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
       '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta y publicar</button>' +
@@ -43,6 +43,7 @@
       '  </div>' +
       '</div>';
 
+    u.wirePasswordToggles(root);
     var registerBtn = u.qs('[data-register]', root);
     registerBtn.addEventListener('click', async function () {
       var name = u.qs('[data-name]', root).value.trim();

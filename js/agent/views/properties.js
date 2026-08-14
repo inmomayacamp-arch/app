@@ -96,8 +96,9 @@
     return '<span class="status-pill status-pill--' + tone + '">' + label + '</span>';
   }
 
-  function cardHTML(p) {
+  function cardHTML(p, isOwner) {
     var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
+    var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
     return (
       '<div class="property-card admin-property-card">' +
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
@@ -114,6 +115,12 @@
       '    <div class="property-card__title">' + u.escapeHtml(p.title) + '</div>' +
       '    <div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div>' +
       '    <div class="property-card__specs">' + c.specsRowHTML(p) + '</div>' +
+      (isOwner && !p.featured
+        ? '    <div class="card-destacar-hint">' +
+          '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + u.escapeHtml(addon.description) + '</p>' +
+          '      <a class="btn btn--primary btn--sm btn--block" href="#/dashboard/destacar/' + p.id + '">Destacar mi propiedad (+$' + addon.price + ')</a>' +
+          '    </div>'
+        : '') +
       '    <div class="admin-property-card__footer">' +
       '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) + '</span>' +
       '      <button type="button" class="btn btn--icon btn--icon-tinted" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
@@ -227,8 +234,9 @@
 
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);
-      var cards = properties.map(cardHTML).join('');
-      var ownerAtLimit = agent.plan === 'propietario' && properties.length >= 1;
+      var isOwner = agent.plan === 'propietario';
+      var cards = properties.map(function (p) { return cardHTML(p, isOwner); }).join('');
+      var ownerAtLimit = isOwner && properties.length >= 1;
 
       var content =
         (ownerAtLimit ? '' :

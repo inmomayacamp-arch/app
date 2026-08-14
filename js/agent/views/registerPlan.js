@@ -63,7 +63,7 @@
       '    <div class="form-field"><label>Teléfono</label><input type="text" data-phone placeholder="9811234567" /></div>' +
       '    </div>' +
       '    <div class="form-field"><label>Ciudad</label><input type="text" data-city placeholder="Campeche" /></div>' +
-      '    <div class="form-field"><label>Contraseña</label><input type="password" data-password placeholder="Crea una contraseña" /></div>' +
+      '    <div class="form-field"><label>Contraseña</label>' + u.passwordFieldHTML('password', 'Crea una contraseña', 'new-password') + '</div>' +
 
       '    <div class="payment-section">' +
       '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Método de pago</div>' +
@@ -77,6 +77,7 @@
       '  </div>' +
       '</div>';
 
+    u.wirePasswordToggles(root);
     var registerBtn = u.qs('[data-register]', root);
     registerBtn.addEventListener('click', async function () {
       var name = u.qs('[data-name]', root).value.trim();

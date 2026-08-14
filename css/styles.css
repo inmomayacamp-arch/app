@@ -1160,6 +1160,25 @@ body.is-admin .site-header { display: none; }
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+.password-field { position: relative; }
+.password-field input { padding-right: 42px !important; }
+.password-field__toggle {
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  background: none; border: none; color: var(--color-ink-muted); cursor: pointer; border-radius: var(--radius-sm);
+}
+.password-field__toggle:hover { color: var(--color-ink-secondary); background: var(--color-bg); }
+
+.card-destacar-hint {
+  background: var(--color-otro-bg); border: 1px solid var(--color-otro); border-radius: var(--radius-sm);
+  padding: 10px 12px; margin: 10px 0 4px;
+}
+.card-destacar-hint p {
+  display: flex; align-items: center; gap: 6px; margin: 0 0 8px;
+  font-size: 0.78rem; color: var(--color-ink-secondary); line-height: 1.4;
+}
+.card-destacar-hint p svg { color: var(--color-otro); flex-shrink: 0; }
+
 /* Sección plegable para campos secundarios/opcionales del formulario de
    publicar propiedad: mantiene el flujo corto por defecto, sin esconder la
    posibilidad de personalizar cada detalle. */
