@@ -29,7 +29,6 @@
       { pattern: "/soporte", view: v.support.render, key: "explore" },
       { pattern: "/terminos", view: v.terms.render, key: "explore" },
       { pattern: "/privacidad", view: v.privacy.render, key: "explore" },
-      { pattern: "/confirmar-publicacion", view: v.confirmOwnerListing.render, key: "explore" },
       { pattern: "/servicios/:category/:id", view: v.serviceProviderDetail.render, key: "explore" },
       { pattern: "/servicios/:category", view: v.serviceDirectory.render, key: "explore" },
       { pattern: "/anunciate", view: v.advertiseWithUs.render, key: "explore" },
@@ -134,13 +133,20 @@
       return;
     }
 
-    // Las cuentas de propietario (publicación individual) no tienen panel de trabajo.
+    // Las cuentas de propietario (publicación individual) solo ven su propio
+    // panel reducido: propiedades, publicar y su perfil. Nada de clientes,
+    // Bolsa Compartida, enlaces ni suscripción — eso es solo para asesores.
+    var OWNER_ALLOWED_DASHBOARD_PREFIXES = ["/dashboard/propiedades", "/dashboard/publicar", "/dashboard/perfil-profesional"];
     if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login") {
       var loggedAgent = window.App.state.agents.current();
       if (loggedAgent && loggedAgent.plan === "propietario") {
-        window.location.hash = "#/";
-        window.App.utils.toast("Tu publicación no incluye panel de trabajo");
-        return;
+        var allowed = path === "/dashboard" || OWNER_ALLOWED_DASHBOARD_PREFIXES.some(function (prefix) {
+          return path === prefix || path.indexOf(prefix + "/") === 0;
+        });
+        if (!allowed) {
+          window.location.hash = "#/dashboard";
+          return;
+        }
       }
     }
 

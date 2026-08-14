@@ -34,8 +34,56 @@
       '<strong>' + opts.title + '</strong><span>' + opts.desc + '</span></a>';
   }
 
+  // Panel reducido para cuentas de propietario (publicación individual):
+  // nada de CRM, Bolsa Compartida ni enlaces — solo su propiedad, su perfil
+  // y quién lo ha contactado.
+  function renderOwner(root, agent) {
+    var myProperty = state.properties.byAgent(agent.slug)[0] || null;
+    var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
+    var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+
+    var content =
+      '<div class="agent-greeting">' +
+      '  <div class="agent-greeting__text"><strong>' + greetingWord() + ', ' + u.escapeHtml(agent.name.split(' ')[0]) + '</strong><span>Así va tu propiedad en InmoMaps</span></div>' +
+      '</div>' +
+
+      '<div class="agent-cta-row">' +
+      (myProperty
+        ? '  <a class="agent-cta-btn" href="#/dashboard/propiedades">' + u.icon('home', { size: 16 }) + ' Ver mi propiedad</a>'
+        : '  <a class="agent-cta-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar mi propiedad</a>') +
+      '</div>' +
+
+      '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
+      tileHTML({ href: '#/dashboard/propiedades', icon: 'home', iconClass: 'dashboard-card__icon--otro', title: 'Mi propiedad', desc: myProperty ? 'Editar o destacar' : 'Aún no has publicado' }) +
+      tileHTML({ href: '#/dashboard/perfil-profesional', icon: 'user', title: 'Mi perfil', desc: 'Tu foto y datos de contacto' }) +
+      '</div></div>' +
+
+      '<div class="admin-section">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu perfil</div></div>' +
+      '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu perfil público de InmoMaps con quien pueda estar interesado.</p>' +
+      c.shareBarHTML(profileUrl) +
+      '</div>' +
+
+      '<div class="admin-section" style="margin-top:20px">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Contactos recientes</div></div>' +
+      (recentContacts.length
+        ? '<div class="stack gap-2">' + recentContacts.map(contactRowHTML).join('') + '</div>'
+        : '<p class="text-muted" style="font-size:0.85rem">Aún no has recibido contactos por WhatsApp o llamada.</p>') +
+      '</div>' +
+
+      '<div class="agent-footer-links">' +
+      '  <a href="#/' + agent.slug + '">' + u.icon('eye', { size: 16 }) + ' Ver mi perfil público</a>' +
+      '  <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
+      '  <a href="#/soporte">' + u.icon('flag', { size: 16 }) + ' Soporte</a>' +
+      '  <a href="#" data-agent-logout>' + u.icon('logout', { size: 16 }) + ' Cerrar sesión</a>' +
+      '</div>';
+
+    ac.mount('dashboard', 'Dashboard', content, root);
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
+    if (agent.plan === 'propietario') { renderOwner(root, agent); return; }
     var myClients = agentState.clients.all();
     var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
     var pendingPoolRequests = agentState.sharedPool.isPremium(agent.slug) ? agentState.sharedPool.pendingRequests().length : 0;

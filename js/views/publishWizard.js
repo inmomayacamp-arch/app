@@ -80,6 +80,14 @@
       ac.mount('propiedades', 'Propiedad no encontrada', '<div class="empty-state"><h3>Propiedad no encontrada</h3><a class="btn btn--primary" href="#/dashboard/propiedades">Volver</a></div>', root);
       return;
     }
+    // Una cuenta de propietario publica gratis 1 propiedad; para una segunda
+    // tendría que ser asesor. Solo bloquea al crear una nueva, no al editar
+    // la que ya tiene.
+    if (!editingId && agent.plan === "propietario" && state.properties.byAgent(agent.slug).length >= 1) {
+      window.location.hash = "#/dashboard/propiedades";
+      u.toast("Ya tienes una propiedad publicada. Escríbenos a soporte si necesitas publicar otra.");
+      return;
+    }
 
     var stepIndex = 0;
     var published = null;

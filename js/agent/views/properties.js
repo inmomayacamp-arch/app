@@ -127,6 +127,8 @@
     var isHidden = (p.publishStatus || 'publicada') === 'oculta';
     var canPublishNow = p.publishStatus && p.publishStatus !== 'publicada' && p.publishStatus !== 'oculta';
     var otherStatuses = STATUS_OPTIONS.filter(function (s) { return s.value !== (p.status || 'disponible'); });
+    var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
+    var canPayFeature = agent.plan === 'propietario' && !p.featured;
 
     c.openSheet({
       title: p.title,
@@ -140,6 +142,7 @@
         (canPublishNow ? '<button type="button" class="btn btn--outline btn--block" data-act="publish-now">' + u.icon('check', { size: 15 }) + ' Publicar ahora</button>' : '') +
         '<button type="button" class="btn btn--outline btn--block" data-act="duplicate">' + u.icon('copy', { size: 15 }) + ' Duplicar</button>' +
         (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="feature">' + u.icon('starFilled', { size: 15 }) + (p.featured ? ' Quitar destacado' : ' Destacar') + '</button>' : '') +
+        (canPayFeature ? '<button type="button" class="btn btn--outline btn--block" data-act="pay-feature">' + u.icon('starFilled', { size: 15 }) + ' Destacar mi propiedad (+$' + addon.price + ' MXN)</button>' : '') +
         (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="share">' + u.icon('exchange', { size: 15 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida con asesores' : 'Compartir con asesores') + '</button>' : '') +
         (otherStatuses.length ? '<div class="text-muted" style="font-size:0.76rem;font-weight:700;margin:6px 0 -2px">Otro estado</div><div class="row gap-2" style="flex-wrap:wrap">' +
           otherStatuses.map(function (s) { return '<button type="button" class="btn btn--sm btn--outline" data-act="status" data-status="' + s.value + '">' + s.label + '</button>'; }).join('') + '</div>' : '') +
@@ -194,6 +197,13 @@
       catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
     });
 
+    var payFeatureBtn = u.qs('[data-act="pay-feature"]', sheetRoot);
+    if (payFeatureBtn) payFeatureBtn.addEventListener('click', function () {
+      c.closeSheet();
+      u.toast('Aún estamos integrando el cobro en línea. Escríbenos a soporte para destacarla mientras tanto.');
+      window.location.hash = '#/soporte';
+    });
+
     u.qsa('[data-act="status"]', sheetRoot).forEach(function (btn) {
       btn.addEventListener('click', async function () {
         try {
@@ -219,11 +229,13 @@
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);
       var cards = properties.map(cardHTML).join('');
+      var ownerAtLimit = agent.plan === 'propietario' && properties.length >= 1;
 
       var content =
+        (ownerAtLimit ? '' :
         '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
         '  <a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
-        '</div>' +
+        '</div>') +
         (properties.length
           ? '<div class="stack gap-3">' + cards + '</div>'
           : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('home', { size: 30 }) + '</span><h3>Aún no tienes propiedades publicadas</h3><a class="btn btn--primary" href="#/dashboard/publicar">Publicar tu primera propiedad</a></div>');
