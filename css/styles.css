@@ -1377,7 +1377,7 @@ body.is-admin .site-header { display: none; }
 .plans-trust__item .icon { flex-shrink: 0; color: var(--color-primary); }
 
 /* Selector mensual/anual + bloque de precio único (un solo plan) */
-.billing-toggle { display: flex; background: var(--color-bg); border-radius: var(--radius-full); padding: 4px; margin: 28px 0 16px; }
+.billing-toggle { display: flex; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-full); padding: 4px; margin: 28px 0 16px; }
 .billing-toggle__opt {
   flex: 1; text-align: center; padding: 9px; border-radius: var(--radius-full); font-size: 0.84rem; font-weight: 700;
   color: var(--color-ink-muted); background: none; border: none; cursor: pointer; font-family: inherit;
