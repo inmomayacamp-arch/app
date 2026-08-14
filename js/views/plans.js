@@ -8,17 +8,6 @@
   var u = window.App.utils;
   var c = window.App.components;
 
-  function trustBarHTML() {
-    var items = [
-      { icon: "shield", text: "Soporte y actualizaciones constantes" },
-      { icon: "check", text: "Sin permanencia forzosa: cancela cuando quieras" },
-      { icon: "sparkles", text: "Activación inmediata al crear tu cuenta" }
-    ];
-    return items.map(function (it) {
-      return '<div class="plans-trust__item">' + u.icon(it.icon, { size: 16 }) + '<span>' + it.text + '</span></div>';
-    }).join('');
-  }
-
   var TOOLS = [
     { icon: "user", tone: "", title: "Perfil profesional", text: "Tu página pública con tu experiencia y contacto." },
     { icon: "home", tone: "otro", title: "Hasta 15 propiedades", text: "Publica y administra tu inventario activo." },
@@ -50,14 +39,13 @@
       '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon("chevronLeft", { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon("briefcase", { size: 14 }) + ' Para agentes inmobiliarios</span>' +
       '    <h2 class="plans-hero__title">Un solo plan.<br /><span>Todo incluido.</span></h2>' +
-      '    <p class="plans-hero__subtitle">Sin niveles que confundan: paga una vez y usa todas las herramientas de InmoMaps para vender más.</p>' +
-      '    <div class="plans-trust">' + trustBarHTML() + '</div>' +
+      '    <p class="plans-hero__subtitle">Sin niveles que confundan: paga una vez y usa todas las herramientas de InmoMaps.</p>' +
       '  </div>' +
 
       '  <div class="container" style="max-width:420px">' +
       '    <div class="billing-toggle" data-billing-toggle>' +
       '      <button type="button" class="billing-toggle__opt is-active" data-billing="mensual">Mensual</button>' +
-      '      <button type="button" class="billing-toggle__opt" data-billing="anual">Anual <span class="billing-toggle__save">ahorras 2 meses</span></button>' +
+      '      <button type="button" class="billing-toggle__opt" data-billing="anual">Anual <span class="billing-toggle__save">-16%</span></button>' +
       '    </div>' +
 
       '    <div class="price-block">' +
