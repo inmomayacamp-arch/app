@@ -42,6 +42,11 @@
       '    <p class="plans-hero__subtitle">Sin niveles que confundan: paga una vez y usa todas las herramientas de InmoMaps.</p>' +
       '  </div>' +
 
+      '  <div class="container" style="max-width:640px">' +
+      '    <div class="plans-section-label">Todo lo que incluye</div>' +
+      '    <div class="tool-grid">' + toolsGridHTML() + '</div>' +
+      '  </div>' +
+
       '  <div class="container" style="max-width:420px">' +
       '    <div class="billing-toggle" data-billing-toggle>' +
       '      <button type="button" class="billing-toggle__opt is-active" data-billing="mensual">Mensual</button>' +
@@ -57,11 +62,6 @@
       '      <a class="btn btn--primary btn--block" href="#/registro-agente/mensual" data-price-cta>Crear mi cuenta</a>' +
       '      <div class="price-block__note">Sin permanencia forzosa · cancela cuando quieras</div>' +
       '    </div>' +
-      '  </div>' +
-
-      '  <div class="container" style="max-width:640px">' +
-      '    <div class="plans-section-label">Todo lo que incluye</div>' +
-      '    <div class="tool-grid">' + toolsGridHTML() + '</div>' +
       '  </div>' +
 
       '  <div class="container">' +

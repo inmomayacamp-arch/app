@@ -1393,7 +1393,7 @@ body.is-admin .site-header { display: none; }
 .price-block__alt { font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px; }
 .price-block__note { font-size: 0.74rem; opacity: 0.6; margin-top: 12px; }
 
-.plans-section-label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink-muted); margin: 40px 0 14px; text-align: center; }
+.plans-section-label { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink-muted); margin: 20px 0 14px; text-align: center; }
 
 .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (min-width: 640px) { .tool-grid { grid-template-columns: repeat(4, 1fr); } }
