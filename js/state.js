@@ -166,7 +166,12 @@
       plan: (fields.plan === "profesional" || fields.plan === "propietario") ? fields.plan : "basico"
     };
     var insertResult = await supabaseClient.from("profiles").insert(row).select().single();
-    if (insertResult.error) throw insertResult.error;
+    if (insertResult.error) {
+      if (insertResult.error.code === "23505" && /phone/i.test(insertResult.error.message || "")) {
+        throw new Error("Ya existe una cuenta registrada con ese número de teléfono.");
+      }
+      throw insertResult.error;
+    }
 
     var agent = mapProfileRow(insertResult.data);
     cachedCurrentProfile = agent;
