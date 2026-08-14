@@ -11,32 +11,26 @@
       '<div class="page-header"><h1 class="page-header__title">Mi cuenta</h1></div>' +
       '<div class="page-wrap">' +
 
-      '  <div class="promo-card promo-card--agent">' +
-      '    <span class="promo-card__icon">' + u.icon('briefcase', { size: 28 }) + '</span>' +
-      '    <div class="promo-card__body">' +
-      '      <strong>¿Eres asesor inmobiliario?</strong>' +
-      '      <p>¿Quieres que tus propiedades aparezcan aquí? Publícalas, comparte enlaces personalizados con tus clientes y revisa tus estadísticas desde tu propio panel.</p>' +
-      '      <a class="btn btn--primary btn--sm" href="#/planes">' + u.icon('crown', { size: 14 }) + ' Ver planes para agentes</a>' +
-      '    </div>' +
+      '  <div class="account-welcome">' +
+      '    <span class="account-welcome__icon">' + u.icon('pin', { size: 24 }) + '</span>' +
+      '    <h2>Bienvenido a InmoMaps</h2>' +
+      '    <p>¿Cómo quieres usar la plataforma?</p>' +
       '  </div>' +
 
-      '  <div class="promo-card promo-card--agent" style="margin-top:16px">' +
-      '    <span class="promo-card__icon">' + u.icon('home', { size: 28 }) + '</span>' +
-      '    <div class="promo-card__body">' +
-      '      <strong>¿Eres propietario y quieres publicar tu propiedad?</strong>' +
-      '      <p>Publica tu propiedad en venta o renta sin necesidad de una cuenta de asesor. Recibe contactos directo a tu WhatsApp y teléfono.</p>' +
-      '      <a class="btn btn--primary btn--sm" href="#/planes-propietario">' + u.icon('home', { size: 14 }) + ' Publicar mi propiedad</a>' +
-      '    </div>' +
-      '  </div>' +
+      '  <a class="account-row account-row--agent" href="#/planes">' +
+      '    <span class="account-row__icon">' + u.icon('briefcase', { size: 20 }) + '</span>' +
+      '    <div class="account-row__body"><h4>Soy asesor inmobiliario</h4><p>Publica, comparte enlaces y da seguimiento a tus clientes</p></div>' +
+      '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '  </a>' +
 
-      '  <div class="promo-card promo-card--agent" style="margin-top:16px">' +
-      '    <span class="promo-card__icon">' + u.icon('user', { size: 28 }) + '</span>' +
-      '    <div class="promo-card__body">' +
-      '      <strong>¿Ya tienes una cuenta?</strong>' +
-      '      <p>Inicia sesión para acceder a tu panel de asesor o administrar tu propiedad publicada.</p>' +
-      '      <a class="btn btn--primary btn--sm" href="#/dashboard/login">' + u.icon('user', { size: 14 }) + ' Iniciar sesión</a>' +
-      '    </div>' +
-      '  </div>' +
+      '  <a class="account-row account-row--owner" href="#/planes-propietario">' +
+      '    <span class="account-row__icon">' + u.icon('home', { size: 20 }) + '</span>' +
+      '    <div class="account-row__body"><h4>Quiero publicar mi propiedad</h4><p>Sin cuenta de asesor, contacto directo por WhatsApp</p></div>' +
+      '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '  </a>' +
+
+      '  <div class="account-sep">O si ya tienes cuenta</div>' +
+      '  <a class="btn btn--outline btn--block" href="#/dashboard/login">Iniciar sesión</a>' +
 
       '  <div class="account-brand">' +
       '    <span class="account-brand__logo">' + u.logoHTML() + '</span>' +
