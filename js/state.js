@@ -84,14 +84,6 @@
   var cachedProfiles = [];
   var cachedCurrentProfile = null;
 
-  function uniqueSlug(base) {
-    var slug = base || utils.uid("asesor");
-    var all = cachedProfiles.map(function (a) { return a.slug; });
-    var candidate = slug, i = 2;
-    while (all.indexOf(candidate) !== -1) { candidate = slug + "-" + i; i++; }
-    return candidate;
-  }
-
   function mapProfileRow(row) {
     return {
       id: row.id,
@@ -152,28 +144,34 @@
     }
   }
 
+  // El perfil ya NO se inserta desde aquí: lo crea un trigger en Supabase
+  // (handle_new_user, sobre auth.users) en cuanto se registra la cuenta,
+  // usando los datos que mandamos como metadata en options.data. Esto
+  // importa porque con "Confirm email" activo, signUp() no da una sesión
+  // hasta que confirman su correo — si el perfil dependiera de un insert
+  // hecho por este cliente después de signUp(), nunca se llegaría a crear
+  // para nadie que aún no confirma.
   async function registerAgent(fields) {
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     var email = fields.email.trim().toLowerCase();
-    var slug = uniqueSlug(utils.slugify(fields.name));
-    var signUpResult = await supabaseClient.auth.signUp({ email: email, password: fields.password });
-    if (signUpResult.error) throw signUpResult.error;
-    if (!signUpResult.data.session) throw new Error("Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.");
-
-    var row = {
-      id: signUpResult.data.user.id, role: "agent", slug: slug, name: fields.name, email: email,
-      photo: fields.photo || "icons/icon-512.png", whatsapp: fields.phone || "", phone: fields.phone || "", city: fields.city || "",
-      plan: (fields.plan === "profesional" || fields.plan === "propietario") ? fields.plan : "basico"
-    };
-    var insertResult = await supabaseClient.from("profiles").insert(row).select().single();
-    if (insertResult.error) {
-      if (insertResult.error.code === "23505" && /phone/i.test(insertResult.error.message || "")) {
+    var plan = (fields.plan === "profesional" || fields.plan === "propietario") ? fields.plan : "basico";
+    var signUpResult = await supabaseClient.auth.signUp({
+      email: email,
+      password: fields.password,
+      options: { data: { name: fields.name, phone: fields.phone || "", city: fields.city || "", plan: plan, photo: fields.photo || "" } }
+    });
+    if (signUpResult.error) {
+      if (/profiles_phone_unique|duplicate key.*phone/i.test(signUpResult.error.message || "")) {
         throw new Error("Ya existe una cuenta registrada con ese número de teléfono.");
       }
-      throw insertResult.error;
+      throw signUpResult.error;
     }
+    if (!signUpResult.data.session) throw new Error("Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.");
 
-    var agent = mapProfileRow(insertResult.data);
+    var profileResult = await supabaseClient.from("profiles").select("*").eq("id", signUpResult.data.user.id).single();
+    if (profileResult.error || !profileResult.data) throw new Error("Tu cuenta se creó pero no se pudo cargar tu perfil. Intenta iniciar sesión de nuevo en unos segundos.");
+
+    var agent = mapProfileRow(profileResult.data);
     cachedCurrentProfile = agent;
     cachedProfiles = cachedProfiles.concat([agent]);
     emit("agents:change", cachedProfiles);
