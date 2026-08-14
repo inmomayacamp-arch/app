@@ -72,7 +72,7 @@
 
   function render(params, root) {
     var agent = state.agents.current();
-    var isPremium = agent.plan === "profesional";
+    var isAgent = agent.plan === "asesor";
     var wantsFeaturedAfter = !params.id && (params.query || {}).intent === "featured";
 
     var editingId = params.id || null;
@@ -89,6 +89,16 @@
       u.toast("Ya tienes una propiedad publicada. Escríbenos a soporte si necesitas publicar otra.");
       return;
     }
+    // El plan de asesor incluye hasta 15 propiedades activas.
+    if (!editingId && isAgent && state.properties.byAgent(agent.slug).length >= 15) {
+      window.location.hash = "#/dashboard/propiedades";
+      u.toast("Llegaste al límite de 15 propiedades activas de tu plan.");
+      return;
+    }
+    // Solo 1 propiedad puede estar destacada gratis a la vez (la que ya
+    // incluye el plan); no cuenta la que se está editando.
+    var featuredCount = isAgent ? state.properties.byAgent(agent.slug).filter(function (p) { return p.featured && p.id !== editingId; }).length : 0;
+    var canMarkFeatured = isAgent && featuredCount < 1;
 
     var stepIndex = 0;
     var published = null;
@@ -438,17 +448,17 @@
           return '<label class="checkbox-list__item"><input type="radio" name="publishStatus" data-publish-status="' + o.value + '"' + (payload.publishStatus === o.value ? ' checked' : '') + ' /> ' + o.label + '</label>';
         }).join('') + '</div></div>' +
         (payload.publishStatus === 'programada' ? '<div class="form-field"><label>Fecha y hora de publicación</label><input type="datetime-local" data-field="scheduledAt" value="' + u.escapeHtml(payload.scheduledAt) + '" /></div>' : '') +
-        '<div class="form-field">' +
-        (isPremium
+        (isAgent ? '<div class="form-field">' +
+        (canMarkFeatured
           ? '<label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-check="featured"' + (payload.featured ? ' checked' : '') + ' style="width:18px;height:18px" /> Publicación destacada (aparece primero en resultados)</label>'
-          : '<div class="text-muted" style="font-size:0.82rem"><strong>Publicación destacada:</strong> disponible únicamente para el Plan Profesional. <a href="#/dashboard/suscripcion" style="color:var(--color-primary);font-weight:700">Mejorar mi plan</a></div>') +
-        '</div>' +
+          : '<div class="text-muted" style="font-size:0.82rem"><strong>Publicación destacada:</strong> ya usaste tu destacada incluida en otra propiedad. Quítasela desde <a href="#/dashboard/propiedades" style="color:var(--color-primary);font-weight:700">Mis propiedades</a> si quieres destacar esta en su lugar.</div>') +
+        '</div>' : '') +
         '<div class="form-field"><label>Etiquetas especiales (opcional)</label>' +
         '<div class="checkbox-list">' + u.SPECIAL_TAGS.map(function (t) {
           var checked = payload.tags.indexOf(t.value) !== -1;
           return '<label class="checkbox-list__item"><input type="checkbox" data-tag="' + t.value + '"' + (checked ? ' checked' : '') + ' /> ' + t.label + '</label>';
         }).join('') + '</div></div>' +
-        (isPremium ? (
+        (isAgent ? (
           '<details class="form-disclosure"><summary>Compartir con otros asesores (opcional)</summary><div class="form-disclosure__body">' +
           '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-sharing-toggle' + (s.enabled ? ' checked' : '') + ' style="width:18px;height:18px" /> Compartir esta propiedad con otros asesores</label>' +
           '<p class="text-muted" style="font-size:0.78rem;margin-top:4px">Solo la verán otros asesores con sesión iniciada.</p></div>' +
@@ -461,10 +471,7 @@
           '<div class="form-field" style="margin-bottom:0"><label>Condiciones de colaboración</label><textarea rows="2" placeholder="Ej. Solo clientes nuevos." data-field="conditions">' + u.escapeHtml(s.conditions) + '</textarea></div>' +
           '</div>' +
           '</div></details>'
-        ) : (
-          '<div class="promo-card"><span class="promo-card__icon">' + u.icon('exchange', { size: 24 }) + '</span>' +
-          '<div class="promo-card__body"><strong>Comparte con otros asesores</strong><p style="margin-bottom:0">Disponible en el Plan Profesional. <a href="#/dashboard/suscripcion">Mejorar mi plan</a></p></div></div>'
-        )) +
+        ) : '') +
         '</div>'
       );
     }
@@ -555,7 +562,7 @@
       if (key === 'fotos') { payload.videoUrl = readField('videoUrl'); payload.virtualTourUrl = readField('virtualTourUrl'); }
       if (key === 'publicacion') {
         if (payload.publishStatus === 'programada') payload.scheduledAt = readField('scheduledAt');
-        if (isPremium && payload.sharing.enabled) {
+        if (isAgent && payload.sharing.enabled) {
           payload.sharing.totalCommission = Number(readField('totalCommission')) || 0;
           payload.sharing.collaboratorCommission = Number(readField('collaboratorCommission')) || 0;
           payload.sharing.fixedAmount = readField('fixedAmount') ? Number(readField('fixedAmount')) : null;
@@ -836,7 +843,7 @@
           sharing: payload.sharing.enabled ? payload.sharing : null,
           publishStatus: payload.publishStatus,
           scheduledAt: scheduledIso,
-          featured: isPremium && payload.featured,
+          featured: isAgent && payload.featured,
           tags: payload.tags
         };
         // La publicación gratuita de un propietario dura 30 días; se renueva

@@ -12,8 +12,8 @@
   ];
 
   var AGENT_ADMIN_INFO = {
-    oswaldochable: { status: "activo", plan: "profesional", planExpiresAt: "2026-09-04T00:00:00Z", documentsSubmitted: true, joinedAt: "2025-08-01T00:00:00Z" },
-    danielacanul: { status: "activo", plan: "basico", planExpiresAt: "2026-08-20T00:00:00Z", documentsSubmitted: true, joinedAt: "2025-11-15T00:00:00Z" }
+    oswaldochable: { status: "activo", plan: "asesor", planExpiresAt: "2026-09-04T00:00:00Z", documentsSubmitted: true, joinedAt: "2025-08-01T00:00:00Z" },
+    danielacanul: { status: "activo", plan: "asesor", planExpiresAt: "2026-08-20T00:00:00Z", documentsSubmitted: true, joinedAt: "2025-11-15T00:00:00Z" }
   };
 
   var PENDING_AGENTS = [
@@ -35,23 +35,20 @@
     }
   ];
 
+  // Un solo plan de agente (antes había Básico/Profesional separados): todo
+  // asesor paga lo mismo y tiene acceso a todas las herramientas, incluida
+  // la Bolsa Compartida. priceAnnual es el precio de lista al año (se
+  // muestra en la landing con el selector mensual/anual); featuredIncluded
+  // es cuántas propiedades puede tener destacadas gratis al mismo tiempo.
   var PLANS = [
     {
-      id: "basico", name: "Plan Básico", price: 299, period: "mensual", limit: 10,
-      tagline: "Todo lo que necesitas para comenzar y profesionalizar tu negocio.",
+      id: "asesor", name: "Plan Asesor", price: 299, priceAnnual: 2999, period: "mensual", limit: 15, featuredIncluded: 1,
+      tagline: "Un solo plan, todo incluido — sin niveles que confundan.",
       features: [
-        "Hasta 10 propiedades activas", "Perfil profesional del agente", "Enlaces personalizados ilimitados",
-        "Estadísticas de tus enlaces", "Clientes y seguimiento (CRM básico)", "Calendario de visitas y recordatorios",
-        "Notificaciones en tiempo real", "Contacto directo por WhatsApp"
-      ]
-    },
-    {
-      id: "profesional", name: "Plan Profesional", price: 499, period: "mensual", limit: null,
-      tagline: "Potencia total para llevar tu negocio al siguiente nivel.",
-      features: [
-        "Propiedades ilimitadas", "Bolsa Compartida entre agentes", "Compartir comisión con otros agentes",
-        "Publicaciones destacadas", "Aparecer primero en búsquedas", "Estadísticas completas y detalladas",
-        "Publicidad y promociones de propiedades", "Soporte prioritario"
+        "Hasta 15 propiedades activas", "1 publicación destacada incluida", "Perfil profesional del agente",
+        "Enlaces personalizados ilimitados", "Estadísticas completas de tus enlaces", "Clientes y seguimiento (CRM)",
+        "Calendario de visitas y recordatorios", "Bolsa Compartida entre agentes", "Notificaciones en tiempo real",
+        "Soporte"
       ]
     }
   ];
@@ -74,12 +71,12 @@
   ];
 
   var PAYMENTS = [
-    { id: "pay1", agentSlug: "oswaldochable", plan: "profesional", amount: 499, status: "pagado", method: "Tarjeta ****4242", date: "2026-08-01T09:00:00Z" },
-    { id: "pay2", agentSlug: "danielacanul", plan: "basico", amount: 299, status: "pagado", method: "Tarjeta ****1187", date: "2026-08-01T09:00:00Z" },
-    { id: "pay3", agentSlug: "danielacanul", plan: "basico", amount: 299, status: "pendiente", method: "Transferencia", date: "2026-08-04T09:00:00Z" },
-    { id: "pay4", agentSlug: "oswaldochable", plan: "profesional", amount: 499, status: "pagado", method: "Tarjeta ****4242", date: "2026-07-01T09:00:00Z" },
-    { id: "pay5", agentSlug: "carlosmendez", plan: "basico", amount: 299, status: "rechazado", method: "Tarjeta ****9021", date: "2026-08-02T09:00:00Z" },
-    { id: "pay6", agentSlug: "oswaldochable", plan: "profesional", amount: 499, status: "reembolsado", method: "Tarjeta ****4242", date: "2026-06-01T09:00:00Z" }
+    { id: "pay1", agentSlug: "oswaldochable", plan: "asesor", amount: 299, status: "pagado", method: "Tarjeta ****4242", date: "2026-08-01T09:00:00Z" },
+    { id: "pay2", agentSlug: "danielacanul", plan: "asesor", amount: 299, status: "pagado", method: "Tarjeta ****1187", date: "2026-08-01T09:00:00Z" },
+    { id: "pay3", agentSlug: "danielacanul", plan: "asesor", amount: 299, status: "pendiente", method: "Transferencia", date: "2026-08-04T09:00:00Z" },
+    { id: "pay4", agentSlug: "oswaldochable", plan: "asesor", amount: 299, status: "pagado", method: "Tarjeta ****4242", date: "2026-07-01T09:00:00Z" },
+    { id: "pay5", agentSlug: "carlosmendez", plan: "asesor", amount: 299, status: "rechazado", method: "Tarjeta ****9021", date: "2026-08-02T09:00:00Z" },
+    { id: "pay6", agentSlug: "oswaldochable", plan: "asesor", amount: 2999, status: "reembolsado", method: "Tarjeta ****4242", date: "2026-06-01T09:00:00Z" }
   ];
 
   var CITIES = [

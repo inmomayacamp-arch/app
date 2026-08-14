@@ -134,7 +134,7 @@
 
       '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
       tileHTML({ href: '#/dashboard/perfil-profesional', icon: 'user', title: 'Perfil profesional', desc: 'Tu información pública' }) +
-      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: agent.plan === 'profesional' ? 'Plan Profesional' : 'Plan Básico' }) +
+      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: 'Plan Asesor' }) +
       '</div></div>' +
 
       '<div class="admin-section">' +

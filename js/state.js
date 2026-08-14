@@ -154,7 +154,7 @@
   async function registerAgent(fields) {
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     var email = fields.email.trim().toLowerCase();
-    var plan = (fields.plan === "profesional" || fields.plan === "propietario") ? fields.plan : "basico";
+    var plan = fields.plan === "propietario" ? "propietario" : "asesor";
     var signUpResult = await supabaseClient.auth.signUp({
       email: email,
       password: fields.password,

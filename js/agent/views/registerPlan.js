@@ -1,6 +1,7 @@
-// Vista "Registro con plan": paso de checkout tras elegir un plan en /planes.
-// Muestra el resumen del plan elegido, el formulario de alta y deja el espacio
-// listo para conectar una pasarela de pagos real más adelante.
+// Vista "Registro de asesor": paso de checkout tras elegir mensual/anual en
+// /planes. Muestra el resumen del plan (único, todo incluido), el
+// formulario de alta y deja el espacio listo para conectar una pasarela de
+// pagos real más adelante.
 (function () {
   "use strict";
 
@@ -23,9 +24,11 @@
       return;
     }
 
-    var plans = window.App.admin.data.PLANS;
-    var plan = plans.filter(function (p) { return p.id === params.plan; })[0] || plans[0];
-    document.title = 'Activar plan ' + plan.name.replace('Plan ', '') + ' — InmoMaps';
+    var plan = window.App.admin.data.PLANS[0];
+    var billing = params.billing === 'anual' ? 'anual' : 'mensual';
+    var price = billing === 'anual' ? plan.priceAnnual : plan.price;
+    var priceLabel = billing === 'anual' ? '/año' : '/mes';
+    document.title = 'Crear cuenta de asesor — InmoMaps';
 
     function paymentMethodsHTML() {
       return PAYMENT_METHODS.map(function (m) {
@@ -40,18 +43,18 @@
     root.innerHTML =
       '<div class="signup-checkout">' +
       '  <div class="signup-checkout__card">' +
-      '    <a class="signup-checkout__back" href="#/planes">' + u.icon('chevronLeft', { size: 16 }) + ' Volver a planes</a>' +
+      '    <a class="signup-checkout__back" href="#/planes">' + u.icon('chevronLeft', { size: 16 }) + ' Volver</a>' +
 
-      '    <div class="plan-summary' + (plan.id === 'profesional' ? ' plan-summary--pro' : '') + '">' +
+      '    <div class="plan-summary">' +
       '      <div class="plan-summary__head">' +
-      '        <div><span class="plan-summary__label">Plan seleccionado</span>' +
-      '        <strong class="plan-summary__name">' + u.escapeHtml(plan.name) + '</strong></div>' +
-      '        <div class="plan-summary__price">$' + plan.price + '<span>/mes</span></div>' +
+      '        <div><span class="plan-summary__label">' + u.escapeHtml(plan.name) + ' · ' + (billing === 'anual' ? 'Anual' : 'Mensual') + '</span>' +
+      '        <strong class="plan-summary__name">Todo incluido</strong></div>' +
+      '        <div class="plan-summary__price">$' + price + '<span>' + priceLabel + '</span></div>' +
       '      </div>' +
       '      <ul class="plan-summary__features">' +
       plan.features.slice(0, 4).map(function (f) { return '<li>' + u.icon('check', { size: 12 }) + u.escapeHtml(f) + '</li>'; }).join('') +
       '      </ul>' +
-      '      <a class="plan-summary__change" href="#/planes">Cambiar de plan</a>' +
+      '      <a class="plan-summary__change" href="#/planes">Cambiar forma de pago</a>' +
       '    </div>' +
 
       '    <h1 class="signup-checkout__title">Crea tu cuenta de asesor</h1>' +
@@ -68,11 +71,11 @@
       '    <div class="payment-section">' +
       '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Método de pago</div>' +
       '      <div class="payment-options">' + paymentMethodsHTML() + '</div>' +
-      '      <p class="payment-section__note">Estamos integrando el cobro en línea. Por ahora tu cuenta se activa sin costo con el Plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '; podrás agregar tu método de pago desde tu panel en cuanto esté disponible.</p>' +
+      '      <p class="payment-section__note">Estamos integrando el cobro en línea. Por ahora tu cuenta se activa sin costo; podrás agregar tu método de pago desde tu panel en cuanto esté disponible.</p>' +
       '    </div>' +
 
       '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al crear tu cuenta aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
-      '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta y activar Plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '</button>' +
+      '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta</button>' +
       '    <p class="signup-checkout__footer">¿Ya tienes cuenta? <a href="#/dashboard/login">Inicia sesión</a></p>' +
       '  </div>' +
       '</div>';
@@ -89,7 +92,7 @@
       if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
       registerBtn.disabled = true;
       try {
-        await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: plan.id });
+        await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: 'asesor' });
         u.toast('Cuenta creada, ¡bienvenido a InmoMaps!', { tone: 'success' });
         window.location.hash = '#/dashboard';
       } catch (err) {

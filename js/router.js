@@ -34,7 +34,7 @@
       { pattern: "/servicios/:category/:id", view: v.serviceProviderDetail.render, key: "explore" },
       { pattern: "/servicios/:category", view: v.serviceDirectory.render, key: "explore" },
       { pattern: "/anunciate", view: v.advertiseWithUs.render, key: "explore" },
-      { pattern: "/registro-agente/:plan", view: window.App.agent.views.registerPlan.render, key: "dashboard" },
+      { pattern: "/registro-agente/:billing", view: window.App.agent.views.registerPlan.render, key: "dashboard" },
       { pattern: "/dashboard/login", view: window.App.agent.views.login.render, key: "dashboard" },
       { pattern: "/dashboard", view: window.App.agent.views.dashboardHome.render, key: "dashboard" },
       { pattern: "/dashboard/publicar-elegir", view: window.App.agent.views.publishChoice.render, key: "dashboard" },

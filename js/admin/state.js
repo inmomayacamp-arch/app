@@ -95,7 +95,7 @@
   function defaultAgentInfo() {
     var expires = new Date();
     expires.setDate(expires.getDate() + 30);
-    return { status: "activo", plan: "basico", planExpiresAt: expires.toISOString(), documentsSubmitted: true, joinedAt: new Date().toISOString() };
+    return { status: "activo", plan: "asesor", planExpiresAt: expires.toISOString(), documentsSubmitted: true, joinedAt: new Date().toISOString() };
   }
   function allAgents() {
     return window.App.data.getAllAgents().map(function (a) {

@@ -23,7 +23,7 @@
   };
 
   function canFeature(agent) {
-    return agent.plan === 'profesional';
+    return agent.plan === 'asesor';
   }
 
   function shareSheet(p, agent, refresh) {
@@ -139,12 +139,13 @@
     );
   }
 
-  function actionsSheet(p, agent, allowFeatured, refresh) {
+  function actionsSheet(p, agent, allowFeatured, otherFeaturedCount, refresh) {
     var isHidden = (p.publishStatus || 'publicada') === 'oculta';
     var canPublishNow = p.publishStatus && p.publishStatus !== 'publicada' && p.publishStatus !== 'oculta';
     var otherStatuses = STATUS_OPTIONS.filter(function (s) { return s.value !== (p.status || 'disponible'); });
     var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
     var canPayFeature = agent.plan === 'propietario' && !p.featured;
+    var atFeaturedCap = allowFeatured && !p.featured && otherFeaturedCount >= 1;
 
     c.openSheet({
       title: p.title,
@@ -157,7 +158,7 @@
         '<button type="button" class="btn btn--outline btn--block" data-act="toggle-hide">' + u.icon('eye', { size: 15 }) + (isHidden ? ' Mostrar' : ' Ocultar') + '</button>' +
         (canPublishNow ? '<button type="button" class="btn btn--outline btn--block" data-act="publish-now">' + u.icon('check', { size: 15 }) + ' Publicar ahora</button>' : '') +
         '<button type="button" class="btn btn--outline btn--block" data-act="duplicate">' + u.icon('copy', { size: 15 }) + ' Duplicar</button>' +
-        (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="feature">' + u.icon('starFilled', { size: 15 }) + (p.featured ? ' Quitar destacado' : ' Destacar') + '</button>' : '') +
+        (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="feature">' + u.icon('starFilled', { size: 15 }) + (p.featured ? ' Quitar destacado' : (atFeaturedCap ? ' Destacar (ya usada, quítasela a la otra)' : ' Destacar')) + '</button>' : '') +
         (canPayFeature ? '<button type="button" class="btn btn--outline btn--block" data-act="pay-feature">' + u.icon('starFilled', { size: 15 }) + ' Destacar mi propiedad (+$' + addon.price + ' MXN)</button>' : '') +
         (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="share">' + u.icon('exchange', { size: 15 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida con asesores' : 'Compartir con asesores') + '</button>' : '') +
         (otherStatuses.length ? '<div class="text-muted" style="font-size:0.76rem;font-weight:700;margin:6px 0 -2px">Otro estado</div><div class="row gap-2" style="flex-wrap:wrap">' +
@@ -209,6 +210,7 @@
 
     var featureBtn = u.qs('[data-act="feature"]', sheetRoot);
     if (featureBtn) featureBtn.addEventListener('click', async function () {
+      if (atFeaturedCap) { c.closeSheet(); u.toast('Ya usaste tu destacada incluida. Quítasela a la otra propiedad primero.'); return; }
       try { await state.properties.update(p.id, { featured: !p.featured }); afterAction(); }
       catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
     });
@@ -246,10 +248,11 @@
       var isOwner = agent.plan === 'propietario';
       var cards = properties.map(function (p) { return cardHTML(p, isOwner); }).join('');
       var ownerAtLimit = isOwner && properties.length >= 1;
+      var agentAtLimit = allowFeatured && properties.length >= 15;
       var publishHref = isOwner ? '#/dashboard/publicar-elegir' : '#/dashboard/publicar';
 
       var content =
-        (ownerAtLimit ? '' :
+        ((ownerAtLimit || agentAtLimit) ? '' :
         '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
         '  <a class="btn btn--primary btn--sm" href="' + publishHref + '">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
         '</div>') +
@@ -262,7 +265,8 @@
       u.qsa('[data-actions]', root).forEach(function (btn) {
         btn.addEventListener('click', function () {
           var p = properties.filter(function (x) { return x.id === btn.getAttribute('data-actions'); })[0];
-          actionsSheet(p, agent, allowFeatured, refresh);
+          var otherFeaturedCount = properties.filter(function (x) { return x.featured && x.id !== p.id; }).length;
+          actionsSheet(p, agent, allowFeatured, otherFeaturedCount, refresh);
         });
       });
 

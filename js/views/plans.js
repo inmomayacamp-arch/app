@@ -1,29 +1,17 @@
-// Vista "Planes para agentes": página pública de precios y beneficios para
-// convertirse en asesor inmobiliario. Desde aquí se elige un plan y se pasa
-// al registro (con el espacio ya listo para conectar una pasarela de pagos).
+// Vista "Planes para agentes": landing con un solo plan (mensual/anual) que
+// explica las herramientas incluidas antes del precio. Desde aquí se elige
+// la forma de pago y se pasa al registro (con el espacio ya listo para
+// conectar una pasarela de pagos real más adelante).
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var c = window.App.components;
 
-  function houseArtSVG() {
-    return (
-      '<svg class="plan-card__art" viewBox="0 0 320 96" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<line x1="4" y1="86" x2="316" y2="86" stroke-dasharray="1,7" />' +
-      '<path d="M22 86V52l28-19 28 19v34" /><rect x="40" y="64" width="10" height="22" />' +
-      '<path d="M112 86V40l26-17 26 17v46" /><rect x="124" y="56" width="9" height="9" /><rect x="141" y="56" width="9" height="9" /><rect x="124" y="71" width="9" height="9" />' +
-      '<path d="M232 42a16 16 0 1 0-32 0c0 11 16 30 16 30s16-19 16-30z" /><circle cx="216" cy="42" r="5.5" />' +
-      '<path d="M262 86V58l24-16 24 16v28" /><rect x="277" y="68" width="9" height="18" />' +
-      '</svg>'
-    );
-  }
-
   function trustBarHTML() {
     var items = [
-      { icon: "shield", text: "Todos los planes incluyen soporte y actualizaciones constantes" },
-      { icon: "check", text: "Sin permanencia forzosa: cambia o cancela cuando quieras" },
+      { icon: "shield", text: "Soporte y actualizaciones constantes" },
+      { icon: "check", text: "Sin permanencia forzosa: cancela cuando quieras" },
       { icon: "sparkles", text: "Activación inmediata al crear tu cuenta" }
     ];
     return items.map(function (it) {
@@ -31,96 +19,96 @@
     }).join('');
   }
 
-  function benefitsFor(planId) {
-    if (planId === "profesional") {
-      return [
-        { icon: "eye", title: "Más visibilidad", text: "Tus propiedades aparecen primero en las búsquedas." },
-        { icon: "exchange", title: "Bolsa Compartida entre agentes", text: "Accede a propiedades de otros asesores y expande tu inventario." },
-        { icon: "users", title: "Comparte comisión", text: "Colabora con otros agentes y reparte comisiones sin fricción." },
-        { icon: "megaphone", title: "Publicaciones destacadas", text: "Destaca tus propiedades y recibe más visitas y contactos." }
-      ];
-    }
-    return [
-      { icon: "user", title: "Crea tu perfil profesional", text: "Destaca tu experiencia y genera confianza con tus clientes." },
-      { icon: "briefcase", title: "Comparte tus propiedades", text: "Publica y comparte tus mejores opciones en minutos." },
-      { icon: "link", title: "Enlaces personalizados", text: "Crea catálogos privados para cada cliente." },
-      { icon: "chart", title: "Estadísticas de tus enlaces", text: "Conoce el interés real de tus clientes en tiempo real." }
-    ];
-  }
+  var TOOLS = [
+    { icon: "user", tone: "", title: "Perfil profesional", text: "Tu página pública con tu experiencia y contacto." },
+    { icon: "home", tone: "otro", title: "Hasta 15 propiedades", text: "Publica y administra tu inventario activo." },
+    { icon: "starFilled", tone: "primary", title: "1 destacada incluida", text: "Aparece primero en resultados de búsqueda." },
+    { icon: "link", tone: "renta", title: "Enlaces personalizados", text: "Catálogos privados con estadísticas por cliente." },
+    { icon: "users", tone: "venta", title: "CRM de clientes", text: "Etapas, notas y calendario de visitas." },
+    { icon: "exchange", tone: "terreno", title: "Bolsa Compartida", text: "Colabora y reparte comisión con otros asesores." },
+    { icon: "bell", tone: "", title: "Notificaciones", text: "Entérate al instante de cada contacto nuevo." },
+    { icon: "chat", tone: "", title: "Soporte", text: "Ayuda directa cuando la necesites." }
+  ];
 
-  function planCardHTML(plan, opts) {
-    opts = opts || {};
-    var isPro = plan.id === "profesional";
-    var badge = isPro
-      ? '<span class="plan-card__badge plan-card__badge--gold">' + u.icon("crown", { size: 13 }) + ' Mejor opción</span>'
-      : '<span class="plan-card__badge">' + u.icon("starFilled", { size: 12 }) + ' Más popular</span>';
-    var includeLabel = isPro ? "Incluye todo lo del plan Básico, más:" : "Incluye todo lo siguiente:";
-    var proTag = function (idx) { return isPro && idx === 3 ? ' <span class="plan-card__soloPro">SOLO PRO</span>' : ''; };
-
-    var featuresHTML = plan.features.map(function (f, idx) {
-      return '<li>' + u.icon("check", { size: 14 }) + '<span>' + u.escapeHtml(f) + proTag(idx) + '</span></li>';
+  function toolsGridHTML() {
+    return TOOLS.map(function (t) {
+      return '<div class="tool-mini">' +
+        '<span class="tool-mini__icon' + (t.tone ? ' tool-mini__icon--' + t.tone : '') + '">' + u.icon(t.icon, { size: 16 }) + '</span>' +
+        '<h4>' + u.escapeHtml(t.title) + '</h4><p>' + u.escapeHtml(t.text) + '</p>' +
+        '</div>';
     }).join('');
-
-    return (
-      '<div class="plan-card' + (isPro ? ' plan-card--dark' : '') + '">' +
-      badge +
-      '<h3 class="plan-card__name">' + u.escapeHtml(plan.name.replace('Plan ', '')) + '</h3>' +
-      '<p class="plan-card__tagline">' + u.escapeHtml(plan.tagline) + '</p>' +
-      '<div class="plan-card__price"><span class="plan-card__price-currency">$</span>' + plan.price + '<span class="plan-card__price-period">/ al mes</span></div>' +
-      '<a class="btn btn--primary btn--block" href="#/registro-agente/' + plan.id + '">Contratar plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '</a>' +
-      '<div class="plan-card__divider"></div>' +
-      '<div class="plan-card__include">' + includeLabel + '</div>' +
-      '<ul class="plan-card__features">' + featuresHTML + '</ul>' +
-      houseArtSVG() +
-      '</div>'
-    );
-  }
-
-  function benefitsHTML(plan) {
-    var items = benefitsFor(plan.id).map(function (b) {
-      return (
-        '<div class="plan-benefit">' +
-        '<span class="plan-benefit__icon">' + u.icon(b.icon, { size: 18 }) + '</span>' +
-        '<div><strong>' + u.escapeHtml(b.title) + '</strong><p>' + u.escapeHtml(b.text) + '</p></div>' +
-        '</div>'
-      );
-    }).join('');
-    return (
-      '<div class="plan-benefits">' +
-      '<div class="plan-benefits__title">Beneficios del plan ' + u.escapeHtml(plan.name.replace('Plan ', '')) + '</div>' +
-      '<div class="plan-benefits__grid">' + items + '</div>' +
-      '</div>'
-    );
   }
 
   function render(params, root) {
-    var plans = window.App.admin.data.PLANS;
+    var plan = window.App.admin.data.PLANS[0];
+    var annualMonthly = Math.round(plan.priceAnnual / 12);
 
     root.innerHTML =
-      '<div class="page-header"><h1 class="page-header__title">Planes para agentes</h1></div>' +
+      '<div class="page-header"><h1 class="page-header__title">Plan para agentes</h1></div>' +
       '<div class="plans-page">' +
       '  <div class="container plans-hero">' +
       '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon("chevronLeft", { size: 16 }) + ' Volver</a>' +
-      '    <span class="plans-hero__eyebrow">' + u.icon("briefcase", { size: 14 }) + ' Planes para agentes</span>' +
-      '    <h2 class="plans-hero__title">Elige el plan ideal para hacer crecer <span>tu negocio</span></h2>' +
-      '    <p class="plans-hero__subtitle">Potencia tu trabajo, llega a más clientes y cierra más ventas con InmoMaps.</p>' +
+      '    <span class="plans-hero__eyebrow">' + u.icon("briefcase", { size: 14 }) + ' Para agentes inmobiliarios</span>' +
+      '    <h2 class="plans-hero__title">Un solo plan.<br /><span>Todo incluido.</span></h2>' +
+      '    <p class="plans-hero__subtitle">Sin niveles que confundan: paga una vez y usa todas las herramientas de InmoMaps para vender más.</p>' +
       '    <div class="plans-trust">' + trustBarHTML() + '</div>' +
       '  </div>' +
 
-      '  <div class="container plans-grid">' +
-      plans.map(function (plan) {
-        return '<div class="plan-column">' + planCardHTML(plan) + benefitsHTML(plan) + '</div>';
-      }).join('') +
+      '  <div class="container" style="max-width:420px">' +
+      '    <div class="billing-toggle" data-billing-toggle>' +
+      '      <button type="button" class="billing-toggle__opt is-active" data-billing="mensual">Mensual</button>' +
+      '      <button type="button" class="billing-toggle__opt" data-billing="anual">Anual <span class="billing-toggle__save">ahorras 2 meses</span></button>' +
+      '    </div>' +
+
+      '    <div class="price-block">' +
+      '      <div class="price-block__label">' + u.escapeHtml(plan.name) + '</div>' +
+      '      <div class="price-block__price" data-price-display>' +
+      '        <span class="price-block__amount" data-price-amount>$' + plan.price + '</span><span data-price-period>/mes</span>' +
+      '      </div>' +
+      '      <div class="price-block__alt" data-price-alt style="visibility:hidden">o $' + plan.priceAnnual + ' al año (' + annualMonthly + '/mes)</div>' +
+      '      <a class="btn btn--primary btn--block" href="#/registro-agente/mensual" data-price-cta>Crear mi cuenta</a>' +
+      '      <div class="price-block__note">Sin permanencia forzosa · cancela cuando quieras</div>' +
+      '    </div>' +
+      '  </div>' +
+
+      '  <div class="container" style="max-width:640px">' +
+      '    <div class="plans-section-label">Todo lo que incluye</div>' +
+      '    <div class="tool-grid">' + toolsGridHTML() + '</div>' +
       '  </div>' +
 
       '  <div class="container">' +
-      '    <div class="plans-footnote">' + u.icon("shield", { size: 16 }) + ' Puedes cambiar de plan o cancelarlo en cualquier momento.</div>' +
+      '    <div class="plans-footnote">' + u.icon("shield", { size: 16 }) + ' Puedes cancelar tu plan en cualquier momento.</div>' +
       '    <p class="text-muted" style="text-align:center;font-size:0.85rem;margin-top:14px">¿Ya tienes cuenta? <a href="#/dashboard/login" style="color:var(--color-primary);font-weight:700">Inicia sesión</a></p>' +
       '  </div>' +
       '</div>';
 
     c.mountChrome('perfil');
-    document.title = 'Planes para agentes — InmoMaps';
+    document.title = 'Plan para agentes — InmoMaps';
+
+    var priceAmount = u.qs('[data-price-amount]', root);
+    var pricePeriod = u.qs('[data-price-period]', root);
+    var priceAlt = u.qs('[data-price-alt]', root);
+    var priceCta = u.qs('[data-price-cta]', root);
+
+    u.qsa('[data-billing]', root).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        u.qsa('[data-billing]', root).forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        var billing = btn.getAttribute('data-billing');
+        if (billing === 'anual') {
+          priceAmount.textContent = '$' + plan.priceAnnual;
+          pricePeriod.textContent = '/año';
+          priceAlt.style.visibility = 'visible';
+          priceAlt.textContent = 'equivale a $' + annualMonthly + '/mes';
+          priceCta.setAttribute('href', '#/registro-agente/anual');
+        } else {
+          priceAmount.textContent = '$' + plan.price;
+          pricePeriod.textContent = '/mes';
+          priceAlt.style.visibility = 'hidden';
+          priceCta.setAttribute('href', '#/registro-agente/mensual');
+        }
+      });
+    });
   }
 
   window.App.views = window.App.views || {};

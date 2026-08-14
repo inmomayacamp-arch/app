@@ -62,9 +62,9 @@
     if (!sp.isPremium(agent.slug)) {
       var upsell =
         '<div class="promo-card"><span class="promo-card__icon">' + u.icon('exchange', { size: 28 }) + '</span>' +
-        '<div class="promo-card__body"><strong>Disponible en el Plan Profesional</strong>' +
+        '<div class="promo-card__body"><strong>Disponible con tu cuenta de asesor</strong>' +
         '<p>La Bolsa Inmobiliaria Compartida te permite colaborar con otros asesores: compartir tus propiedades y ofrecer las de otros a tus clientes, ganando comisión por cada operación cerrada en conjunto.</p>' +
-        '<a class="btn btn--primary btn--sm" href="#/dashboard/suscripcion">Mejorar mi plan</a></div></div>';
+        '<a class="btn btn--primary btn--sm" href="#/planes">Ver el plan de asesor</a></div></div>';
       ac.mount('bolsa', 'Bolsa Compartida', upsell, root);
       return;
     }

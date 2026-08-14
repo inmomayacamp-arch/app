@@ -183,7 +183,7 @@
 
   function isPremium(slug) {
     var agent = window.App.data.getAgent(slug);
-    return !!agent && agent.plan === 'profesional';
+    return !!agent && agent.plan === 'asesor';
   }
   function isExpired(sharing) {
     return sharing.expiresAt && new Date(sharing.expiresAt) < new Date();

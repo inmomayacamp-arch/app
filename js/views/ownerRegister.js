@@ -4,7 +4,7 @@
 // así que después de crearla entra al mismo asistente de publicación que
 // usan los asesores (#/dashboard/publicar) — nada más que ese formulario ya
 // sabe ocultarle la Bolsa Compartida y el destacado gratis a quien no tiene
-// plan "profesional" (ver isPremium en publishWizard.js).
+// plan "asesor" (ver isAgent en publishWizard.js).
 (function () {
   "use strict";
 
