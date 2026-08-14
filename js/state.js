@@ -268,6 +268,7 @@
       status: row.status || "disponible",
       publishStatus: row.publish_status || "publicada",
       scheduledAt: row.scheduled_at || null,
+      expiresAt: row.expires_at || null,
       sharing: row.sharing || null,
       createdAt: row.created_at
     };
@@ -288,7 +289,7 @@
       rentalGuarantees: "rental_guarantees", rentalServicesIncluded: "rental_services_included", rentalAvailableFrom: "rental_available_from",
       ownerName: "owner_name", ownerPhone: "owner_phone", ownerEmail: "owner_email",
       tags: "tags", featured: "featured", status: "status", publishStatus: "publish_status",
-      scheduledAt: "scheduled_at", sharing: "sharing"
+      scheduledAt: "scheduled_at", expiresAt: "expires_at", sharing: "sharing"
     };
     var row = {};
     Object.keys(fields).forEach(function (key) {
@@ -320,6 +321,7 @@
     var status = p.publishStatus || "publicada";
     if (status === "borrador" || status === "oculta") return false;
     if (status === "programada") return !!p.scheduledAt && new Date(p.scheduledAt) <= new Date();
+    if (p.expiresAt && new Date(p.expiresAt) <= new Date()) return false;
     return true;
   }
   function publicProperties() {

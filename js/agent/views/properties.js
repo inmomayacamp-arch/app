@@ -99,13 +99,15 @@
   function cardHTML(p, isOwner) {
     var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
     var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
+    var isExpired = isOwner && p.expiresAt && new Date(p.expiresAt) <= new Date();
+    var daysLeft = (isOwner && p.expiresAt && !isExpired) ? Math.ceil((new Date(p.expiresAt) - new Date()) / 86400000) : null;
     return (
       '<div class="property-card admin-property-card">' +
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
       '    <img src="' + p.photos[0] + '" alt="" loading="lazy" />' +
       '    <span class="property-card__badge badge badge--' + u.badgeClassFor(p.operation) + '">' + u.operationLabel(p.operation) + '</span>' +
       '    <div class="admin-property-card__pills">' +
-      '      <span class="status-pill status-pill--' + pubStatus.tone + '">' + pubStatus.label + '</span>' +
+      '      <span class="status-pill status-pill--' + (isExpired ? 'rechazada' : pubStatus.tone) + '">' + (isExpired ? 'Vencida' : pubStatus.label) + '</span>' +
       dealBadgeHTML(p) +
       '    </div>' +
       (p.featured ? '<span class="admin-property-card__featured">' + u.icon('starFilled', { size: 11 }) + ' Destacada</span>' : '') +
@@ -115,14 +117,21 @@
       '    <div class="property-card__title">' + u.escapeHtml(p.title) + '</div>' +
       '    <div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(p.neighborhood) + ', ' + u.escapeHtml(p.city) + '</div>' +
       '    <div class="property-card__specs">' + c.specsRowHTML(p) + '</div>' +
-      (isOwner && !p.featured
+      (isExpired
         ? '    <div class="card-destacar-hint">' +
-          '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + u.escapeHtml(addon.description) + '</p>' +
-          '      <a class="btn btn--primary btn--sm btn--block" href="#/dashboard/destacar/' + p.id + '">Destacar mi propiedad (+$' + addon.price + ')</a>' +
+          '      <p>' + u.icon('clock', { size: 13 }) + ' Tu publicación venció y ya no aparece en el mapa ni en las búsquedas.</p>' +
+          '      <button type="button" class="btn btn--primary btn--sm btn--block" data-renew="' + p.id + '">Renovar gratis por 30 días más</button>' +
           '    </div>'
-        : '') +
+        : (isOwner && !p.featured
+          ? '    <div class="card-destacar-hint">' +
+            '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + u.escapeHtml(addon.description) + '</p>' +
+            '      <a class="btn btn--primary btn--sm btn--block" href="#/dashboard/destacar/' + p.id + '">Destacar mi propiedad (+$' + addon.price + ')</a>' +
+            '    </div>'
+          : '')) +
       '    <div class="admin-property-card__footer">' +
-      '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) + '</span>' +
+      '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) +
+      (daysLeft !== null && daysLeft <= 7 ? ' · Vence en ' + daysLeft + (daysLeft === 1 ? ' día' : ' días') : '') +
+      '</span>' +
       '      <button type="button" class="btn btn--icon btn--icon-tinted" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
       '    </div>' +
       '  </div>' +
@@ -254,6 +263,21 @@
         btn.addEventListener('click', function () {
           var p = properties.filter(function (x) { return x.id === btn.getAttribute('data-actions'); })[0];
           actionsSheet(p, agent, allowFeatured, refresh);
+        });
+      });
+
+      u.qsa('[data-renew]', root).forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          btn.disabled = true;
+          try {
+            var newExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+            await state.properties.update(btn.getAttribute('data-renew'), { expiresAt: newExpiry });
+            u.toast('¡Publicación renovada por 30 días más!', { tone: 'success' });
+            refresh();
+          } catch (err) {
+            btn.disabled = false;
+            u.toast(err.message || 'No se pudo renovar la publicación');
+          }
         });
       });
     }

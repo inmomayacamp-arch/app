@@ -39,6 +39,7 @@
   // y quién lo ha contactado.
   function renderOwner(root, agent) {
     var myProperty = state.properties.byAgent(agent.slug)[0] || null;
+    var isExpired = myProperty && myProperty.expiresAt && new Date(myProperty.expiresAt) <= new Date();
     var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
     var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
 
@@ -53,16 +54,22 @@
         : '  <a class="agent-cta-btn" href="#/dashboard/publicar-elegir">' + u.icon('plus', { size: 16 }) + ' Publicar mi propiedad</a>') +
       '</div>' +
 
-      (myProperty && !myProperty.featured
-        ? '<a class="attention-card" href="#/dashboard/destacar/' + myProperty.id + '">' +
-          '  <span class="attention-card__icon">' + u.icon('starFilled', { size: 18 }) + '</span>' +
-          '  <div class="attention-card__text"><strong>Destaca tu propiedad</strong><span>Aparece primero en los resultados de búsqueda</span></div>' +
+      (isExpired
+        ? '<a class="attention-card" href="#/dashboard/propiedades">' +
+          '  <span class="attention-card__icon">' + u.icon('clock', { size: 18 }) + '</span>' +
+          '  <div class="attention-card__text"><strong>Tu publicación venció</strong><span>Renuévala gratis para que vuelva a aparecer</span></div>' +
           u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
           '</a>'
-        : '') +
+        : (myProperty && !myProperty.featured
+          ? '<a class="attention-card" href="#/dashboard/destacar/' + myProperty.id + '">' +
+            '  <span class="attention-card__icon">' + u.icon('starFilled', { size: 18 }) + '</span>' +
+            '  <div class="attention-card__text"><strong>Destaca tu propiedad</strong><span>Aparece primero en los resultados de búsqueda</span></div>' +
+            u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
+            '</a>'
+          : '')) +
 
       '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
-      tileHTML({ href: '#/dashboard/propiedades', icon: 'home', iconClass: 'dashboard-card__icon--otro', title: 'Mi propiedad', desc: myProperty ? 'Editar o destacar' : 'Aún no has publicado' }) +
+      tileHTML({ href: '#/dashboard/propiedades', icon: 'home', iconClass: 'dashboard-card__icon--otro', title: 'Mi propiedad', desc: isExpired ? 'Venció — renuévala' : (myProperty ? 'Editar o destacar' : 'Aún no has publicado') }) +
       tileHTML({ href: '#/dashboard/perfil-profesional', icon: 'user', title: 'Mi perfil', desc: 'Tu foto y datos de contacto' }) +
       '</div></div>' +
 

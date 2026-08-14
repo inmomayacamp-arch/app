@@ -839,6 +839,11 @@
           featured: isPremium && payload.featured,
           tags: payload.tags
         };
+        // La publicación gratuita de un propietario dura 30 días; se renueva
+        // gratis con un clic desde Mis propiedades (no aplica a asesores).
+        if (!editingId && agent.plan === "propietario") {
+          row.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        }
         published = editingId ? await state.properties.update(editingId, row) : await state.properties.publish(row);
         if (wantsFeaturedAfter && !editingId) {
           u.toast('Propiedad publicada, ahora destácala', { tone: 'success' });
