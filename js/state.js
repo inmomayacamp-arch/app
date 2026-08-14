@@ -134,10 +134,10 @@
       var sessionResult = await supabaseClient.auth.getSession();
       var session = sessionResult && sessionResult.data && sessionResult.data.session;
       if (session) {
-        var profileResult = await supabaseClient.from("profiles").select("*").eq("id", session.user.id).single();
+        var profileResult = await supabaseClient.from("profiles_public").select("*").eq("id", session.user.id).single();
         if (profileResult.data) cachedCurrentProfile = mapProfileRow(profileResult.data);
       }
-      var allResult = await supabaseClient.from("profiles").select("*");
+      var allResult = await supabaseClient.from("profiles_public").select("*");
       if (allResult.data) cachedProfiles = allResult.data.map(mapProfileRow);
     } catch (e) {
       console.error("No se pudo inicializar la sesión de Supabase", e);
@@ -168,7 +168,7 @@
     }
     if (!signUpResult.data.session) throw new Error("Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.");
 
-    var profileResult = await supabaseClient.from("profiles").select("*").eq("id", signUpResult.data.user.id).single();
+    var profileResult = await supabaseClient.from("profiles_public").select("*").eq("id", signUpResult.data.user.id).single();
     if (profileResult.error || !profileResult.data) throw new Error("Tu cuenta se creó pero no se pudo cargar tu perfil. Intenta iniciar sesión de nuevo en unos segundos.");
 
     var agent = mapProfileRow(profileResult.data);
@@ -193,7 +193,7 @@
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     var signInResult = await supabaseClient.auth.signInWithPassword({ email: email.trim().toLowerCase(), password: password });
     if (signInResult.error) return null;
-    var profileResult = await supabaseClient.from("profiles").select("*").eq("id", signInResult.data.user.id).single();
+    var profileResult = await supabaseClient.from("profiles_public").select("*").eq("id", signInResult.data.user.id).single();
     if (profileResult.error || !profileResult.data) return null;
     var agent = mapProfileRow(profileResult.data);
     cachedCurrentProfile = agent;
