@@ -27,7 +27,7 @@
         '    <p class="text-muted" style="text-align:center;font-size:0.84rem;margin-bottom:18px">Tu panel de trabajo como asesor inmobiliario</p>' +
         '    <div class="tabs" style="padding:0 0 16px;justify-content:center">' +
         '      <span class="tab is-active">Iniciar sesión</span>' +
-        '      <a class="tab" href="#/planes">Crear cuenta</a>' +
+        '      <a class="tab" href="#/perfil">Crear cuenta</a>' +
         '    </div>' +
         loginFormHTML() +
         '  </div>' +
