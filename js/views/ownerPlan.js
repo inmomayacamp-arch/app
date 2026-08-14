@@ -53,7 +53,9 @@
       '      <span class="plan-card__badge">' + u.icon('home', { size: 12 }) + ' Publicación individual</span>' +
       '      <h3 class="plan-card__name">' + u.escapeHtml(plan.name) + '</h3>' +
       '      <p class="plan-card__tagline">' + u.escapeHtml(plan.tagline) + '</p>' +
-      '      <div class="plan-card__price"><span class="plan-card__price-currency">$</span>' + plan.price + '<span class="plan-card__price-period">/ por ' + plan.period + '</span></div>' +
+      '      <div class="plan-card__price">' + (plan.price > 0
+        ? '<span class="plan-card__price-currency">$</span>' + plan.price + '<span class="plan-card__price-period">/ por ' + plan.period + '</span>'
+        : 'Gratis <span class="plan-card__price-period">por ' + plan.period + '</span>') + '</div>' +
       '      <a class="btn btn--primary btn--block" href="#/registro-propietario">Publicar mi propiedad</a>' +
       '      <div class="plan-card__divider"></div>' +
       '      <div class="plan-card__include">Incluye:</div>' +
