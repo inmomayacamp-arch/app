@@ -161,8 +161,15 @@
       options: { data: { name: fields.name, phone: fields.phone || "", city: fields.city || "", plan: plan, photo: fields.photo || "" } }
     });
     if (signUpResult.error) {
+      // Supabase no deja ver el detalle real del error de Postgres (por
+      // seguridad) cuando falla el trigger que crea el perfil — solo manda
+      // este mensaje genérico. En la práctica casi siempre es que el
+      // teléfono (o el correo) ya está registrado con otra cuenta.
       if (/profiles_phone_unique|duplicate key.*phone/i.test(signUpResult.error.message || "")) {
         throw new Error("Ya existe una cuenta registrada con ese número de teléfono.");
+      }
+      if (/database error saving new user/i.test(signUpResult.error.message || "")) {
+        throw new Error("Ya existe una cuenta registrada con ese correo o teléfono. Intenta iniciar sesión, o usa otro número/correo.");
       }
       throw signUpResult.error;
     }
