@@ -412,6 +412,17 @@
   function getLink(agentSlug, clientSlug) {
     return allLinks().filter(function (l) { return l.agentSlug === agentSlug && l.clientSlug === clientSlug; })[0] || null;
   }
+  // Para la página pública del enlace (#/:agentSlug/:clientSlug): NO usa el
+  // caché de arriba (ese solo trae los enlaces del propio asesor con
+  // sesión iniciada, a propósito — la tabla ya no es de lectura abierta).
+  // Esta llama a una función en Supabase que regresa nada más el enlace
+  // exacto que se pide, sin exponer los enlaces de los demás clientes.
+  async function getClientLinkPublic(agentSlug, clientSlug) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var result = await supabaseClient.rpc("get_client_link", { p_agent_slug: agentSlug, p_client_slug: clientSlug });
+    if (result.error) throw result.error;
+    return result.data ? mapLinkRow(result.data) : null;
+  }
   async function createLink(payload) {
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     if (!cachedCurrentProfile) throw new Error("Debes iniciar sesión como asesor para crear un enlace.");
@@ -493,6 +504,7 @@
     links: {
       bootstrap: bootstrapLinks,
       all: allLinks,
+      getPublic: getClientLinkPublic,
       byAgent: linksByAgent,
       get: getLink,
       create: createLink,

@@ -24,9 +24,16 @@
     );
   }
 
-  function render(params, root) {
+  async function render(params, root) {
+    minimalChrome();
+    root.innerHTML = headerHTML() + '<div class="empty-state" style="padding-top:64px"><span class="spinner"></span></div>';
+
     var agent = data.getAgent(params.agentSlug);
-    var link = agent ? state.links.get(params.agentSlug, params.clientSlug) : null;
+    var link = null;
+    if (agent) {
+      try { link = await state.links.getPublic(params.agentSlug, params.clientSlug); }
+      catch (e) { link = null; }
+    }
 
     if (!agent || !link) {
       root.innerHTML =
