@@ -83,7 +83,7 @@
         '  <span class="empty-state__icon" style="color:var(--color-venta)">' + u.icon('check', { size: 40 }) + '</span>' +
         '  <h3>¡Mensaje enviado!</h3>' +
         '  <p>El equipo de InmoMaps revisará tu mensaje y te contactará si es necesario.</p>' +
-        '  <a class="btn btn--primary" href="' + backHref + '">' + (agent ? 'Volver al panel' : 'Volver al mapa') + '</a>' +
+        '  <a class="btn btn--primary" href="' + (agent ? '#/dashboard' : '#/') + '">' + (agent ? 'Volver al panel' : 'Volver al mapa') + '</a>' +
         '</div>'
       );
     }

@@ -94,6 +94,9 @@
         return '<button type="button" class="category-card" data-service="' + cat.key + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
           '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
       }).join('') +
+      '        <a href="#/perfil" class="category-card category-card--cta">' +
+      '          <span class="category-card__icon">' + u.icon('plus', { size: 22 }) + '</span><strong>Publicar</strong>' +
+      '        </a>' +
       '      </div>' +
 
       '      <div class="promo-card" style="margin-top:20px">' +

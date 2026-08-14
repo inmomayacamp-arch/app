@@ -110,7 +110,7 @@
     primaryColor: "#DC2626",
     facebook: "https://facebook.com/inmomap",
     instagram: "https://instagram.com/inmomap",
-    supportEmail: "soporte@inmomap.mx",
+    supportEmail: "soporte@inmomaps.com.mx",
     supportPhone: "9811234567",
     termsText: "Términos y condiciones de InmoMaps (texto de ejemplo para el prototipo).",
     privacyText: "Política de privacidad de InmoMaps (texto de ejemplo para el prototipo)."
@@ -123,8 +123,8 @@
   ];
 
   var ADMIN_USERS = [
-    { id: "a1", name: "Oswaldo (Dueño)", email: "admin@inmomap.mx", role: "owner" },
-    { id: "a2", name: "Equipo de moderación", email: "moderacion@inmomap.mx", role: "moderador" }
+    { id: "a1", name: "Oswaldo (Dueño)", email: "admin@inmomaps.com.mx", role: "owner" },
+    { id: "a2", name: "Equipo de moderación", email: "moderacion@inmomaps.com.mx", role: "moderador" }
   ];
 
   window.App = window.App || {};
