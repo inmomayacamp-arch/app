@@ -983,6 +983,8 @@ body.is-admin .site-header { display: none; }
 .attention-card__text { flex: 1; min-width: 0; }
 .attention-card__text strong { display: block; font-size: 0.9rem; color: var(--color-ink); }
 .attention-card__text span { font-size: 0.78rem; color: var(--color-ink-secondary); }
+.attention-card--neutral { background: var(--color-surface); border-color: var(--color-border-strong); }
+.attention-card--neutral .attention-card__icon { background: var(--color-bg); color: var(--color-ink-secondary); }
 
 .agent-greeting { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .agent-greeting img { border-radius: 50%; object-fit: cover; flex-shrink: 0; }

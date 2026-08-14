@@ -50,7 +50,7 @@
       '<div class="agent-cta-row">' +
       (myProperty
         ? '  <a class="agent-cta-btn" href="#/dashboard/propiedades">' + u.icon('home', { size: 16 }) + ' Ver mi propiedad</a>'
-        : '  <a class="agent-cta-btn" href="#/dashboard/publicar">' + u.icon('plus', { size: 16 }) + ' Publicar mi propiedad</a>') +
+        : '  <a class="agent-cta-btn" href="#/dashboard/publicar-elegir">' + u.icon('plus', { size: 16 }) + ' Publicar mi propiedad</a>') +
       '</div>' +
 
       (myProperty && !myProperty.featured

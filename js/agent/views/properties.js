@@ -237,15 +237,16 @@
       var isOwner = agent.plan === 'propietario';
       var cards = properties.map(function (p) { return cardHTML(p, isOwner); }).join('');
       var ownerAtLimit = isOwner && properties.length >= 1;
+      var publishHref = isOwner ? '#/dashboard/publicar-elegir' : '#/dashboard/publicar';
 
       var content =
         (ownerAtLimit ? '' :
         '<div class="row" style="justify-content:flex-end;margin-bottom:14px">' +
-        '  <a class="btn btn--primary btn--sm" href="#/dashboard/publicar">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
+        '  <a class="btn btn--primary btn--sm" href="' + publishHref + '">' + u.icon('plus', { size: 14 }) + ' Publicar propiedad</a>' +
         '</div>') +
         (properties.length
           ? '<div class="stack gap-3">' + cards + '</div>'
-          : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('home', { size: 30 }) + '</span><h3>Aún no tienes propiedades publicadas</h3><a class="btn btn--primary" href="#/dashboard/publicar">Publicar tu primera propiedad</a></div>');
+          : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('home', { size: 30 }) + '</span><h3>Aún no tienes propiedades publicadas</h3><a class="btn btn--primary" href="' + publishHref + '">Publicar tu primera propiedad</a></div>');
 
       ac.mount('propiedades', 'Mis propiedades', content, root);
 

@@ -73,6 +73,7 @@
   function render(params, root) {
     var agent = state.agents.current();
     var isPremium = agent.plan === "profesional";
+    var wantsFeaturedAfter = !params.id && (params.query || {}).intent === "featured";
 
     var editingId = params.id || null;
     var existing = editingId ? state.properties.get(editingId) : null;
@@ -839,6 +840,11 @@
           tags: payload.tags
         };
         published = editingId ? await state.properties.update(editingId, row) : await state.properties.publish(row);
+        if (wantsFeaturedAfter && !editingId) {
+          u.toast('Propiedad publicada, ahora destácala', { tone: 'success' });
+          window.location.hash = '#/dashboard/destacar/' + published.id;
+          return;
+        }
         renderConfirmation();
         u.toast(editingId ? 'Cambios guardados' : (payload.publishStatus === 'borrador' ? 'Borrador guardado' : 'Propiedad publicada'), { tone: 'success' });
       } catch (err) {
