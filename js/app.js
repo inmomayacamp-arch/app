@@ -2,12 +2,6 @@
 (function () {
   "use strict";
 
-  function applyBrandColor(hex) {
-    if (!hex) return;
-    document.documentElement.style.setProperty('--color-primary', hex);
-  }
-  window.App.applyBrandColor = applyBrandColor;
-
   document.addEventListener("DOMContentLoaded", function () {
     boot();
   });
@@ -38,10 +32,6 @@
         if (filtersBtn) filtersBtn.click();
       }, 60);
     });
-
-    if (window.App.admin && window.App.admin.state) {
-      applyBrandColor(window.App.admin.state.settings.get().primaryColor);
-    }
 
     await window.App.state.agents.bootstrap();
     await Promise.all([

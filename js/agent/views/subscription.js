@@ -10,7 +10,6 @@
     function refresh() {
       var agent = state.agents.current();
       var plans = window.App.admin.data.PLANS;
-      var payments = window.App.admin.state.payments.all().filter(function (p) { return p.agentSlug === agent.slug; });
 
       var planCards = plans.map(function (p) {
         var isCurrent = p.id === agent.plan;
@@ -23,22 +22,12 @@
           '</div>';
       }).join('');
 
-      var paymentRows = payments.map(function (p) {
-        return '<tr><td>' + new Date(p.date).toLocaleDateString('es-MX') + '</td><td>' + p.plan + '</td><td>' + u.formatPrice(p.amount) + '</td><td>' + p.method + '</td><td>' + window.App.admin.components.statusPill(p.status) + '</td></tr>';
-      }).join('');
-
       var content =
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">Tu plan</div>' +
         '  <div class="admin-section__subtitle">' + (agent.planExpiresAt ? 'Renovación: ' + new Date(agent.planExpiresAt).toLocaleDateString('es-MX') + ' · ' : '') + 'Estado: ' + (agent.status === 'inactivo' ? 'Inactivo' : 'Activo') + '</div></div></div>' +
         '  <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">' + planCards + '</div>' +
         (agent.status !== 'inactivo' ? '<button type="button" class="btn btn--outline" data-cancel style="margin-top:16px;color:var(--color-primary);border-color:var(--color-primary)">Cancelar suscripción</button>' : '') +
-        '</div>' +
-
-        '<div class="admin-section">' +
-        '  <div class="admin-section__head"><div class="admin-section__title">Historial de pagos</div></div>' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Fecha</th><th>Plan</th><th>Monto</th><th>Método</th><th>Estado</th></tr></thead>' +
-        '  <tbody>' + (paymentRows || '<tr><td colspan="5" class="admin-table__meta">Sin pagos registrados</td></tr>') + '</tbody></table></div>' +
         '</div>';
 
       ac.mount('suscripcion', 'Suscripción', content, root);

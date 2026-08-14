@@ -155,16 +155,27 @@
       var providers = s.providers.all();
 
       var rows = providers.map(function (p) {
-        return '<tr>' +
-          '<td>' + (p.photo ? '<img src="' + u.thumbUrl(p.photo, 80, 80) + '" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover" />' : '<span class="provider-card__icon-fallback" style="width:40px;height:40px;border-radius:50%;--cat-color:var(--color-primary);--cat-bg:var(--color-primary-light)">' + u.icon('award', { size: 16 }) + '</span>') + '</td>' +
-          '<td><div class="admin-table__name">' + u.escapeHtml(p.name) + '</div><div class="admin-table__meta">' + u.escapeHtml(p.city || p.state || 'Sin ubicación') + '</div></td>' +
-          '<td>' + u.escapeHtml(categoryLabel(p.category)) + '</td>' +
-          '<td>' + ac.statusPill(p.active ? 'activo' : 'inactivo') + '</td>' +
-          '<td class="actions"><div class="icon-btn-row">' +
-          '<button type="button" class="btn btn--sm btn--outline" data-edit="' + p.id + '">Editar</button>' +
-          '<button type="button" class="btn btn--sm btn--outline" data-toggle="' + p.id + '">' + (p.active ? 'Desactivar' : 'Activar') + '</button>' +
-          '<button type="button" class="btn btn--sm btn--outline" data-delete="' + p.id + '">Eliminar</button>' +
-          '</div></td></tr>';
+        return (
+          '<div class="admin-row-card">' +
+          '  <div class="admin-row-card__main">' +
+          (p.photo
+            ? '<img class="admin-row-card__avatar admin-row-card__avatar--round" src="' + u.thumbUrl(p.photo, 88, 88) + '" alt="" loading="lazy" />'
+            : '<span class="admin-row-card__avatar admin-row-card__avatar--round admin-row-card__avatar--icon">' + u.icon('award', { size: 18 }) + '</span>') +
+          '    <div class="admin-row-card__body">' +
+          '      <strong>' + u.escapeHtml(p.name) + '</strong>' +
+          '      <span class="admin-row-card__meta">' + u.escapeHtml(categoryLabel(p.category)) + ' · ' + u.escapeHtml(p.city || p.state || 'Sin ubicación') + '</span>' +
+          '    </div>' +
+          '  </div>' +
+          '  <div class="admin-row-card__foot">' +
+          ac.statusPill(p.active ? 'activo' : 'inactivo') +
+          '    <div class="admin-row-card__actions">' +
+          '    <button type="button" class="btn btn--sm btn--outline" data-edit="' + p.id + '">Editar</button>' +
+          '    <button type="button" class="btn btn--sm btn--outline" data-toggle="' + p.id + '">' + (p.active ? 'Desactivar' : 'Activar') + '</button>' +
+          '    <button type="button" class="btn btn--sm btn--outline" data-delete="' + p.id + '">Eliminar</button>' +
+          '    </div>' +
+          '  </div>' +
+          '</div>'
+        );
       }).join('');
 
       var content =
@@ -172,8 +183,7 @@
         '  <div class="admin-section__head"><div><div class="admin-section__title">Proveedores (' + providers.length + ')</div>' +
         '  <div class="admin-section__subtitle">Notario, valuadores, arquitectos, servicios y SOFOM que se muestran en el directorio público</div></div>' +
         '  <button type="button" class="btn btn--primary btn--sm" data-new>' + u.icon('plus', { size: 14 }) + ' Nuevo proveedor</button></div>' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th></th><th>Nombre</th><th>Categoría</th><th>Estado</th><th></th></tr></thead>' +
-        '  <tbody>' + (rows || '<tr><td colspan="5" class="admin-table__meta">Sin proveedores todavía</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-row-list">' + (rows || '<p class="text-muted" style="font-size:0.85rem">Sin proveedores todavía</p>') + '</div>' +
         '</div>';
 
       ac.mount('directorio', 'Directorio', content, root);

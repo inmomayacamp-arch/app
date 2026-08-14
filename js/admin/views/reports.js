@@ -42,11 +42,6 @@
 
   var REPORTS_DEF = [
     {
-      key: "usuarios", label: "Usuarios", icon: "users",
-      columns: [{ key: "name", label: "Nombre" }, { key: "email", label: "Correo" }, { key: "phone", label: "Teléfono" }, { key: "role", label: "Rol" }, { key: "city", label: "Ciudad" }, { key: "status", label: "Estado" }],
-      rows: function () { return s.users.all(); }
-    },
-    {
       key: "agentes", label: "Agentes", icon: "briefcase",
       columns: [{ key: "name", label: "Nombre" }, { key: "city", label: "Ciudad" }, { key: "plan", label: "Plan" }, { key: "status", label: "Estado" }, { key: "rating", label: "Calificación" }],
       rows: function () { return s.agents.all(); }
@@ -57,9 +52,14 @@
       rows: function () { return s.properties.all(); }
     },
     {
-      key: "pagos", label: "Pagos", icon: "dollar",
-      columns: [{ key: "agentSlug", label: "Agente" }, { key: "plan", label: "Plan" }, { key: "amount", label: "Monto" }, { key: "status", label: "Estado" }, { key: "date", label: "Fecha" }],
-      rows: function () { return s.payments.all(); }
+      key: "solicitudes", label: "Solicitudes", icon: "chat",
+      columns: [{ key: "name", label: "Nombre" }, { key: "email", label: "Correo" }, { key: "phone", label: "Teléfono" }, { key: "kind", label: "Tipo" }, { key: "message", label: "Mensaje" }, { key: "status", label: "Estado" }],
+      rows: function () { return window.App.state.leads.all(); }
+    },
+    {
+      key: "directorio", label: "Directorio", icon: "award",
+      columns: [{ key: "name", label: "Nombre" }, { key: "category", label: "Categoría" }, { key: "city", label: "Ciudad" }, { key: "phone", label: "Teléfono" }, { key: "active", label: "Activo" }],
+      rows: function () { return window.App.state.providers.all(); }
     }
   ];
 
@@ -76,7 +76,7 @@
 
     var content =
       '<div class="admin-section">' +
-      '  <div class="admin-section__head"><div><div class="admin-section__title">Reportes descargables</div><div class="admin-section__subtitle">Exporta la información del prototipo en CSV (se abre directamente en Excel) o imprime un PDF</div></div></div>' +
+      '  <div class="admin-section__head"><div><div class="admin-section__title">Reportes descargables</div><div class="admin-section__subtitle">Exporta la información en CSV (se abre directamente en Excel) o imprime un PDF</div></div></div>' +
       '  <div class="dashboard-grid">' + cards + '</div>' +
       '</div>';
 

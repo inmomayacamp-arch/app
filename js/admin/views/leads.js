@@ -27,73 +27,84 @@
       var soporte = all.filter(function (l) { return l.kind === 'soporte'; });
       var directorio = all.filter(function (l) { return l.kind === 'directorio'; });
 
-      function actionCell(lead) {
-        return '<td class="actions"><div class="icon-btn-row">' +
-          (lead.status === 'nuevo'
-            ? '<button type="button" class="btn btn--sm btn--primary" data-atender="' + lead.id + '">Marcar atendido</button>'
-            : '<button type="button" class="btn btn--sm btn--outline" data-reabrir="' + lead.id + '">Reabrir</button>') +
-          '</div></td>';
+      function actionButtons(lead) {
+        return lead.status === 'nuevo'
+          ? '<button type="button" class="btn btn--sm btn--primary" data-atender="' + lead.id + '">Marcar atendido</button>'
+          : '<button type="button" class="btn btn--sm btn--outline" data-reabrir="' + lead.id + '">Reabrir</button>';
       }
 
-      function solicitudRow(lead) {
+      function solicitudCard(lead) {
         var d = lead.details || {};
-        return '<tr>' +
-          '<td class="admin-table__name">' + u.escapeHtml(lead.name) + '<div class="admin-table__meta">' + contactHTML(lead) + '</div></td>' +
-          '<td>' + (TYPE_LABELS[d.type] || 'Cualquiera') + ' · ' + (d.operation === 'renta' ? 'Renta' : 'Venta') + '</td>' +
-          '<td>' + u.escapeHtml(d.city || '—') + '</td>' +
-          '<td>' + (d.budget ? u.formatPrice(d.budget) : '—') + '</td>' +
-          '<td class="admin-table__meta">' + u.escapeHtml(lead.message || '—') + '</td>' +
-          '<td class="admin-table__meta">' + u.relativeTime(lead.createdAt) + '</td>' +
-          '<td>' + ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') + '</td>' +
-          actionCell(lead) +
-          '</tr>';
+        return (
+          '<div class="admin-row-card">' +
+          '  <div class="admin-row-card__body">' +
+          '    <strong>' + u.escapeHtml(lead.name) + '</strong>' +
+          '    <span class="admin-row-card__meta">' + contactHTML(lead) + '</span>' +
+          '    <span class="admin-row-card__meta">' + (TYPE_LABELS[d.type] || 'Cualquiera') + ' · ' + (d.operation === 'renta' ? 'Renta' : 'Venta') + ' · ' + u.escapeHtml(d.city || '—') + (d.budget ? ' · ' + u.formatPrice(d.budget) : '') + '</span>' +
+          (lead.message ? '    <span class="admin-row-card__meta admin-row-card__meta--wrap">' + u.escapeHtml(lead.message) + '</span>' : '') +
+          '    <span class="admin-row-card__meta">' + u.relativeTime(lead.createdAt) + '</span>' +
+          '  </div>' +
+          '  <div class="admin-row-card__foot">' +
+          ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') +
+          actionButtons(lead) +
+          '  </div>' +
+          '</div>'
+        );
       }
 
-      function soporteRow(lead) {
+      function soporteCard(lead) {
         var d = lead.details || {};
-        return '<tr>' +
-          '<td class="admin-table__name">' + u.escapeHtml(lead.name) + '<div class="admin-table__meta">' + contactHTML(lead) + '</div></td>' +
-          '<td>' + (SUBJECT_LABELS[d.subject] || 'Otro') + '</td>' +
-          '<td class="admin-table__meta">' + u.escapeHtml(lead.message || '—') + '</td>' +
-          '<td class="admin-table__meta">' + u.relativeTime(lead.createdAt) + '</td>' +
-          '<td>' + ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') + '</td>' +
-          actionCell(lead) +
-          '</tr>';
+        return (
+          '<div class="admin-row-card">' +
+          '  <div class="admin-row-card__body">' +
+          '    <strong>' + u.escapeHtml(lead.name) + '</strong>' +
+          '    <span class="admin-row-card__meta">' + contactHTML(lead) + ' · ' + (SUBJECT_LABELS[d.subject] || 'Otro') + '</span>' +
+          (lead.message ? '    <span class="admin-row-card__meta admin-row-card__meta--wrap">' + u.escapeHtml(lead.message) + '</span>' : '') +
+          '    <span class="admin-row-card__meta">' + u.relativeTime(lead.createdAt) + '</span>' +
+          '  </div>' +
+          '  <div class="admin-row-card__foot">' +
+          ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') +
+          actionButtons(lead) +
+          '  </div>' +
+          '</div>'
+        );
       }
 
-      function directorioRow(lead) {
+      function directorioCard(lead) {
         var d = lead.details || {};
-        return '<tr>' +
-          '<td class="admin-table__name">' + u.escapeHtml(lead.name) + '<div class="admin-table__meta">' + contactHTML(lead) + '</div></td>' +
-          '<td>' + categoryLabel(d.category) + '</td>' +
-          '<td>' + u.escapeHtml(d.city || '—') + '</td>' +
-          '<td class="admin-table__meta">' + u.escapeHtml(lead.message || '—') + '</td>' +
-          '<td class="admin-table__meta">' + u.relativeTime(lead.createdAt) + '</td>' +
-          '<td>' + ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') + '</td>' +
-          actionCell(lead) +
-          '</tr>';
+        return (
+          '<div class="admin-row-card">' +
+          '  <div class="admin-row-card__body">' +
+          '    <strong>' + u.escapeHtml(lead.name) + '</strong>' +
+          '    <span class="admin-row-card__meta">' + contactHTML(lead) + ' · ' + categoryLabel(d.category) + ' · ' + u.escapeHtml(d.city || '—') + '</span>' +
+          (lead.message ? '    <span class="admin-row-card__meta admin-row-card__meta--wrap">' + u.escapeHtml(lead.message) + '</span>' : '') +
+          '    <span class="admin-row-card__meta">' + u.relativeTime(lead.createdAt) + '</span>' +
+          '  </div>' +
+          '  <div class="admin-row-card__foot">' +
+          ac.statusPill(lead.status === 'nuevo' ? 'pendiente' : 'resuelto') +
+          actionButtons(lead) +
+          '  </div>' +
+          '</div>'
+        );
       }
 
       var content =
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">Solicitudes de propiedad (' + solicitudes.length + ')</div>' +
         '  <div class="admin-section__subtitle">Visitantes que no encontraron lo que buscaban</div></div></div>' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Contacto</th><th>Tipo</th><th>Ciudad</th><th>Presupuesto</th><th>Detalle</th><th>Enviado</th><th>Estado</th><th></th></tr></thead>' +
-        '  <tbody>' + (solicitudes.map(solicitudRow).join('') || '<tr><td colspan="8" class="admin-table__meta">Sin solicitudes por ahora</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-row-list">' + (solicitudes.map(solicitudCard).join('') || '<p class="text-muted" style="font-size:0.85rem">Sin solicitudes por ahora</p>') + '</div>' +
         '</div>' +
 
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">Anúnciate aquí (' + directorio.length + ')</div>' +
         '  <div class="admin-section__subtitle">Profesionales interesados en aparecer en el directorio de servicios</div></div></div>' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Contacto</th><th>Categoría</th><th>Ciudad</th><th>Mensaje</th><th>Enviado</th><th>Estado</th><th></th></tr></thead>' +
-        '  <tbody>' + (directorio.map(directorioRow).join('') || '<tr><td colspan="7" class="admin-table__meta">Sin solicitudes por ahora</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-row-list">' + (directorio.map(directorioCard).join('') || '<p class="text-muted" style="font-size:0.85rem">Sin solicitudes por ahora</p>') + '</div>' +
         '</div>' +
 
         '<div class="admin-section">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">Soporte y contacto (' + soporte.length + ')</div>' +
         '  <div class="admin-section__subtitle">Reportes y mensajes enviados al administrador</div></div></div>' +
-        '  <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Contacto</th><th>Asunto</th><th>Mensaje</th><th>Enviado</th><th>Estado</th><th></th></tr></thead>' +
-        '  <tbody>' + (soporte.map(soporteRow).join('') || '<tr><td colspan="6" class="admin-table__meta">Sin mensajes por ahora</td></tr>') + '</tbody></table></div>' +
+        '  <div class="admin-row-list">' + (soporte.map(soporteCard).join('') || '<p class="text-muted" style="font-size:0.85rem">Sin mensajes por ahora</p>') + '</div>' +
         '</div>';
 
       ac.mount('solicitudes', 'Solicitudes', content, root);
