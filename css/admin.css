@@ -55,7 +55,7 @@
 
 .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 800; flex-shrink: 0; }
 .status-pill--activo, .status-pill--disponible, .status-pill--resuelto, .status-pill--contactado, .status-pill--pagado { background: var(--color-venta-bg); color: var(--color-venta); }
-.status-pill--pendiente, .status-pill--nuevo { background: var(--color-otro-bg); color: var(--color-otro); }
+.status-pill--pendiente, .status-pill--nuevo, .status-pill--pendiente_pago { background: var(--color-otro-bg); color: var(--color-otro); }
 .status-pill--suspendido { background: #FEE2E2; color: var(--color-primary); }
 .status-pill--inactivo { background: #F3F4F6; color: var(--color-ink-secondary); }
 

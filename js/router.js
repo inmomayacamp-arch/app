@@ -31,6 +31,8 @@
       { pattern: "/privacidad", view: v.privacy.render, key: "explore" },
       { pattern: "/confirmar-cuenta", view: v.confirmAccount.render, key: "explore" },
       { pattern: "/restablecer-contrasena", view: v.resetPassword.render, key: "explore" },
+      { pattern: "/pago-exitoso", view: v.paymentResult.renderSuccess, key: "explore" },
+      { pattern: "/pago-cancelado", view: v.paymentResult.renderCancel, key: "explore" },
       { pattern: "/servicios/:category/:id", view: v.serviceProviderDetail.render, key: "explore" },
       { pattern: "/servicios/:category", view: v.serviceDirectory.render, key: "explore" },
       { pattern: "/anunciate", view: v.advertiseWithUs.render, key: "explore" },

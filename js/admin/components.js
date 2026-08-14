@@ -21,7 +21,7 @@
 
   function statusPill(status) {
     var labels = {
-      activo: "Activo", inactivo: "Inactivo", suspendido: "Suspendido",
+      activo: "Activo", inactivo: "Inactivo", suspendido: "Suspendido", pendiente_pago: "Pendiente de pago",
       disponible: "Disponible", pendiente: "Pendiente", nuevo: "Nuevo", resuelto: "Resuelto", contactado: "Contactado"
     };
     return '<span class="status-pill status-pill--' + status + '">' + (labels[status] || status) + '</span>';

@@ -1,20 +1,11 @@
-// Vista "Destacar mi propiedad": pantalla de cobro para el addon de destacado
-// de una cuenta de propietario. El cobro real con Stripe todavía no está
-// conectado, así que por ahora solo explica el precio y manda a Soporte —
-// pero ya existe como pantalla propia en vez de un simple aviso, lista para
-// enchufar Stripe cuando esté listo.
+// Vista "Destacar mi propiedad": cobro real (Checkout de Stripe) del addon
+// de destacado para una cuenta de propietario.
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var state = window.App.state;
   var ac = window.App.agent.components;
-
-  var PAYMENT_METHODS = [
-    { icon: "dollar", label: "Tarjeta de crédito o débito" },
-    { icon: "exchange", label: "Transferencia bancaria" },
-    { icon: "store", label: "Pago en OXXO" }
-  ];
 
   function render(params, root) {
     var agent = state.agents.current();
@@ -33,16 +24,6 @@
       return;
     }
 
-    function paymentMethodsHTML() {
-      return PAYMENT_METHODS.map(function (m) {
-        return '<div class="payment-option" aria-disabled="true">' +
-          '<span class="payment-option__icon">' + u.icon(m.icon, { size: 16 }) + '</span>' +
-          '<span>' + m.label + '</span>' +
-          '<span class="payment-option__soon">' + u.icon('clock', { size: 12 }) + ' Próximamente</span>' +
-          '</div>';
-      }).join('');
-    }
-
     var content =
       '<div class="signup-checkout" style="padding:0">' +
       '  <div class="signup-checkout__card" style="box-shadow:none;padding:0">' +
@@ -57,16 +38,26 @@
       '    </div>' +
 
       '    <div class="payment-section">' +
-      '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Método de pago</div>' +
-      '      <div class="payment-options">' + paymentMethodsHTML() + '</div>' +
-      '      <p class="payment-section__note">Estamos integrando el cobro en línea con Stripe. Mientras tanto, escríbenos a Soporte y te ayudamos a destacar tu propiedad.</p>' +
+      '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Pago seguro con Stripe</div>' +
+      '      <p class="payment-section__note">Al continuar te llevamos a la página segura de pago. Aceptamos tarjeta, transferencia y OXXO.</p>' +
       '    </div>' +
 
-      '    <a class="btn btn--primary btn--block" href="#/soporte">' + u.icon('flag', { size: 15 }) + ' Escríbenos a Soporte</a>' +
+      '    <button type="button" class="btn btn--primary btn--block" data-pay>' + u.icon('starFilled', { size: 15 }) + ' Pagar $' + addon.price + ' y destacar</button>' +
       '  </div>' +
       '</div>';
 
     ac.mount('propiedades', 'Destacar mi propiedad', content, root);
+
+    var payBtn = u.qs('[data-pay]', root);
+    payBtn.addEventListener('click', async function () {
+      payBtn.disabled = true;
+      try {
+        await state.payments.startCheckout('featured', { propertyId: property.id });
+      } catch (err) {
+        payBtn.disabled = false;
+        u.toast(err.message || 'No se pudo iniciar el pago');
+      }
+    });
   }
 
   window.App.agent.views = window.App.agent.views || {};

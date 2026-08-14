@@ -56,6 +56,25 @@
 
     await state.agents.bootstrap();
     u.toast('¡Cuenta confirmada!', { tone: 'success' });
+
+    var agent = state.agents.current();
+    // Un asesor recién confirmado y que todavía no pagó: mandarlo directo
+    // a completar el pago en vez de al panel, igual que cuando la sesión
+    // ya estaba activa al momento de registrarse (registerPlan.js).
+    if (agent && agent.plan === 'asesor' && agent.status !== 'activo') {
+      try {
+        var billing = 'mensual';
+        try { billing = localStorage.getItem('inmomap:pendingBilling') || 'mensual'; localStorage.removeItem('inmomap:pendingBilling'); } catch (e) { /* no-op */ }
+        await state.agents.updateProfile(agent.slug, { status: 'pendiente_pago' });
+        await state.payments.startCheckout('plan', { billing: billing });
+        return;
+      } catch (err) {
+        // Si algo falla al iniciar el pago, no dejamos a la persona
+        // atorada: la mandamos al panel, donde "Suscripción" le va a
+        // seguir ofreciendo pagar.
+      }
+    }
+
     window.location.hash = '#/dashboard';
     window.location.reload();
   }

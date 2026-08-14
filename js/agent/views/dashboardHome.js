@@ -112,6 +112,14 @@
       '  <div class="agent-greeting__text"><strong>' + greetingWord() + ', ' + u.escapeHtml(agent.name.split(' ')[0]) + '</strong><span>Esto es lo que pasa en tu negocio hoy</span></div>' +
       '</div>' +
 
+      (agent.status !== 'activo'
+        ? '<a class="attention-card" href="#/dashboard/suscripcion">' +
+          '  <span class="attention-card__icon">' + u.icon('dollar', { size: 18 }) + '</span>' +
+          '  <div class="attention-card__text"><strong>Completa tu pago para activar tu cuenta</strong><span>Sin esto no puedes publicar propiedades nuevas</span></div>' +
+          u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
+          '</a>'
+        : '') +
+
       (uncontacted
         ? '<a class="attention-card" href="#/dashboard/clientes">' +
           '  <span class="attention-card__icon">' + u.icon('bell', { size: 18 }) + '</span>' +
@@ -134,7 +142,7 @@
 
       '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
       tileHTML({ href: '#/dashboard/perfil-profesional', icon: 'user', title: 'Perfil profesional', desc: 'Tu información pública' }) +
-      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: 'Plan Asesor' }) +
+      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: agent.status === 'activo' ? 'Plan Asesor activo' : 'Pendiente de pago' }) +
       '</div></div>' +
 
       '<div class="admin-section">' +

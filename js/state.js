@@ -462,9 +462,32 @@
     emit("links:change", cachedLinks);
   }
 
+  // --- Pagos con Stripe: crea la Sesión (Checkout o Portal) en el backend
+  // (Supabase Edge Function, la única pieza con la clave secreta de Stripe)
+  // y redirige. kind: "plan" | "featured" | "portal".
+  async function startPaymentCheckout(kind, extra) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var sessionResult = await supabaseClient.auth.getSession();
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session) throw new Error("Debes iniciar sesión");
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/create-checkout-session";
+    var body = Object.assign({ kind: kind }, extra || {});
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+      body: JSON.stringify(body)
+    });
+    var data = await response.json();
+    if (!response.ok || !data.url) throw new Error(data.error || "No se pudo iniciar el pago");
+    window.location.href = data.url;
+  }
+
   window.App.state = {
     on: on,
     emit: emit,
+    payments: {
+      startCheckout: startPaymentCheckout
+    },
     favorites: {
       has: isFavorite,
       toggle: toggleFavorite,

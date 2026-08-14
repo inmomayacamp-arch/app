@@ -73,6 +73,7 @@
   function render(params, root) {
     var agent = state.agents.current();
     var isAgent = agent.plan === "asesor";
+    var agentActive = isAgent && agent.status === "activo";
     var wantsFeaturedAfter = !params.id && (params.query || {}).intent === "featured";
 
     var editingId = params.id || null;
@@ -89,16 +90,25 @@
       u.toast("Ya tienes una propiedad publicada. Escríbenos a soporte si necesitas publicar otra.");
       return;
     }
+    // Cuenta de asesor sin pago activo (nueva sin completar el checkout, o
+    // suscripción vencida/cancelada): no puede publicar propiedades nuevas
+    // hasta reactivar el plan. Solo bloquea al crear, no al editar lo que
+    // ya tenía publicado antes de que venciera.
+    if (!editingId && isAgent && !agentActive) {
+      window.location.hash = "#/dashboard/suscripcion";
+      u.toast("Completa el pago de tu plan para poder publicar propiedades.");
+      return;
+    }
     // El plan de asesor incluye hasta 15 propiedades activas.
-    if (!editingId && isAgent && state.properties.byAgent(agent.slug).length >= 15) {
+    if (!editingId && agentActive && state.properties.byAgent(agent.slug).length >= 15) {
       window.location.hash = "#/dashboard/propiedades";
       u.toast("Llegaste al límite de 15 propiedades activas de tu plan.");
       return;
     }
     // Solo 1 propiedad puede estar destacada gratis a la vez (la que ya
     // incluye el plan); no cuenta la que se está editando.
-    var featuredCount = isAgent ? state.properties.byAgent(agent.slug).filter(function (p) { return p.featured && p.id !== editingId; }).length : 0;
-    var canMarkFeatured = isAgent && featuredCount < 1;
+    var featuredCount = agentActive ? state.properties.byAgent(agent.slug).filter(function (p) { return p.featured && p.id !== editingId; }).length : 0;
+    var canMarkFeatured = agentActive && featuredCount < 1;
 
     var stepIndex = 0;
     var published = null;
@@ -843,7 +853,7 @@
           sharing: payload.sharing.enabled ? payload.sharing : null,
           publishStatus: payload.publishStatus,
           scheduledAt: scheduledIso,
-          featured: isAgent && payload.featured,
+          featured: agentActive && payload.featured,
           tags: payload.tags
         };
         // La publicación gratuita de un propietario dura 30 días; se renueva

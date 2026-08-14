@@ -23,7 +23,7 @@
   };
 
   function canFeature(agent) {
-    return agent.plan === 'asesor';
+    return agent.plan === 'asesor' && agent.status === 'activo';
   }
 
   function shareSheet(p, agent, refresh) {

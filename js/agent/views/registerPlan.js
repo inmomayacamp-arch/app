@@ -1,18 +1,11 @@
 // Vista "Registro de asesor": paso de checkout tras elegir mensual/anual en
-// /planes. Muestra el resumen del plan (único, todo incluido), el
-// formulario de alta y deja el espacio listo para conectar una pasarela de
-// pagos real más adelante.
+// /planes. Muestra el resumen del plan (único, todo incluido), crea la
+// cuenta y manda directo al Checkout real de Stripe para pagarlo.
 (function () {
   "use strict";
 
   var u = window.App.utils;
   var state = window.App.state;
-
-  var PAYMENT_METHODS = [
-    { icon: "dollar", label: "Tarjeta de crédito o débito" },
-    { icon: "exchange", label: "Transferencia bancaria" },
-    { icon: "store", label: "Pago en OXXO" }
-  ];
 
   function render(params, root) {
     document.body.classList.add('is-admin');
@@ -29,16 +22,6 @@
     var price = billing === 'anual' ? plan.priceAnnual : plan.price;
     var priceLabel = billing === 'anual' ? '/año' : '/mes';
     document.title = 'Crear cuenta de asesor — InmoMaps';
-
-    function paymentMethodsHTML() {
-      return PAYMENT_METHODS.map(function (m) {
-        return '<div class="payment-option" aria-disabled="true">' +
-          '<span class="payment-option__icon">' + u.icon(m.icon, { size: 16 }) + '</span>' +
-          '<span>' + m.label + '</span>' +
-          '<span class="payment-option__soon">' + u.icon('clock', { size: 12 }) + ' Próximamente</span>' +
-          '</div>';
-      }).join('');
-    }
 
     root.innerHTML =
       '<div class="signup-checkout">' +
@@ -69,13 +52,12 @@
       '    <div class="form-field"><label>Contraseña</label>' + u.passwordFieldHTML('password', 'Crea una contraseña', 'new-password') + '</div>' +
 
       '    <div class="payment-section">' +
-      '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Método de pago</div>' +
-      '      <div class="payment-options">' + paymentMethodsHTML() + '</div>' +
-      '      <p class="payment-section__note">Estamos integrando el cobro en línea. Por ahora tu cuenta se activa sin costo; podrás agregar tu método de pago desde tu panel en cuanto esté disponible.</p>' +
+      '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Pago seguro con Stripe</div>' +
+      '      <p class="payment-section__note">Al continuar te llevamos a la página segura de pago para activar tu cuenta. Aceptamos tarjeta, transferencia y OXXO.</p>' +
       '    </div>' +
 
       '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al crear tu cuenta aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
-      '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta</button>' +
+      '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta y pagar</button>' +
       '    <p class="signup-checkout__footer">¿Ya tienes cuenta? <a href="#/dashboard/login">Inicia sesión</a></p>' +
       '  </div>' +
       '</div>';
@@ -92,12 +74,17 @@
       if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
       registerBtn.disabled = true;
       try {
-        await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: 'asesor' });
-        u.toast('Cuenta creada, ¡bienvenido a InmoMaps!', { tone: 'success' });
-        window.location.hash = '#/dashboard';
+        // Si Supabase pide confirmar el correo antes de dar sesión, no hay
+        // forma de iniciar el pago todavía; se retoma en confirmAccount.js
+        // con este dato guardado, para no perder si eligió mensual o anual.
+        try { localStorage.setItem('inmomap:pendingBilling', billing); } catch (e) { /* no-op */ }
+        var agent = await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: 'asesor' });
+        // Recién creada, sin pago todavía: no cuenta como "activo" hasta
+        // que el webhook de Stripe confirme el cobro.
+        await state.agents.updateProfile(agent.slug, { status: 'pendiente_pago' });
+        await state.payments.startCheckout('plan', { billing: billing });
       } catch (err) {
         u.toast(err.message || 'No se pudo crear la cuenta');
-      } finally {
         registerBtn.disabled = false;
       }
     });
