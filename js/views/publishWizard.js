@@ -70,7 +70,7 @@
     publicacion: "Publicación", vista_previa: "Vista previa"
   };
 
-  function render(params, root) {
+  async function render(params, root) {
     var agent = state.agents.current();
     var isAgent = agent.plan === "asesor";
     var agentActive = isAgent && agent.status === "activo";
@@ -93,11 +93,18 @@
     // Cuenta de asesor sin pago activo (nueva sin completar el checkout, o
     // suscripción vencida/cancelada): no puede publicar propiedades nuevas
     // hasta reactivar el plan. Solo bloquea al crear, no al editar lo que
-    // ya tenía publicado antes de que venciera.
+    // ya tenía publicado antes de que venciera. Antes de bloquear, se
+    // refresca el perfil: si acaba de pagar, el webhook de Stripe puede
+    // haber tardado un poco más que la última vez que se cargó la sesión.
     if (!editingId && isAgent && !agentActive) {
-      window.location.hash = "#/dashboard/suscripcion";
-      u.toast("Completa el pago de tu plan para poder publicar propiedades.");
-      return;
+      await state.agents.bootstrap();
+      agent = state.agents.current();
+      agentActive = isAgent && agent.status === "activo";
+      if (!agentActive) {
+        window.location.hash = "#/dashboard/suscripcion";
+        u.toast("Completa el pago de tu plan para poder publicar propiedades.");
+        return;
+      }
     }
     // El plan de asesor incluye hasta 15 propiedades activas.
     if (!editingId && agentActive && state.properties.byAgent(agent.slug).length >= 15) {

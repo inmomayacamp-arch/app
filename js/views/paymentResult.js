@@ -1,7 +1,10 @@
 // Vistas de regreso desde el Checkout de Stripe (success_url / cancel_url).
-// Stripe ya confirmó (o no) el pago del lado de ellos; el estado real de la
-// cuenta lo actualiza el webhook por separado, así que aquí solo se avisa y
-// se regresa al panel — no hay nada que verificar en el cliente.
+// Stripe ya confirmó (o no) el pago del lado de ellos, pero el webhook que
+// activa la cuenta llega por separado y puede tardar uno o dos segundos más
+// que el redireccionamiento del navegador — así que aquí no basta con
+// refrescar una sola vez: hay que reintentar hasta ver el cambio reflejado,
+// o la persona puede llegar a "Publicar" con datos viejos que todavía
+// digan que le falta pagar.
 (function () {
   "use strict";
 
@@ -24,13 +27,30 @@
       '</div>';
   }
 
+  function sleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+
   async function renderSuccess(params, root) {
     document.title = 'Pago confirmado — InmoMaps';
     c.mountChrome('explore');
-    root.innerHTML = shell('check', 'var(--color-venta)', '¡Pago recibido!',
-      'Puede tardar unos segundos en reflejarse en tu cuenta. Si no ves el cambio de inmediato, entra de nuevo a tu panel en un momento.',
-      '#/dashboard', 'Ir a mi panel');
-    if (state.agents.isLoggedIn()) await state.agents.bootstrap();
+
+    if (!state.agents.isLoggedIn()) {
+      root.innerHTML = shell('check', 'var(--color-venta)', '¡Pago recibido!', 'Ya puedes ir a tu panel.', '#/dashboard', 'Ir a mi panel');
+      return;
+    }
+
+    root.innerHTML = '<div class="page-wrap" style="max-width:560px"><div class="empty-state" style="padding-top:24px"><span class="spinner"></span><h3>Confirmando tu pago…</h3><p>Esto tarda solo unos segundos.</p></div></div>';
+
+    var wasPending = state.agents.current().status !== 'activo';
+    var confirmed = !wasPending;
+    for (var i = 0; i < 6 && !confirmed; i++) {
+      await sleep(1500);
+      await state.agents.bootstrap();
+      if (state.agents.current().status === 'activo') confirmed = true;
+    }
+
+    root.innerHTML = confirmed
+      ? shell('check', 'var(--color-venta)', '¡Cuenta activada!', 'Tu pago se confirmó y tu cuenta ya está activa. Ya puedes publicar propiedades.', '#/dashboard', 'Ir a mi panel')
+      : shell('clock', 'var(--color-otro)', 'Tu pago está en proceso', 'Stripe ya lo recibió, pero está tardando un poco más de lo normal en reflejarse. Entra a "Suscripción" en tu panel en un minuto para confirmar — si sigue sin activarse, escríbenos a Soporte.', '#/dashboard/suscripcion', 'Ver mi suscripción');
   }
 
   function renderCancel(params, root) {
