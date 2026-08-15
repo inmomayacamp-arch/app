@@ -489,11 +489,36 @@
     window.location.href = data.url;
   }
 
+  // Registro de asesor con pago primero: todavía no hay cuenta ni sesión,
+  // así que esto no manda token — el webhook crea la cuenta al confirmar
+  // el pago. Se guarda el correo/contraseña para el primer inicio de
+  // sesión automático al volver de Stripe (ver paymentResult.js).
+  async function startSignupCheckout(fields) {
+    try { sessionStorage.setItem("inmomap:pendingLogin", JSON.stringify({ email: fields.email, password: fields.password })); } catch (e) { /* no-op */ }
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/create-checkout-session";
+    var body = {
+      kind: "signup", name: fields.name, email: fields.email,
+      phone: fields.phone, city: fields.city, password: fields.password, billing: fields.billing
+    };
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    var data = await response.json();
+    if (!response.ok || !data.url) {
+      try { sessionStorage.removeItem("inmomap:pendingLogin"); } catch (e) { /* no-op */ }
+      throw new Error(data.error || "No se pudo iniciar el pago");
+    }
+    window.location.href = data.url;
+  }
+
   window.App.state = {
     on: on,
     emit: emit,
     payments: {
-      startCheckout: startPaymentCheckout
+      startCheckout: startPaymentCheckout,
+      startSignupCheckout: startSignupCheckout
     },
     favorites: {
       has: isFavorite,

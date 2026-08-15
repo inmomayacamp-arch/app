@@ -33,6 +33,33 @@
     document.title = 'Pago confirmado — InmoMaps';
     c.mountChrome('explore');
 
+    var pendingLoginRaw = null;
+    try { pendingLoginRaw = sessionStorage.getItem('inmomap:pendingLogin'); } catch (e) { /* no-op */ }
+
+    if (pendingLoginRaw) {
+      // Registro con pago primero: la cuenta no existía hasta este pago —
+      // la crea el webhook. Aquí se espera a que exista y se hace el
+      // primer inicio de sesión automático con los mismos datos.
+      try { sessionStorage.removeItem('inmomap:pendingLogin'); } catch (e) { /* no-op */ }
+      var pending = JSON.parse(pendingLoginRaw);
+
+      root.innerHTML = '<div class="page-wrap" style="max-width:560px"><div class="empty-state" style="padding-top:24px"><span class="spinner"></span><h3>Creando tu cuenta…</h3><p>Esto tarda solo unos segundos.</p></div></div>';
+
+      var loggedIn = false;
+      for (var j = 0; j < 6 && !loggedIn; j++) {
+        if (j > 0) await sleep(1500);
+        try {
+          var newAgent = await state.agents.login(pending.email, pending.password);
+          if (newAgent) loggedIn = true;
+        } catch (e) { /* la cuenta aún no existe: reintenta */ }
+      }
+
+      root.innerHTML = loggedIn
+        ? shell('check', 'var(--color-venta)', '¡Cuenta creada!', 'Tu pago se confirmó y tu cuenta de asesor ya está activa.', '#/dashboard', 'Ir a mi panel')
+        : shell('clock', 'var(--color-otro)', 'Tu pago está en proceso', 'Stripe ya lo recibió, pero tu cuenta está tardando un poco más de lo normal en crearse. Intenta iniciar sesión en un minuto con el correo y contraseña que usaste — si sigue sin funcionar, escríbenos a Soporte.', '#/dashboard/login', 'Ir a iniciar sesión');
+      return;
+    }
+
     if (!state.agents.isLoggedIn()) {
       root.innerHTML = shell('check', 'var(--color-venta)', '¡Pago recibido!', 'Ya puedes ir a tu panel.', '#/dashboard', 'Ir a mi panel');
       return;

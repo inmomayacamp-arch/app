@@ -1,6 +1,8 @@
 // Vista "Registro de asesor": paso de checkout tras elegir mensual/anual en
-// /planes. Muestra el resumen del plan (único, todo incluido), crea la
-// cuenta y manda directo al Checkout real de Stripe para pagarlo.
+// /planes. Muestra el resumen del plan (único, todo incluido) y manda
+// directo al Checkout real de Stripe — la cuenta todavía no existe; la crea
+// el webhook de Stripe en cuanto confirma el pago (ver paymentResult.js,
+// que hace el primer inicio de sesión automático al volver).
 (function () {
   "use strict";
 
@@ -74,17 +76,9 @@
       if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
       registerBtn.disabled = true;
       try {
-        // Si Supabase pide confirmar el correo antes de dar sesión, no hay
-        // forma de iniciar el pago todavía; se retoma en confirmAccount.js
-        // con este dato guardado, para no perder si eligió mensual o anual.
-        try { localStorage.setItem('inmomap:pendingBilling', billing); } catch (e) { /* no-op */ }
-        var agent = await state.agents.register({ name: name, email: email, phone: phone, city: city, password: password, plan: 'asesor' });
-        // Recién creada, sin pago todavía: no cuenta como "activo" hasta
-        // que el webhook de Stripe confirme el cobro.
-        await state.agents.updateProfile(agent.slug, { status: 'pendiente_pago' });
-        await state.payments.startCheckout('plan', { billing: billing });
+        await state.payments.startSignupCheckout({ name: name, email: email, phone: phone, city: city, password: password, billing: billing });
       } catch (err) {
-        u.toast(err.message || 'No se pudo crear la cuenta');
+        u.toast(err.message || 'No se pudo iniciar el pago');
         registerBtn.disabled = false;
       }
     });
