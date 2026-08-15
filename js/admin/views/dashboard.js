@@ -71,18 +71,39 @@
       );
     }
 
+    var mfaBannerHtml = '';
+    var issuesBannerHtml = '';
+
     ac.mount('dashboard', 'Dashboard', baseContent(''), root);
+
+    function rerenderBanners() {
+      ac.mount('dashboard', 'Dashboard', baseContent(mfaBannerHtml + issuesBannerHtml), root);
+      bindIssueButtons();
+    }
+
+    s.mfa.listFactors().then(function (factors) {
+      if (factors.some(function (f) { return f.status === 'verified'; })) return;
+      mfaBannerHtml =
+        '<div class="admin-section" style="border-color:var(--color-primary)">' +
+        '  <div class="admin-section__head"><div><div class="admin-section__title">⚠ Verificación en dos pasos desactivada</div>' +
+        '  <div class="admin-section__subtitle">Cualquiera con tu contraseña puede entrar al panel — actívala en Seguridad</div></div></div>' +
+        '  <a class="btn btn--sm btn--primary" href="#/admin/seguridad">Ir a Seguridad</a>' +
+        '</div>';
+      rerenderBanners();
+    }).catch(function () { /* silencioso: no bloquea el resto del dashboard */ });
 
     s.signupIssues.unresolved().then(function (issues) {
       if (!issues.length) return;
-      var issuesHtml =
+      issuesBannerHtml =
         '<div class="admin-section" style="border-color:var(--color-primary)">' +
         '  <div class="admin-section__head"><div><div class="admin-section__title">⚠ Pagos sin cuenta creada (' + issues.length + ')</div>' +
         '  <div class="admin-section__subtitle">Se cobró pero la cuenta no se pudo crear — créala a mano con estos datos</div></div></div>' +
         '  <div class="admin-row-list">' + issues.map(issueRowHTML).join('') + '</div>' +
         '</div>';
-      ac.mount('dashboard', 'Dashboard', baseContent(issuesHtml), root);
+      rerenderBanners();
+    }).catch(function () { /* silencioso: no bloquea el resto del dashboard */ });
 
+    function bindIssueButtons() {
       u.qsa('[data-resolve-issue]', root).forEach(function (btn) {
         btn.addEventListener('click', async function () {
           if (!window.confirm('¿Marcar como resuelto sin crear la cuenta? Solo hazlo si ya lo resolviste de otra forma.')) return;
@@ -104,7 +125,7 @@
           }
         });
       });
-    }).catch(function () { /* silencioso: no bloquea el resto del dashboard */ });
+    }
   }
 
   window.App.admin.views = window.App.admin.views || {};

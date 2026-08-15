@@ -34,6 +34,7 @@
     });
 
     await window.App.state.agents.bootstrap();
+    await window.App.admin.state.auth.checkMfaOnBoot();
     await Promise.all([
       window.App.state.properties.bootstrap(),
       window.App.state.links.bootstrap(),
