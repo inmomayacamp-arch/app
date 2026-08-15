@@ -12,7 +12,7 @@
       '  <h1 class="page-header__title">Aviso de privacidad</h1>' +
       '</div>' +
       '<div class="legal-content">' +
-      '<p class="legal-content__updated">Última actualización: 13 de agosto de 2026</p>' +
+      '<p class="legal-content__updated">Última actualización: 15 de agosto de 2026</p>' +
 
       '<h2>1. Responsable del tratamiento de tus datos</h2>' +
       '<p>InmoMaps (en adelante, "el responsable") es el operador de esta plataforma y es responsable del tratamiento de tus datos personales conforme a este aviso. Puedes contactarnos a través de la sección <a href="#/soporte" style="color:var(--color-primary);font-weight:700">Soporte y contacto</a>.</p>' +
@@ -41,7 +41,7 @@
       '</ul>' +
 
       '<h2>4. Con quién compartimos tus datos</h2>' +
-      '<p>Cuando contactas a un asesor sobre una propiedad, tu nombre, teléfono y mensaje se comparten directamente con ese asesor para que pueda responderte — ese es el propósito del servicio. También usamos proveedores de infraestructura (como hospedaje de base de datos y almacenamiento de imágenes) que procesan datos en nuestro nombre bajo sus propias medidas de seguridad. No vendemos tus datos personales a terceros.</p>' +
+      '<p>Cuando contactas a un asesor sobre una propiedad, tu nombre, teléfono y mensaje se comparten directamente con ese asesor para que pueda responderte — ese es el propósito del servicio. Si te registras como asesor, tu nombre y correo se comparten con Stripe, nuestro proveedor de pagos, únicamente para procesar el cobro de tu suscripción; Stripe nunca recibe tu contraseña de InmoMaps. También usamos proveedores de infraestructura (como hospedaje de base de datos y almacenamiento de imágenes) que procesan datos en nuestro nombre bajo sus propias medidas de seguridad. No vendemos tus datos personales a terceros.</p>' +
 
       '<h2>5. Derechos ARCO</h2>' +
       '<p>Tienes derecho a Acceder, Rectificar y Cancelar tus datos personales, así como a Oponerte al uso de los mismos para finalidades secundarias ("derechos ARCO"). También puedes revocar tu consentimiento en cualquier momento.</p>' +

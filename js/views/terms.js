@@ -12,7 +12,7 @@
       '  <h1 class="page-header__title">Términos y condiciones</h1>' +
       '</div>' +
       '<div class="legal-content">' +
-      '<p class="legal-content__updated">Última actualización: 13 de agosto de 2026</p>' +
+      '<p class="legal-content__updated">Última actualización: 15 de agosto de 2026</p>' +
 
       '<h2>1. Quiénes somos</h2>' +
       '<p>InmoMaps ("nosotros", "la plataforma") es un servicio en línea que permite a compradores y arrendatarios explorar propiedades inmobiliarias sobre un mapa interactivo, y a asesores inmobiliarios y propietarios publicar y administrar sus propiedades. Al usar InmoMaps, aceptas estos términos.</p>' +
@@ -22,10 +22,9 @@
       '<p><strong>InmoMaps no es parte de ninguna compraventa, renta o negociación.</strong> No somos inmobiliaria, no gestionamos pagos entre partes, no verificamos la titularidad legal de las propiedades publicadas y no garantizamos que una propiedad esté disponible, en las condiciones descritas o al precio anunciado. Toda negociación ocurre directamente entre el interesado y el asesor o propietario.</p>' +
 
       '<h2>3. Cuentas de usuario</h2>' +
-      '<p>Cualquier persona puede explorar propiedades sin crear una cuenta. Para publicar propiedades se requiere una cuenta de asesor o de propietario individual, sujeta a un plan (básico, profesional o propietario) con sus propias características.</p>' +
+      '<p>Cualquier persona puede explorar propiedades sin crear una cuenta. Para publicar propiedades se requiere una cuenta de asesor (con el Plan Asesor, ver sección 6) o de propietario individual (publicación gratuita de una propiedad), cada una con sus propias características.</p>' +
       '<ul>' +
       '<li>Eres responsable de la información que registras y de mantener segura tu contraseña.</li>' +
-      '<li>Las cuentas de asesor pueden requerir aprobación del equipo de InmoMaps antes de poder publicar.</li>' +
       '<li>Nos reservamos el derecho de suspender cuentas que incumplan estos términos.</li>' +
       '</ul>' +
 
@@ -42,7 +41,9 @@
       '<p>La función "Bolsa Compartida" permite que un asesor autorice a otros a ofrecer su propiedad a cambio de una comisión de colaboración que el propio asesor define. InmoMaps solo facilita la visibilidad de este acuerdo entre asesores; no participa en la negociación, el cobro ni el cumplimiento de la comisión pactada — eso es responsabilidad exclusiva de los asesores involucrados.</p>' +
 
       '<h2>6. Planes y pagos</h2>' +
-      '<p>Algunos planes de asesor pueden tener costo. Los precios, periodicidad y método de cobro vigentes se muestran en la sección de Suscripción dentro del panel del asesor. Los pagos, cuando existan, se procesan a través de un proveedor externo; InmoMaps no almacena datos completos de tarjetas de pago.</p>' +
+      '<p>El Plan Asesor tiene un costo fijo mensual o anual; los precios vigentes se muestran en la sección de Planes y en tu panel de Suscripción. Los pagos se procesan a través de Stripe, un proveedor externo de pagos; InmoMaps no almacena los datos completos de tu tarjeta.</p>' +
+      '<p>La suscripción se renueva automáticamente al final de cada periodo (mensual o anual, según lo que hayas elegido) hasta que la canceles. Puedes cancelarla en cualquier momento desde tu panel (Suscripción → Gestionar pago); la cancelación aplica a partir del siguiente cobro — no se hacen reembolsos por el periodo ya pagado, salvo que la ley aplicable indique lo contrario.</p>' +
+      '<p>Si un cobro falla o tu suscripción vence sin renovarse, tu cuenta pierde temporalmente el acceso a publicar propiedades nuevas y a las demás funciones del plan, hasta que se regularice el pago.</p>' +
 
       '<h2>7. Propiedad intelectual</h2>' +
       '<p>El diseño, la marca InmoMaps y el software de la plataforma nos pertenecen. El contenido que tú publicas (fotos, descripciones) sigue siendo tuyo; al publicarlo nos das permiso para mostrarlo dentro de la plataforma con el fin de operar el servicio.</p>' +
