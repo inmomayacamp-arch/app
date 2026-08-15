@@ -47,6 +47,7 @@
         '  </div>' +
         '  <div class="form-field"><label>Asunto</label><select data-subject>' + SUBJECTS.map(function (s) { return '<option value="' + s.value + '">' + s.label + '</option>'; }).join('') + '</select></div>' +
         '  <div class="form-field"><label>Mensaje</label><textarea rows="5" data-message placeholder="Cuéntanos qué pasó o en qué te podemos ayudar."></textarea></div>' +
+        '  <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Sitio web</label><input type="text" data-website tabindex="-1" autocomplete="off" /></div>' +
 
         '  <button type="button" class="btn btn--primary btn--block" data-submit>Enviar mensaje</button>' +
         '  <p class="text-muted" style="font-size:0.78rem;margin-top:18px;text-align:center">' +
@@ -61,12 +62,13 @@
         var phone = u.qs('[data-phone]', root).value.trim();
         var message = u.qs('[data-message]', root).value.trim();
         var subject = u.qs('[data-subject]', root).value;
+        var website = u.qs('[data-website]', root).value.trim();
         if (!name || !email || !message) { u.toast('Completa tu nombre, correo y mensaje'); return; }
 
         submitBtn.disabled = true;
         try {
           await state.leads.create({
-            kind: 'soporte', name: name, phone: phone, email: email, message: message,
+            kind: 'soporte', name: name, phone: phone, email: email, message: message, website: website,
             details: { subject: subject, agentSlug: agent ? agent.slug : null }
           });
           renderConfirmation();

@@ -40,6 +40,7 @@
         '  <div class="form-field"><label>Presupuesto (opcional)</label><input type="number" min="0" data-budget placeholder="2,000,000" /></div>' +
         '  </div>' +
         '  <div class="form-field"><label>¿Qué estás buscando?</label><textarea rows="4" data-message placeholder="Describe la propiedad ideal: colonia, características, etc."></textarea></div>' +
+        '  <div style="position:absolute;left:-9999px" aria-hidden="true"><label>Sitio web</label><input type="text" data-website tabindex="-1" autocomplete="off" /></div>' +
 
         '  <button type="button" class="btn btn--primary btn--block" data-submit>Enviar solicitud</button>' +
         '</div>';
@@ -54,13 +55,14 @@
         var email = u.qs('[data-email]', root).value.trim();
         var city = u.qs('[data-city]', root).value.trim();
         var message = u.qs('[data-message]', root).value.trim();
+        var website = u.qs('[data-website]', root).value.trim();
         if (!name || !phone) { u.toast('Escribe tu nombre y teléfono'); return; }
         if (!city) { u.toast('Escribe la ciudad que te interesa'); return; }
 
         submitBtn.disabled = true;
         try {
           await state.leads.create({
-            kind: 'solicitud', name: name, phone: phone, email: email, message: message,
+            kind: 'solicitud', name: name, phone: phone, email: email, message: message, website: website,
             details: {
               type: u.qs('[data-type]', root).value,
               operation: u.qs('[data-operation]', root).value,

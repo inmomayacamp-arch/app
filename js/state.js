@@ -620,16 +620,21 @@
 
   function allLeads() { return cachedLeads; }
 
+  // Pasa por una Edge Function (en vez de insertar directo) para que el
+  // límite de intentos por IP y el honeypot anti-bot funcionen — insertar
+  // directo desde el cliente no se puede frenar del lado del servidor.
   async function createLead(payload) {
-    if (!supabaseClient) throw new Error("Supabase no está configurado");
-    var row = {
-      kind: payload.kind, name: payload.name, phone: payload.phone || "", email: payload.email || "",
-      message: payload.message || "", details: payload.details || {}
-    };
-    // No se encadena .select() porque quien envía la solicitud (visitante anónimo)
-    // no tiene permiso de lectura sobre la tabla: solo el administrador puede leerla.
-    var insertResult = await supabaseClient.from("leads").insert(row);
-    if (insertResult.error) throw insertResult.error;
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/create-lead";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: payload.kind, name: payload.name, phone: payload.phone || "", email: payload.email || "",
+        message: payload.message || "", details: payload.details || {}, website: payload.website || ""
+      })
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo enviar tu mensaje");
     return true;
   }
 
