@@ -374,7 +374,13 @@
       var state = working.stateKey && states[working.stateKey];
       return (
         '<div class="location-picker">' +
-        (state ? '<button type="button" class="location-picker__crumb" data-back>' + u.icon('chevronLeft', { size: 16 }) + '<strong>' + u.escapeHtml(state.label) + '</strong></button>' : '') +
+        (state ? (
+          '<div class="location-picker__crumb">' +
+          '<button type="button" class="location-picker__crumb-pill" data-back>Estado <strong>' + u.escapeHtml(state.label) + '</strong></button>' +
+          u.icon('chevronRight', { size: 12, class: 'location-picker__crumb-sep' }) +
+          '<span class="location-picker__crumb-pill location-picker__crumb-pill--current">Ciudad</span>' +
+          '</div>'
+        ) : '') +
         '<label class="location-picker__search">' + u.icon('search', { size: 16 }) +
         '<input type="text" inputmode="search" placeholder="Buscar ciudad o estado" value="' + u.escapeHtml(query) + '" data-location-search />' +
         '<button type="button" class="location-picker__search-clear" data-clear-search aria-label="Limpiar búsqueda"' + (query ? '' : ' hidden') + '>' + u.icon('x', { size: 12 }) + '</button>' +
