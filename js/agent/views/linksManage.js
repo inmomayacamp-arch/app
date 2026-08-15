@@ -9,6 +9,7 @@
 
   function renderList(params, root) {
     var agent = state.agents.current();
+    if (!ac.requireActivePlan(agent)) return;
     var links = state.links.byAgent(agent.slug);
 
     var content =
@@ -49,6 +50,7 @@
 
   function renderCreate(params, root) {
     var agent = state.agents.current();
+    if (!ac.requireActivePlan(agent)) return;
     var myProperties = state.properties.byAgent(agent.slug);
     var sharedCatalog = (window.App.agent.state.sharedPool ? window.App.agent.state.sharedPool.catalog() : []).map(function (row) { return row.property; });
     var allSelectable = myProperties.concat(sharedCatalog);

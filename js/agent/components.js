@@ -11,6 +11,18 @@
   function statusPill(status) {
     return window.App.admin.components.statusPill(status);
   }
+
+  // CRM (Clientes) y Enlaces personalizados son beneficios del plan pagado:
+  // una cuenta de asesor sin pago activo no debe poder usarlos, solo ver el
+  // Dashboard y su Suscripción para completar el pago.
+  function requireActivePlan(agent) {
+    if (agent.plan === 'asesor' && agent.status !== 'activo') {
+      window.location.hash = '#/dashboard/suscripcion';
+      u.toast('Completa el pago de tu plan para usar esta sección.');
+      return false;
+    }
+    return true;
+  }
   function hbarListHTML(data, opts) {
     return window.App.admin.components.hbarListHTML(data, opts);
   }
@@ -81,6 +93,7 @@
     hbarListHTML: hbarListHTML,
     kpiCardHTML: kpiCardHTML,
     barChartHTML: barChartHTML,
+    requireActivePlan: requireActivePlan,
     mount: mount
   };
 })();

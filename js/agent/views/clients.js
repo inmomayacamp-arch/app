@@ -121,6 +121,7 @@
   }
 
   function renderList(params, root) {
+    if (!ac.requireActivePlan(state.agents.current())) return;
     var activeStage = null;
 
     function refresh() {
@@ -186,6 +187,7 @@
   }
 
   function renderDetail(params, root) {
+    if (!ac.requireActivePlan(state.agents.current())) return;
     function refresh() {
       var client = agentState.clients.get(params.id);
       if (!client) {
