@@ -233,10 +233,10 @@
   // tanto por las tarjetas de categoría en Explorar como por el directorio
   // público (js/views/serviceDirectory.js) y el panel admin que lo administra.
   var SERVICE_CATEGORIES = [
-    { key: "notario", label: "Notario", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
+    { key: "notario", label: "Notarios", icon: "award", color: "var(--color-otro)", bg: "var(--color-otro-bg)" },
     { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
     { key: "arquitectos", label: "Arquitectos", icon: "penTool", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
-    { key: "servicios", label: "Servicios", icon: "tool", color: "#0D9488", bg: "#F0FDFA" },
+    { key: "servicios", label: "Servicios", icon: "tool", color: "#DB2777", bg: "#FDF2F8" },
     { key: "sofom", label: "SOFOM", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
   ];
 
