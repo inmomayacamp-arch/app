@@ -72,6 +72,15 @@
 
     c.mountChrome('explore');
     document.title = agent.name + ' — ' + subtitle + ' en InmoMaps';
+    var seoDescription = (agent.bio ? agent.bio + ' ' : '') + subtitle + (agent.city ? ' en ' + agent.city : '') +
+      ' · ' + allProps.length + ' propiedad' + (allProps.length === 1 ? '' : 'es') + ' publicada' + (allProps.length === 1 ? '' : 's') + ' en InmoMaps.';
+    u.setMeta({
+      title: agent.name + ' — ' + subtitle + ' en InmoMaps',
+      description: seoDescription.slice(0, 300),
+      image: agent.photo || undefined,
+      url: profileUrl,
+      type: 'profile'
+    });
 
     mapCtrl = window.App.map.create(u.qs('[data-map]', root), { compactPins: false });
     window.App.router.onLeave(function () { mapCtrl.destroy(); });

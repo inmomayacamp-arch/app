@@ -427,11 +427,80 @@
     });
   }
 
+  // --- SEO: meta tags dinámicos por vista (título ya lo pone cada vista con
+  // document.title; esto cubre descripción + Open Graph/Twitter, que antes
+  // se quedaban con el valor genérico de index.html en todas las páginas) ---
+  var DEFAULT_META = {
+    description: "InmoMaps: explora propiedades en venta y renta directamente sobre un mapa interactivo. Para compradores y asesores inmobiliarios.",
+    image: "https://www.inmomaps.com.mx/icons/icon-512.png",
+    type: "website"
+  };
+
+  function metaTag(selector, attr, value) {
+    var el = document.querySelector(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      if (selector.indexOf('property=') !== -1) el.setAttribute('property', selector.match(/property="([^"]+)"/)[1]);
+      else if (selector.indexOf('name=') !== -1) el.setAttribute('name', selector.match(/name="([^"]+)"/)[1]);
+      document.head.appendChild(el);
+    }
+    el.setAttribute(attr, value);
+  }
+
+  // opts: { title, description, image, url, type }. Cualquiera que no se
+  // mande usa el valor genérico del sitio, así una página que no llama esto
+  // no se queda pegada con los datos de la página anterior.
+  function setMeta(opts) {
+    opts = opts || {};
+    var title = opts.title || document.title;
+    var description = opts.description || DEFAULT_META.description;
+    var image = opts.image || DEFAULT_META.image;
+    var url = opts.url || window.location.href;
+    var type = opts.type || DEFAULT_META.type;
+
+    metaTag('meta[name="description"]', 'content', description);
+    metaTag('meta[property="og:title"]', 'content', title);
+    metaTag('meta[property="og:description"]', 'content', description);
+    metaTag('meta[property="og:image"]', 'content', image);
+    metaTag('meta[property="og:url"]', 'content', url);
+    metaTag('meta[property="og:type"]', 'content', type);
+    metaTag('meta[property="og:site_name"]', 'content', 'InmoMaps');
+    metaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
+    metaTag('meta[name="twitter:title"]', 'content', title);
+    metaTag('meta[name="twitter:description"]', 'content', description);
+    metaTag('meta[name="twitter:image"]', 'content', image);
+  }
+
+  function resetMeta() {
+    setMeta({ title: 'InmoMaps — La plataforma inmobiliaria donde el mapa es el centro' });
+  }
+
+  // Datos estructurados (JSON-LD): una sola etiqueta que cada vista
+  // reemplaza o quita según lo que esté mostrando.
+  function setJsonLd(obj) {
+    var el = document.getElementById('jsonld-main');
+    if (!el) {
+      el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.id = 'jsonld-main';
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(obj);
+  }
+  function clearJsonLd() {
+    var el = document.getElementById('jsonld-main');
+    if (el) el.remove();
+  }
+
   window.App = window.App || {};
   window.App.utils = {
     icon: icon,
     brandMark: brandMark,
     logoHTML: logoHTML,
+    setMeta: setMeta,
+    resetMeta: resetMeta,
+    setJsonLd: setJsonLd,
+    clearJsonLd: clearJsonLd,
     formatPrice: formatPrice,
     agentTitleLabel: agentTitleLabel,
     passwordFieldHTML: passwordFieldHTML,

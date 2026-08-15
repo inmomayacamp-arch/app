@@ -48,7 +48,7 @@
       '      <button type="button" class="btn btn--icon" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>' +
       '    </div>') +
       '  </div>' +
-      c.carouselHTML(property.photos) +
+      c.carouselHTML(property.photos, { label: property.title }) +
       '</div>' +
       '<div class="detail-float-contact" data-float-contact>' +
       (property.coords ? '  <a class="detail-float-contact__btn detail-float-contact__btn--directions" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '" aria-label="Cómo llegar">' + u.brandMark({ size: 20, style: 'color:#fff' }) + '</a>' : '') +
@@ -177,6 +177,25 @@
       c.mountChrome('explore');
     }
     document.title = property.title + ' — InmoMaps';
+    var seoDescription = u.propertyTypeLabel(property.type) + ' ' + u.operationLabel(property.operation).toLowerCase() +
+      ' en ' + [property.neighborhood, property.city].filter(Boolean).join(', ') + ' — ' + priceLabel + '. Ve fotos, ubicación y contacta directo por WhatsApp en InmoMaps.';
+    u.setMeta({
+      title: property.title + ' — InmoMaps',
+      description: seoDescription,
+      image: property.photos[0],
+      type: 'product'
+    });
+    u.setJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'RealEstateListing',
+      name: property.title,
+      description: seoDescription,
+      url: window.location.href,
+      image: property.photos,
+      address: { '@type': 'PostalAddress', addressLocality: property.city, addressRegion: property.state || property.city, addressCountry: 'MX' },
+      geo: property.coords ? { '@type': 'GeoCoordinates', latitude: property.coords[1], longitude: property.coords[0] } : undefined,
+      offers: { '@type': 'Offer', price: u.effectivePrice(property), priceCurrency: property.currency || 'MXN' }
+    });
 
     c.initCarousel(root);
 

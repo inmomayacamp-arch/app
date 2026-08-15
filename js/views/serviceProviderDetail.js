@@ -44,6 +44,11 @@
 
     c.mountChrome('explore');
     document.title = provider.name + ' — ' + cat.label + ' — InmoMaps';
+    u.setMeta({
+      title: provider.name + ' — ' + cat.label + ' — InmoMaps',
+      description: (provider.description ? provider.description.slice(0, 200) + ' ' : '') + cat.label + ' en ' + locationLabel + '. Contacto directo en el directorio de InmoMaps.',
+      image: provider.photo ? u.thumbUrl(provider.photo, 800, 800) : undefined
+    });
   }
 
   window.App.views = window.App.views || {};

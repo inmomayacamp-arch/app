@@ -119,6 +119,8 @@
   function render() {
     runLeaveCallbacks();
     window.App.components.closeSheet();
+    u.resetMeta();
+    u.clearJsonLd();
     var root = u.qs("#view-root");
     var path = currentPath();
 
