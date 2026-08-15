@@ -276,6 +276,8 @@
     { value: "aval", label: "Aval (propietario con escritura)" },
     { value: "fiador_solidario", label: "Fiador solidario" },
     { value: "poliza_juridica", label: "Póliza jurídica de arrendamiento" },
+    { value: "contrato_privado", label: "Contrato privado" },
+    { value: "contrato_notarial", label: "Contrato notarial" },
     { value: "sin_aval", label: "Sin aval (depósito adicional)" }
   ];
 
@@ -290,7 +292,8 @@
     { value: "nueva", label: "🆕 Nueva" },
     { value: "urge_vender", label: "🚨 Urge vender" },
     { value: "acepta_creditos", label: "🏡 Acepta créditos" },
-    { value: "inversion", label: "📈 Ideal para inversión" }
+    { value: "inversion", label: "📈 Ideal para inversión" },
+    { value: "precio_negociable", label: "🤝 Precio negociable" }
   ];
 
   function agentTitleLabel(agent) {
