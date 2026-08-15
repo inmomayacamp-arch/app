@@ -13,6 +13,7 @@
     { route: "agentes", href: "#/admin/agentes", label: "Agentes", icon: "briefcase" },
     { route: "propietarios", href: "#/admin/propietarios", label: "Propietarios", icon: "home" },
     { route: "propiedades", href: "#/admin/propiedades", label: "Propiedades", icon: "map" },
+    { route: "pagos", href: "#/admin/pagos", label: "Pagos", icon: "dollar" },
     { route: "directorio", href: "#/admin/directorio", label: "Directorio", icon: "award" },
     { route: "solicitudes", href: "#/admin/solicitudes", label: "Solicitudes", icon: "chat" },
     { route: "estadisticas", href: "#/admin/estadisticas", label: "Estadísticas", icon: "chart" },

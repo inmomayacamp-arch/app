@@ -57,6 +57,7 @@
       { pattern: "/admin/agentes", view: window.App.admin.views.agents.render, key: "admin" },
       { pattern: "/admin/propietarios", view: window.App.admin.views.owners.render, key: "admin" },
       { pattern: "/admin/propiedades", view: window.App.admin.views.properties.render, key: "admin" },
+      { pattern: "/admin/pagos", view: window.App.admin.views.payments.render, key: "admin" },
       { pattern: "/admin/estadisticas", view: window.App.admin.views.stats.render, key: "admin" },
       { pattern: "/admin/solicitudes", view: window.App.admin.views.leads.render, key: "admin" },
       { pattern: "/admin/directorio", view: window.App.admin.views.directory.render, key: "admin" },

@@ -64,6 +64,29 @@
     return window.App.state.properties.all();
   }
 
+  // --- Pagos reales (tabla "payments"; el admin puede leerlos todos) ---
+  async function allPayments() {
+    var result = await window.App.supabase.from('payments').select('*').order('created_at', { ascending: false }).limit(200);
+    return result.data || [];
+  }
+
+  // --- Crear cuenta activa sin pasar por Stripe (cortesía, uso propio) ---
+  async function createFreeAccount(fields) {
+    var sessionResult = await window.App.supabase.auth.getSession();
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session) throw new Error("Debes iniciar sesión");
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/admin-create-account";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+      body: JSON.stringify(fields)
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo crear la cuenta");
+    logAction("Cuenta creada sin pago (" + fields.plan + ")", fields.email);
+    return data;
+  }
+
   // --- KPIs del dashboard (solo con datos reales) ---
   function computeKPIs() {
     var agents = allAgents();
@@ -83,9 +106,10 @@
   window.App.admin = window.App.admin || {};
   window.App.admin.state = {
     auth: { isAuthed: isAuthed, login: login, logout: logout },
-    agents: { all: allAgents },
+    agents: { all: allAgents, createFree: createFreeAccount },
     owners: { all: allOwners },
     properties: { all: allProperties },
+    payments: { all: allPayments },
     kpis: computeKPIs
   };
 })();
