@@ -186,6 +186,16 @@
     return data;
   }
 
+  // --- Errores de JavaScript reportados por el cliente (tabla client_errors) ---
+  async function allClientErrors() {
+    var result = await window.App.supabase.from('client_errors').select('*').order('last_seen', { ascending: false }).limit(200);
+    return result.data || [];
+  }
+  async function deleteClientError(id) {
+    var result = await window.App.supabase.from('client_errors').delete().eq('id', id);
+    if (result.error) throw result.error;
+  }
+
   // --- KPIs del dashboard (solo con datos reales) ---
   function computeKPIs() {
     var agents = allAgents();
@@ -211,6 +221,7 @@
     properties: { all: allProperties },
     payments: { all: allPayments },
     signupIssues: { unresolved: unresolvedSignupIssues, resolve: resolveSignupIssue, retry: retrySignupIssue },
+    clientErrors: { all: allClientErrors, remove: deleteClientError },
     kpis: computeKPIs
   };
 })();

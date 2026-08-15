@@ -63,6 +63,7 @@
       { pattern: "/admin/directorio", view: window.App.admin.views.directory.render, key: "admin" },
       { pattern: "/admin/reportes", view: window.App.admin.views.reports.render, key: "admin" },
       { pattern: "/admin/seguridad", view: window.App.admin.views.security.render, key: "admin" },
+      { pattern: "/admin/errores", view: window.App.admin.views.errors.render, key: "admin" },
       { pattern: "/:agentSlug/:clientSlug", view: v.clientLink.render, key: "explore" },
       { pattern: "/:agentSlug", view: v.agentProfile.render, key: "explore" }
     ].map(function (r) {

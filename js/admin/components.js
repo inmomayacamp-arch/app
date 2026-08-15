@@ -18,7 +18,8 @@
     { route: "solicitudes", href: "#/admin/solicitudes", label: "Solicitudes", icon: "chat" },
     { route: "estadisticas", href: "#/admin/estadisticas", label: "Estadísticas", icon: "chart" },
     { route: "reportes", href: "#/admin/reportes", label: "Reportes", icon: "download" },
-    { route: "seguridad", href: "#/admin/seguridad", label: "Seguridad", icon: "shield" }
+    { route: "seguridad", href: "#/admin/seguridad", label: "Seguridad", icon: "shield" },
+    { route: "errores", href: "#/admin/errores", label: "Errores", icon: "tool" }
   ];
 
   function statusPill(status) {
