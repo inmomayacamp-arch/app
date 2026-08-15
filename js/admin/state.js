@@ -70,6 +70,32 @@
     return result.data || [];
   }
 
+  // --- Casos raros: se cobró pero la cuenta no se pudo crear ---
+  async function unresolvedSignupIssues() {
+    var result = await window.App.supabase.from('signup_issues').select('*').eq('resolved', false).order('created_at', { ascending: false });
+    return result.data || [];
+  }
+  async function resolveSignupIssue(id) {
+    var result = await window.App.supabase.from('signup_issues').update({ resolved: true }).eq('id', id);
+    if (result.error) throw result.error;
+  }
+  // Vuelve a intentar crear la cuenta y conectarla con la suscripción real
+  // que Stripe ya cobró (no una cuenta de cortesía aparte).
+  async function retrySignupIssue(issueId) {
+    var sessionResult = await window.App.supabase.auth.getSession();
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session) throw new Error("Debes iniciar sesión");
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/admin-retry-signup";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+      body: JSON.stringify({ issueId: issueId })
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo reintentar el registro");
+    return data;
+  }
+
   // --- Crear cuenta activa sin pasar por Stripe (cortesía, uso propio) ---
   async function createFreeAccount(fields) {
     var sessionResult = await window.App.supabase.auth.getSession();
@@ -110,6 +136,7 @@
     owners: { all: allOwners },
     properties: { all: allProperties },
     payments: { all: allPayments },
+    signupIssues: { unresolved: unresolvedSignupIssues, resolve: resolveSignupIssue, retry: retrySignupIssue },
     kpis: computeKPIs
   };
 })();
