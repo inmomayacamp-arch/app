@@ -96,11 +96,14 @@
     return '<span class="status-pill status-pill--' + tone + '">' + label + '</span>';
   }
 
-  function cardHTML(p, isOwner) {
+  function cardHTML(p, isOwner, allowFeatured, otherFeaturedCount) {
     var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
     var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
     var isExpired = isOwner && p.expiresAt && new Date(p.expiresAt) <= new Date();
     var daysLeft = (isOwner && p.expiresAt && !isExpired) ? Math.ceil((new Date(p.expiresAt) - new Date()) / 86400000) : null;
+    var featuredDaysLeft = p.featuredExpiresAt ? Math.ceil((new Date(p.featuredExpiresAt) - new Date()) / 86400000) : null;
+    var atFeaturedCap = allowFeatured && !p.featured && otherFeaturedCount >= 1;
+    var showPayHint = !p.featured && (isOwner || atFeaturedCap);
     return (
       '<div class="property-card admin-property-card">' +
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
@@ -110,7 +113,7 @@
       '      <span class="status-pill status-pill--' + (isExpired ? 'rechazada' : pubStatus.tone) + '">' + (isExpired ? 'Vencida' : pubStatus.label) + '</span>' +
       dealBadgeHTML(p) +
       '    </div>' +
-      (p.featured ? '<span class="admin-property-card__featured">' + u.icon('starFilled', { size: 11 }) + ' Destacada</span>' : '') +
+      (p.featured ? '<span class="admin-property-card__featured">' + u.icon('starFilled', { size: 11 }) + ' Destacada' + (featuredDaysLeft !== null ? ' · ' + featuredDaysLeft + 'd' : '') + '</span>' : '') +
       '  </a>' +
       '  <div class="property-card__body">' +
       '    <div class="property-card__price">' + c.propertyPriceLabel(p) + '</div>' +
@@ -122,9 +125,9 @@
           '      <p>' + u.icon('clock', { size: 13 }) + ' Tu publicación venció y ya no aparece en el mapa ni en las búsquedas.</p>' +
           '      <button type="button" class="btn btn--primary btn--sm btn--block" data-renew="' + p.id + '">Renovar gratis por 30 días más</button>' +
           '    </div>'
-        : (isOwner && !p.featured
+        : (showPayHint
           ? '    <div class="card-destacar-hint">' +
-            '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + u.escapeHtml(addon.description) + '</p>' +
+            '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + (atFeaturedCap ? 'Ya usaste tu destacada incluida — paga para destacar esta también.' : u.escapeHtml(addon.description)) + '</p>' +
             '      <a class="btn btn--primary btn--sm btn--block" href="#/dashboard/destacar/' + p.id + '">Destacar mi propiedad (+$' + addon.price + ')</a>' +
             '    </div>'
           : '')) +
@@ -144,8 +147,8 @@
     var canPublishNow = p.publishStatus && p.publishStatus !== 'publicada' && p.publishStatus !== 'oculta';
     var otherStatuses = STATUS_OPTIONS.filter(function (s) { return s.value !== (p.status || 'disponible'); });
     var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
-    var canPayFeature = agent.plan === 'propietario' && !p.featured;
     var atFeaturedCap = allowFeatured && !p.featured && otherFeaturedCount >= 1;
+    var canPayFeature = !p.featured && (agent.plan === 'propietario' || atFeaturedCap);
 
     c.openSheet({
       title: p.title,
@@ -210,8 +213,8 @@
 
     var featureBtn = u.qs('[data-act="feature"]', sheetRoot);
     if (featureBtn) featureBtn.addEventListener('click', async function () {
-      if (atFeaturedCap) { c.closeSheet(); u.toast('Ya usaste tu destacada incluida. Quítasela a la otra propiedad primero.'); return; }
-      try { await state.properties.update(p.id, { featured: !p.featured }); afterAction(); }
+      if (atFeaturedCap) { c.closeSheet(); u.toast('Ya usaste tu destacada incluida. Quítasela a la otra propiedad primero, o paga por destacar esta también.'); return; }
+      try { await state.properties.update(p.id, { featured: !p.featured, featuredExpiresAt: null }); afterAction(); }
       catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
     });
 
@@ -246,7 +249,10 @@
     function refresh() {
       var properties = state.properties.byAgent(agent.slug);
       var isOwner = agent.plan === 'propietario';
-      var cards = properties.map(function (p) { return cardHTML(p, isOwner); }).join('');
+      var cards = properties.map(function (p) {
+        var otherFeaturedCount = properties.filter(function (x) { return x.featured && x.id !== p.id; }).length;
+        return cardHTML(p, isOwner, allowFeatured, otherFeaturedCount);
+      }).join('');
       var ownerAtLimit = isOwner && properties.length >= 1;
       var agentAtLimit = allowFeatured && properties.length >= 15;
       var publishHref = isOwner ? '#/dashboard/publicar-elegir' : '#/dashboard/publicar';

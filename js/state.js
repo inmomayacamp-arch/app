@@ -223,6 +223,12 @@
   var cachedProperties = [];
 
   function mapPropertyRow(row) {
+    // El destacado de pago vence a los 30 días (featured_expires_at); el
+    // incluido gratis en el plan no tiene fecha, así que nunca vence solo.
+    // "featured" ya sale evaluado así en todos lados; featuredExpiresAt
+    // queda aparte solo para mostrar "vence en X días" donde haga falta.
+    var featuredExpiresAt = row.featured_expires_at || null;
+    var featuredActive = !!row.featured && (!featuredExpiresAt || new Date(featuredExpiresAt) > new Date());
     return {
       id: row.id,
       agentSlug: row.agent_slug,
@@ -271,7 +277,8 @@
       ownerPhone: row.owner_phone || "",
       ownerEmail: row.owner_email || "",
       tags: row.tags || [],
-      featured: !!row.featured,
+      featured: featuredActive,
+      featuredExpiresAt: featuredExpiresAt,
       status: row.status || "disponible",
       publishStatus: row.publish_status || "publicada",
       scheduledAt: row.scheduled_at || null,
@@ -295,7 +302,7 @@
       rentalDeposit: "rental_deposit", rentalMinContract: "rental_min_contract", rentalFurnished: "rental_furnished",
       rentalGuarantees: "rental_guarantees", rentalServicesIncluded: "rental_services_included", rentalAvailableFrom: "rental_available_from",
       ownerName: "owner_name", ownerPhone: "owner_phone", ownerEmail: "owner_email",
-      tags: "tags", featured: "featured", status: "status", publishStatus: "publish_status",
+      tags: "tags", featured: "featured", featuredExpiresAt: "featured_expires_at", status: "status", publishStatus: "publish_status",
       scheduledAt: "scheduled_at", expiresAt: "expires_at", sharing: "sharing"
     };
     var row = {};
