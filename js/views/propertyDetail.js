@@ -42,15 +42,12 @@
       '  <div class="detail-header' + (fromRef ? ' detail-header--exclusive' : '') + '">' +
       '    <a class="btn btn--icon" href="' + backHref + '" aria-label="Volver">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
       (fromRef ? '' : '    <div class="detail-header__brand">' + u.logoHTML({ tone: 'light' }) + '</div>') +
-      (fromRef ? '' :
-      '    <div class="row gap-2">' +
-      '      <button type="button" class="btn btn--icon" data-share aria-label="Compartir propiedad">' + u.icon('share', { size: 16 }) + '</button>' +
-      '      <button type="button" class="btn btn--icon" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>' +
-      '    </div>') +
       '  </div>' +
       c.carouselHTML(property.photos, { label: property.title }) +
       '</div>' +
       '<div class="detail-float-contact" data-float-contact>' +
+      (fromRef ? '' : '  <button type="button" class="detail-float-contact__btn detail-float-contact__btn--share" data-share aria-label="Compartir propiedad">' + u.icon('share', { size: 18 }) + '</button>') +
+      (fromRef ? '' : '  <button type="button" class="detail-float-contact__btn detail-float-contact__btn--fav" data-fav-id="' + property.id + '" aria-pressed="' + isFav + '" aria-label="Guardar en favoritos">' + u.icon(isFav ? 'heartFilled' : 'heart', { size: 16 }) + '</button>') +
       (property.coords ? '  <a class="detail-float-contact__btn detail-float-contact__btn--directions" data-directions ' + trackAttrs + ' target="_blank" rel="noopener" href="' + u.directionsLink(property.coords) + '" aria-label="Cómo llegar">' + u.brandMark({ size: 20, style: 'color:#fff' }) + '</a>' : '') +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--whatsapp" ' + trackAttrs + ' target="_blank" rel="noopener" href="' + whatsappHref + '" aria-label="Escribir por WhatsApp">' + u.icon('chat', { size: 20 }) + '</a>' +
       '  <a class="detail-float-contact__btn detail-float-contact__btn--call" ' + trackAttrs + ' href="tel:' + contactCallPhone + '" aria-label="Llamar">' + u.icon('phone', { size: 20 }) + '</a>' +

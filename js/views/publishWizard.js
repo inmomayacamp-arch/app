@@ -476,7 +476,7 @@
           return '<label class="checkbox-list__item"><input type="checkbox" data-tag="' + t.value + '"' + (checked ? ' checked' : '') + ' /> ' + t.label + '</label>';
         }).join('') + '</div></div>' +
         (isAgent ? (
-          '<details class="form-disclosure"><summary>Compartir con otros asesores (opcional)</summary><div class="form-disclosure__body">' +
+          '<details class="form-disclosure form-disclosure--highlight"><summary>' + u.icon('exchange', { size: 16 }) + ' Compartir con otros asesores (Bolsa Compartida)</summary><div class="form-disclosure__body">' +
           '<div class="form-field"><label class="row gap-2" style="cursor:pointer"><input type="checkbox" data-sharing-toggle' + (s.enabled ? ' checked' : '') + ' style="width:18px;height:18px" /> Compartir esta propiedad con otros asesores</label>' +
           '<p class="text-muted" style="font-size:0.78rem;margin-top:4px">Solo la verán otros asesores con sesión iniciada.</p></div>' +
           '<div data-sharing-fields style="display:' + (s.enabled ? 'block' : 'none') + '">' +

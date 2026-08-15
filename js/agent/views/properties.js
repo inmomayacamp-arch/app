@@ -132,7 +132,7 @@
       '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) +
       (daysLeft !== null && daysLeft <= 7 ? ' · Vence en ' + daysLeft + (daysLeft === 1 ? ' día' : ' días') : '') +
       '</span>' +
-      '      <button type="button" class="btn btn--icon btn--icon-tinted" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
+      '      <button type="button" class="btn btn--icon btn--icon-solid" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
       '    </div>' +
       '  </div>' +
       '</div>'

@@ -736,6 +736,66 @@
     track.addEventListener('scroll', u.debounce(function () {
       if (counter) counter.textContent = (currentIndex() + 1) + ' / ' + total;
     }, 80));
+
+    u.qsa('.carousel__slide img', track).forEach(function (img, i) {
+      img.addEventListener('click', function () {
+        var srcs = u.qsa('.carousel__slide img', track).map(function (im) { return im.src; });
+        openLightbox(srcs, i);
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+   * Visor de fotos a pantalla completa (se abre al tocar una foto del carrusel)
+   * ------------------------------------------------------------------- */
+
+  function lightboxRoot() {
+    var root = document.getElementById('lightbox-root');
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'lightbox-root';
+      document.body.appendChild(root);
+    }
+    return root;
+  }
+
+  function closeLightbox() {
+    var root = lightboxRoot();
+    root.innerHTML = '';
+    document.removeEventListener('keydown', onLightboxKey);
+  }
+
+  var onLightboxKey = function () {};
+
+  function openLightbox(images, startIndex) {
+    var root = lightboxRoot();
+    var index = startIndex || 0;
+
+    function render() {
+      root.innerHTML =
+        '<div class="lightbox" data-lightbox>' +
+        '  <button type="button" class="lightbox__close" data-lightbox-close aria-label="Cerrar">' + u.icon('x', { size: 20 }) + '</button>' +
+        (images.length > 1 ? '  <span class="lightbox__counter">' + (index + 1) + ' / ' + images.length + '</span>' : '') +
+        '  <img class="lightbox__img" src="' + images[index] + '" alt="" />' +
+        (images.length > 1 ? '  <button type="button" class="lightbox__arrow lightbox__arrow--prev" data-lightbox-prev aria-label="Foto anterior">' + u.icon('chevronLeft', { size: 22 }) + '</button>' : '') +
+        (images.length > 1 ? '  <button type="button" class="lightbox__arrow lightbox__arrow--next" data-lightbox-next aria-label="Foto siguiente">' + u.icon('chevronRight', { size: 22 }) + '</button>' : '') +
+        '</div>';
+
+      u.qs('[data-lightbox]', root).addEventListener('click', function (e) { if (e.target === e.currentTarget) closeLightbox(); });
+      u.qs('[data-lightbox-close]', root).addEventListener('click', closeLightbox);
+      var prevBtn = u.qs('[data-lightbox-prev]', root);
+      var nextBtn = u.qs('[data-lightbox-next]', root);
+      if (prevBtn) prevBtn.addEventListener('click', function () { index = (index - 1 + images.length) % images.length; render(); });
+      if (nextBtn) nextBtn.addEventListener('click', function () { index = (index + 1) % images.length; render(); });
+    }
+
+    onLightboxKey = function (e) {
+      if (e.key === 'Escape') closeLightbox();
+      else if (e.key === 'ArrowLeft' && images.length > 1) { index = (index - 1 + images.length) % images.length; render(); }
+      else if (e.key === 'ArrowRight' && images.length > 1) { index = (index + 1) % images.length; render(); }
+    };
+    document.addEventListener('keydown', onLightboxKey);
+    render();
   }
 
   /* ---------------------------------------------------------------------

@@ -228,6 +228,9 @@ body.is-admin .site-header { display: none; }
 /* Variante con tinte de marca: para íconos que necesitan distinguirse del
    blanco/gris de las tarjetas (p. ej. "más opciones" sobre una tarjeta). */
 .btn--icon-tinted { background: var(--color-primary-light); color: var(--color-primary); border-color: transparent; }
+/* Version solida: para acciones que se pierden facil sobre una foto o
+   tarjeta con mucho contraste (p. ej. "mas opciones" en Mis propiedades). */
+.btn--icon-solid { background: var(--color-primary); color: #fff; border-color: transparent; box-shadow: var(--shadow-md); }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
 
 .chip {
@@ -736,11 +739,41 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .detail-float-contact__btn--whatsapp { background: var(--color-venta); color: #fff; }
 .detail-float-contact__btn--call { background: var(--color-primary); color: #fff; }
 .detail-float-contact__btn--directions { background: var(--color-renta); color: #fff; }
+.detail-float-contact__btn--share { background: var(--color-terreno); color: #fff; }
+.detail-float-contact__btn--fav { background: var(--color-primary); color: #fff; }
+.detail-float-contact__btn--fav[aria-pressed="false"] { background: var(--color-surface); color: var(--color-primary); }
 
 .carousel__track { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
 .carousel__track::-webkit-scrollbar { display: none; }
 .carousel__slide { flex: 0 0 100%; scroll-snap-align: start; height: 100%; }
-.carousel__slide img { width: 100%; height: 100%; object-fit: cover; }
+.carousel__slide img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+
+/* Visor de fotos a pantalla completa: se abre al tocar una foto del carrusel. */
+#lightbox-root:empty { display: none; }
+.lightbox {
+  position: fixed; inset: 0; z-index: 9999; background: rgba(10, 8, 6, 0.94);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.lightbox__img { max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 4px; }
+.lightbox__close, .lightbox__arrow {
+  position: absolute; width: 44px; height: 44px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,0.14); color: #fff; display: flex; align-items: center; justify-content: center;
+}
+.lightbox__close:hover, .lightbox__arrow:hover { background: rgba(255,255,255,0.24); }
+.lightbox__close { top: 16px; right: 16px; }
+.lightbox__arrow--prev { left: 16px; top: 50%; transform: translateY(-50%); }
+.lightbox__arrow--next { right: 16px; top: 50%; transform: translateY(-50%); }
+.lightbox__counter {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  color: #fff; font-size: 0.8rem; font-weight: 700; background: rgba(255,255,255,0.14);
+  padding: 5px 12px; border-radius: var(--radius-full);
+}
+@media (min-width: 640px) {
+  .lightbox__close, .lightbox__arrow { width: 48px; height: 48px; }
+  .lightbox__close { top: 24px; right: 24px; }
+  .lightbox__arrow--prev { left: 24px; }
+  .lightbox__arrow--next { right: 24px; }
+}
 .carousel__counter {
   position: absolute; bottom: 12px; right: 12px; background: rgba(17,24,39,0.7); color: #fff;
   font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full);
@@ -1208,6 +1241,14 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .form-disclosure[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
 .form-disclosure__body { padding: 14px 14px 2px; }
 .form-disclosure__body .form-field:last-child { margin-bottom: 12px; }
+
+/* Version resaltada: para acciones que valen la pena que se noten, como
+   compartir con otros asesores (Bolsa Compartida), no solo un ajuste mas. */
+.form-disclosure--highlight { border: 2px solid var(--color-terreno); background: var(--color-terreno-bg); }
+.form-disclosure--highlight summary { color: var(--color-terreno); font-weight: 800; font-size: 0.92rem; }
+.form-disclosure--highlight summary svg { color: var(--color-terreno); }
+.form-disclosure--highlight[open] summary { border-bottom: 2px solid var(--color-terreno); }
+.form-disclosure--highlight summary::after { border-color: var(--color-terreno); }
 
 .input-prefix { position: relative; }
 .input-prefix span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-ink-muted); font-weight: 700; }
