@@ -655,9 +655,11 @@
   var cachedProviders = [];
 
   function mapProviderRow(row) {
+    var photos = row.photos && row.photos.length ? row.photos : (row.photo ? [row.photo] : []);
     return {
       id: row.id, category: row.category, name: row.name, description: row.description || "",
-      phone: row.phone || "", whatsapp: row.whatsapp || "", photo: row.photo || "",
+      phone: row.phone || "", whatsapp: row.whatsapp || "", photo: row.photo || "", photos: photos,
+      coords: row.coords || null,
       state: row.state || "", city: row.city || "", active: !!row.active, createdAt: row.created_at
     };
   }
@@ -665,7 +667,8 @@
   function providerFieldsToRow(fields) {
     var map = {
       category: "category", name: "name", description: "description", phone: "phone",
-      whatsapp: "whatsapp", photo: "photo", state: "state", city: "city", active: "active"
+      whatsapp: "whatsapp", photo: "photo", photos: "photos", coords: "coords",
+      state: "state", city: "city", active: "active"
     };
     var row = {};
     Object.keys(fields).forEach(function (key) {

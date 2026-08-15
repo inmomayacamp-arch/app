@@ -401,6 +401,16 @@ body.is-admin .site-header { display: none; }
 .map-pin--compact { transform-origin: center; }
 .map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--pin-color); border: 2px solid #fff; box-shadow: var(--shadow-sm); }
 
+/* Pines del directorio de servicios: circulo chico con el color/icono de su
+   categoria, para leerse como una capa distinta a las propiedades. */
+.map-pin--provider {
+  transform-origin: center; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--pin-bg, var(--color-bg)); color: var(--pin-color, var(--color-ink));
+  border: 2px solid var(--pin-color, var(--color-border)); box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: center;
+}
+.map-pin--provider:hover, .map-pin--provider:focus-visible { transform: scale(1.12); z-index: 5; }
+
 /* Mini-ficha flotante al tocar un pin: se quita el globo blanco por defecto
    de Mapbox y se deja que la tarjeta de propiedad (mismo estilo del resto de
    la app) se vea directamente, con solo un triángulo pequeño como referencia. */

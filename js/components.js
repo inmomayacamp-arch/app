@@ -162,6 +162,27 @@
     );
   }
 
+  // "cat" es la entrada de u.SERVICE_CATEGORIES correspondiente a provider.category
+  // (color/ícono/etiqueta) — se pasa ya resuelta porque tanto el directorio como
+  // el mapa ya la tienen a mano y así se evita buscarla dos veces.
+  function providerCardHTML(provider, cat) {
+    var locationLabel = provider.city || provider.state || 'Todo México';
+    var cover = provider.photos && provider.photos.length ? provider.photos[0] : provider.photo;
+    return (
+      '<a class="property-card provider-card" href="#/servicios/' + cat.key + '/' + provider.id + '">' +
+      '<div class="property-card__media" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
+      (cover
+        ? '<img src="' + u.thumbUrl(cover, 480, 360) + '" alt="" loading="lazy" />'
+        : '<span class="provider-card__icon-fallback">' + u.icon(cat.icon, { size: 30 }) + '</span>') +
+      '</div>' +
+      '<div class="property-card__body">' +
+      '<div class="property-card__title" style="font-weight:800;color:var(--color-ink)">' + u.escapeHtml(provider.name) + '</div>' +
+      '<div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(locationLabel) + '</div>' +
+      (provider.description ? '<p class="provider-card__desc">' + u.escapeHtml(provider.description) + '</p>' : '') +
+      '</div></a>'
+    );
+  }
+
   function bindFavoriteButtons(root) {
     (root || document).addEventListener('click', function (e) {
       var btn = e.target.closest('[data-fav-id]');
@@ -845,6 +866,7 @@
     mountChrome: mountChrome,
     refreshFavoriteUI: refreshFavoriteUI,
     propertyCardHTML: propertyCardHTML,
+    providerCardHTML: providerCardHTML,
     propertyPriceLabel: propertyPriceLabel,
     bindFavoriteButtons: bindFavoriteButtons,
     bindContactButtons: bindContactButtons,

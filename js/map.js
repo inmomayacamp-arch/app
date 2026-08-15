@@ -67,6 +67,21 @@
     return el;
   }
 
+  // Pin de proveedor del directorio: un círculo chico con el ícono de su
+  // categoría (no una burbuja de precio), para que se lea como una capa
+  // distinta a las propiedades sobre el mismo mapa.
+  function providerPinEl(provider) {
+    var cat = utils.SERVICE_CATEGORIES.filter(function (c) { return c.key === provider.category; })[0] || utils.SERVICE_CATEGORIES[0];
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'map-pin map-pin--provider';
+    el.style.setProperty('--pin-color', cat.color);
+    el.style.setProperty('--pin-bg', cat.bg);
+    el.innerHTML = utils.icon(cat.icon, { size: 15 });
+    el.setAttribute('aria-label', provider.name);
+    return el;
+  }
+
   function create(container, opts) {
     opts = opts || {};
     if (!isConfigured()) {
@@ -74,6 +89,7 @@
       return {
         ready: false,
         setMarkers: function () {},
+        setProviderMarkers: function () {},
         flyTo: function () {},
         fitToProperties: function () {},
         destroy: function () {}
@@ -93,11 +109,17 @@
     if (opts.showLocate) map.addControl(new LocateControl(), 'bottom-right');
 
     var markers = [];
+    var providerMarkers = [];
     var activePopup = null;
 
     function clearMarkers() {
       markers.forEach(function (m) { m.remove(); });
       markers = [];
+    }
+
+    function clearProviderMarkers() {
+      providerMarkers.forEach(function (m) { m.remove(); });
+      providerMarkers = [];
     }
 
     function closePeek() {
@@ -125,7 +147,42 @@
         .addTo(map);
     }
 
+    // Igual que openPeek, pero con la mini-ficha del directorio (mismo patrón
+    // de "primer toque = mini-ficha, tocar la tarjeta = ir a la ficha completa").
+    function openProviderPeek(provider, onSelect) {
+      closePeek();
+      var cat = utils.SERVICE_CATEGORIES.filter(function (c) { return c.key === provider.category; })[0] || utils.SERVICE_CATEGORIES[0];
+      var wrap = document.createElement('div');
+      wrap.innerHTML = window.App.components.providerCardHTML(provider, cat);
+      var cardEl = wrap.firstElementChild;
+      cardEl.addEventListener('click', function (e) {
+        e.preventDefault();
+        closePeek();
+        if (onSelect) onSelect(provider);
+      });
+      activePopup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: 22, maxWidth: '230px', className: 'map-peek-popup' })
+        .setLngLat(provider.coords)
+        .setDOMContent(cardEl)
+        .addTo(map);
+    }
+
     map.on('click', closePeek);
+
+    function setProviderMarkers(providers, onSelect) {
+      clearProviderMarkers();
+      providers.forEach(function (provider) {
+        if (!provider.coords) return;
+        var el = providerPinEl(provider);
+        el.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (onSelect) openProviderPeek(provider, onSelect);
+        });
+        var marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat(provider.coords)
+          .addTo(map);
+        providerMarkers.push(marker);
+      });
+    }
 
     function setMarkers(properties, onSelect) {
       clearMarkers();
@@ -162,9 +219,10 @@
       ready: true,
       map: map,
       setMarkers: setMarkers,
+      setProviderMarkers: setProviderMarkers,
       flyTo: flyTo,
       fitToProperties: fitToProperties,
-      destroy: function () { closePeek(); clearMarkers(); map.remove(); }
+      destroy: function () { closePeek(); clearMarkers(); clearProviderMarkers(); map.remove(); }
     };
   }
 

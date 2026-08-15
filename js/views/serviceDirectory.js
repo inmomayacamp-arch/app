@@ -11,23 +11,6 @@
     return u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key === key; })[0] || u.SERVICE_CATEGORIES[0];
   }
 
-  function providerCardHTML(provider, cat) {
-    var locationLabel = provider.city || provider.state || 'Todo México';
-    return (
-      '<a class="property-card provider-card" href="#/servicios/' + cat.key + '/' + provider.id + '">' +
-      '<div class="property-card__media" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
-      (provider.photo
-        ? '<img src="' + u.thumbUrl(provider.photo, 480, 360) + '" alt="" loading="lazy" />'
-        : '<span class="provider-card__icon-fallback">' + u.icon(cat.icon, { size: 30 }) + '</span>') +
-      '</div>' +
-      '<div class="property-card__body">' +
-      '<div class="property-card__title" style="font-weight:800;color:var(--color-ink)">' + u.escapeHtml(provider.name) + '</div>' +
-      '<div class="property-card__location">' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(locationLabel) + '</div>' +
-      (provider.description ? '<p class="provider-card__desc">' + u.escapeHtml(provider.description) + '</p>' : '') +
-      '</div></a>'
-    );
-  }
-
   function render(params, root) {
     var cat = categoryMeta(params.category);
     var savedLocation = state.location.get();
@@ -69,7 +52,7 @@
       var labels = resolveLabels();
       var list = state.providers.publicList(cat.key, labels.stateLabel, labels.cityLabel);
       u.qs('[data-list]', root).innerHTML = list.length
-        ? list.map(function (p) { return providerCardHTML(p, cat); }).join('')
+        ? list.map(function (p) { return c.providerCardHTML(p, cat); }).join('')
         : (
           '<div class="empty-state" style="grid-column:1/-1">' +
           '<span class="empty-state__icon">' + u.icon(cat.icon, { size: 32 }) + '</span>' +

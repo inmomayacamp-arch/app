@@ -129,6 +129,14 @@
       window.location.hash = '#/propiedad/' + property.id;
     }
 
+    function onSelectProvider(provider) {
+      window.location.hash = '#/servicios/' + provider.category + '/' + provider.id;
+    }
+
+    // El directorio no depende de los filtros de propiedades (operación, tipo,
+    // precio), así que sus pines se ponen una sola vez, no en cada refreshList().
+    if (mapCtrl.ready) mapCtrl.setProviderMarkers(state.providers.publicList(), onSelectProvider);
+
     function refreshList() {
       // El mapa siempre muestra todas las propiedades disponibles que cumplen los filtros:
       // el mapa es el elemento visual principal de la app.
