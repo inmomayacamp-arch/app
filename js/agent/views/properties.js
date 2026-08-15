@@ -180,7 +180,7 @@
     if (pdfBtn) pdfBtn.addEventListener('click', async function () {
       pdfBtn.disabled = true;
       try { await window.App.pdfFicha.generate(p, agent); }
-      catch (err) { u.toast('No se pudo generar el PDF'); }
+      catch (err) { console.error(err); u.toast('No se pudo generar el PDF'); }
       finally { pdfBtn.disabled = false; }
     });
 
