@@ -47,6 +47,11 @@
       return filtered;
     }
 
+    // "Publicar" ocupa el primer lugar (antes era Notario) para que
+    // resalte; Notario pasa al último lugar, donde estaba Publicar.
+    var orderedCategories = u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key !== 'notario'; })
+      .concat(u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key === 'notario'; }));
+
     root.innerHTML =
       '<h1 class="visually-hidden">Explorar propiedades en el mapa</h1>' +
       '<div class="explore-layout">' +
@@ -90,13 +95,13 @@
       u.icon('chevronRight', { size: 18 }) +
       '      </button>' +
       '      <div class="category-grid" data-categories>' +
-      u.SERVICE_CATEGORIES.map(function (cat) {
+      '        <a href="#/perfil" class="category-card category-card--cta" style="--cat-color:var(--color-venta);--cat-bg:var(--color-venta-bg)">' +
+      '          <span class="category-card__icon">' + u.icon('plus', { size: 22 }) + '</span><strong>Publicar</strong>' +
+      '        </a>' +
+      orderedCategories.map(function (cat) {
         return '<button type="button" class="category-card" data-service="' + cat.key + '" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
           '<span class="category-card__icon">' + u.icon(cat.icon, { size: 22 }) + '</span><strong>' + cat.label + '</strong></button>';
       }).join('') +
-      '        <a href="#/perfil" class="category-card category-card--cta">' +
-      '          <span class="category-card__icon">' + u.icon('plus', { size: 22 }) + '</span><strong>Publicar</strong>' +
-      '        </a>' +
       '      </div>' +
 
       '      <div class="promo-card" style="margin-top:20px">' +
