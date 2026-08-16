@@ -302,7 +302,7 @@
       rentalDeposit: "rental_deposit", rentalMinContract: "rental_min_contract", rentalFurnished: "rental_furnished",
       rentalGuarantees: "rental_guarantees", rentalServicesIncluded: "rental_services_included", rentalAvailableFrom: "rental_available_from",
       ownerName: "owner_name", ownerPhone: "owner_phone", ownerEmail: "owner_email",
-      tags: "tags", featured: "featured", featuredExpiresAt: "featured_expires_at", status: "status", publishStatus: "publish_status",
+      tags: "tags", status: "status", publishStatus: "publish_status",
       scheduledAt: "scheduled_at", expiresAt: "expires_at", sharing: "sharing"
     };
     var row = {};
@@ -373,6 +373,30 @@
     if (updateResult.error) throw updateResult.error;
     var property = mapPropertyRow(updateResult.data);
     cachedProperties = cachedProperties.map(function (p) { return p.id === id ? property : p; });
+    emit("properties:change", cachedProperties);
+    return property;
+  }
+  // Destacar/quitar destacado GRATIS (el incluido en el plan, 1 por cuenta):
+  // antes se escribía "featured" directo desde el cliente y el límite de
+  // "solo 1 gratis" solo se revisaba en JavaScript -- se podía saltar desde
+  // la consola del navegador. Ahora pasa por una Edge Function que valida
+  // el límite del lado del servidor. Destacar MÁS de una sigue yendo por
+  // Stripe (startPaymentCheckout("featured", ...)), eso no cambia.
+  async function toggleFreeFeature(propertyId) {
+    if (!supabaseClient) throw new Error("Supabase no está configurado");
+    var sessionResult = await supabaseClient.auth.getSession();
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session) throw new Error("Debes iniciar sesión");
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/toggle-featured";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+      body: JSON.stringify({ propertyId: propertyId })
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo actualizar la propiedad");
+    var property = mapPropertyRow(data.property);
+    cachedProperties = cachedProperties.map(function (p) { return p.id === propertyId ? property : p; });
     emit("properties:change", cachedProperties);
     return property;
   }
@@ -568,6 +592,7 @@
       byAgent: propertiesByAgent,
       publish: publishProperty,
       update: updateProperty,
+      toggleFreeFeature: toggleFreeFeature,
       remove: removeProperty,
       duplicate: duplicateProperty
     },

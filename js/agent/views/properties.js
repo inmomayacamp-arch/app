@@ -207,8 +207,9 @@
     var featureBtn = u.qs('[data-act="feature"]', sheetRoot);
     if (featureBtn) featureBtn.addEventListener('click', async function () {
       if (atFeaturedCap) { c.closeSheet(); u.toast('Ya usaste tu destacada incluida. Quítasela a la otra propiedad primero, o paga por destacar esta también.'); return; }
-      try { await state.properties.update(p.id, { featured: !p.featured, featuredExpiresAt: null }); afterAction(); }
-      catch (err) { u.toast(err.message || 'No se pudo actualizar la propiedad'); }
+      featureBtn.disabled = true;
+      try { await state.properties.toggleFreeFeature(p.id); afterAction(); }
+      catch (err) { featureBtn.disabled = false; u.toast(err.message || 'No se pudo actualizar la propiedad'); }
     });
 
     var payFeatureBtn = u.qs('[data-act="pay-feature"]', sheetRoot);
