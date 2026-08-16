@@ -14,7 +14,7 @@
   function render(params, root) {
     function refresh() {
       var agent = state.agents.current();
-      var plan = window.App.admin.data.PLANS[0];
+      var plan = agent.plan === 'proveedor' ? window.App.admin.data.PROVIDER_PLAN : window.App.admin.data.PLANS[0];
       var isActive = agent.status === 'activo';
 
       var content =

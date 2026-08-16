@@ -1,6 +1,6 @@
 // Configuración real de planes, compartida por el sitio público, el panel
-// de agente y el panel admin (no son datos de prueba: son el único plan de
-// agente y el plan de propietario que usa la app en vivo).
+// de agente y el panel admin (no son datos de prueba: son los planes reales
+// de asesor, propietario y proveedor de servicios que usa la app en vivo).
 (function () {
   "use strict";
 
@@ -34,10 +34,23 @@
     featuredAddon: { price: 100, period: "1 mes", label: "Destacar mi propiedad", description: "Aparece primero en los resultados de búsqueda durante 1 mes." }
   };
 
+  // Plan para el directorio de servicios (notario, valuadores, arquitectos,
+  // servicios, SOFOM): mismo precio que el plan de asesor, una sola ficha
+  // por cuenta (no un panel de propiedades).
+  var PROVIDER_PLAN = {
+    id: "proveedor", name: "Directorio de servicios", price: 299, priceAnnual: 2999, period: "mensual", limit: 1,
+    tagline: "Tu ficha en el directorio de servicios de InmoMaps.",
+    features: [
+      "Tu ficha en el directorio de servicios", "Aparece con pin propio en el mapa de Explorar",
+      "Fotos y ubicación exacta", "Contacto directo por WhatsApp y llamadas", "Soporte"
+    ]
+  };
+
   window.App = window.App || {};
   window.App.admin = window.App.admin || {};
   window.App.admin.data = {
     PLANS: PLANS,
-    OWNER_PLAN: OWNER_PLAN
+    OWNER_PLAN: OWNER_PLAN,
+    PROVIDER_PLAN: PROVIDER_PLAN
   };
 })();

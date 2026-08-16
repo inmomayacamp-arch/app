@@ -509,7 +509,11 @@
     var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/create-checkout-session";
     var body = {
       kind: "signup", name: fields.name, email: fields.email,
-      phone: fields.phone, city: fields.city, password: fields.password, billing: fields.billing
+      phone: fields.phone, city: fields.city, password: fields.password, billing: fields.billing,
+      // "asesor" si no se manda nada (no rompe el registro de asesor que ya
+      // existe); "proveedor" viene del registro del directorio de servicios,
+      // junto con la categoría elegida.
+      accountType: fields.accountType || "asesor", category: fields.category || null
     };
     var response = await fetch(url, {
       method: "POST",
@@ -670,7 +674,7 @@
     return {
       id: row.id, category: row.category, name: row.name, description: row.description || "",
       phone: row.phone || "", whatsapp: row.whatsapp || "", photo: row.photo || "", photos: photos,
-      coords: row.coords || null,
+      coords: row.coords || null, profileId: row.profile_id || null,
       state: row.state || "", city: row.city || "", active: !!row.active, createdAt: row.created_at
     };
   }
@@ -678,7 +682,7 @@
   function providerFieldsToRow(fields) {
     var map = {
       category: "category", name: "name", description: "description", phone: "phone",
-      whatsapp: "whatsapp", photo: "photo", photos: "photos", coords: "coords",
+      whatsapp: "whatsapp", photo: "photo", photos: "photos", coords: "coords", profileId: "profile_id",
       state: "state", city: "city", active: "active"
     };
     var row = {};
@@ -710,6 +714,11 @@
       if (category && p.category !== category) return false;
       if (stateLabel && p.state !== stateLabel) return false;
       if (cityLabel && p.city && p.city !== cityLabel) return false;
+      // Si la ficha tiene dueño (cuenta de proveedor de pago) y ese dueño ya
+      // no aparece en profiles_public (suspendido, o inactivo por falta de
+      // pago), tampoco debe verse aquí — mismo criterio que ya se usa para
+      // las propiedades de un asesor suspendido.
+      if (p.profileId && !cachedProfiles.some(function (a) { return a.id === p.profileId; })) return false;
       return true;
     });
   }

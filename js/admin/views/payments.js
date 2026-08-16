@@ -6,7 +6,7 @@
   var ac = window.App.admin.components;
   var s = window.App.admin.state;
 
-  var KIND_LABELS = { suscripcion_asesor: "Suscripción asesor", destacar_propiedad: "Destacar propiedad" };
+  var KIND_LABELS = { suscripcion_asesor: "Suscripción asesor", suscripcion_proveedor: "Suscripción proveedor", destacar_propiedad: "Destacar propiedad" };
 
   function render(params, root) {
     ac.mount('pagos', 'Pagos', '<div class="empty-state" style="padding-top:40px"><span class="spinner"></span></div>', root);

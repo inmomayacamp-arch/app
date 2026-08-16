@@ -1417,6 +1417,7 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .account-row__icon { width: 44px; height: 44px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .account-row--agent .account-row__icon { background: var(--color-primary-light); color: var(--color-primary); }
 .account-row--owner .account-row__icon { background: var(--color-otro-bg); color: var(--color-otro); }
+.account-row--provider .account-row__icon { background: var(--color-terreno-bg); color: var(--color-terreno); }
 .account-row__body { flex: 1; min-width: 0; }
 .account-row__body h4 { font-size: 0.92rem; font-weight: 700; margin: 0 0 3px; color: var(--color-ink); }
 .account-row__body p { font-size: 0.78rem; color: var(--color-ink-muted); margin: 0; }

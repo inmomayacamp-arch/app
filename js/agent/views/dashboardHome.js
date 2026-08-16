@@ -96,9 +96,63 @@
     ac.mount('dashboard', 'Dashboard', content, root);
   }
 
+  // Panel reducido para cuentas de proveedor (directorio de servicios):
+  // solo su ficha y su suscripción — nada del panel de propiedades de un
+  // asesor, que no aplica aquí.
+  function renderProvider(root, agent) {
+    var myListing = state.providers.all().filter(function (p) { return p.profileId === agent.id; })[0] || null;
+    var listingUrl = myListing ? (window.location.origin + window.location.pathname + '#/servicios/' + myListing.category + '/' + myListing.id) : null;
+
+    var content =
+      '<div class="agent-greeting">' +
+      '  <div class="agent-greeting__text"><strong>' + greetingWord() + ', ' + u.escapeHtml(agent.name.split(' ')[0]) + '</strong><span>Así va tu ficha en el directorio de InmoMaps</span></div>' +
+      '</div>' +
+
+      '<div class="agent-cta-row">' +
+      '  <a class="agent-cta-btn" href="#/dashboard/mi-ficha">' + u.icon('edit', { size: 16 }) + ' Editar mi ficha</a>' +
+      '</div>' +
+
+      (agent.status !== 'activo'
+        ? '<a class="attention-card" href="#/dashboard/suscripcion">' +
+          '  <span class="attention-card__icon">' + u.icon('dollar', { size: 18 }) + '</span>' +
+          '  <div class="attention-card__text"><strong>Completa tu pago para activar tu cuenta</strong><span>Sin esto tu ficha no aparece en el directorio ni en el mapa</span></div>' +
+          u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
+          '</a>'
+        : (myListing && (!myListing.photos || !myListing.photos.length)
+          ? '<a class="attention-card" href="#/dashboard/mi-ficha">' +
+            '  <span class="attention-card__icon">' + u.icon('camera', { size: 18 }) + '</span>' +
+            '  <div class="attention-card__text"><strong>Agrega fotos a tu ficha</strong><span>Las fichas con fotos generan más contactos</span></div>' +
+            u.icon('chevronRight', { size: 18, class: 'text-muted' }) +
+            '</a>'
+          : '')) +
+
+      '<div class="agent-tile-group"><div class="agent-tile-group__label">Tu cuenta</div><div class="dashboard-grid">' +
+      tileHTML({ href: '#/dashboard/mi-ficha', icon: 'award', iconClass: 'dashboard-card__icon--terreno', title: 'Mi ficha', desc: myListing ? 'Fotos, contacto y ubicación' : 'Aún no se ha creado' }) +
+      tileHTML({ href: '#/dashboard/suscripcion', icon: 'dollar', title: 'Suscripción', desc: agent.status === 'activo' ? 'Plan Directorio activo' : 'Pendiente de pago' }) +
+      '</div></div>' +
+
+      (listingUrl
+        ? '<div class="admin-section">' +
+          '  <div class="admin-section__head"><div class="admin-section__title">Comparte tu ficha</div></div>' +
+          '  <p class="text-secondary" style="font-size:0.85rem;margin-bottom:10px">Comparte tu ficha del directorio de InmoMaps con quien pueda estar interesado.</p>' +
+          c.shareBarHTML(listingUrl) +
+          '</div>'
+        : '') +
+
+      '<div class="agent-footer-links">' +
+      (listingUrl ? '  <a href="' + listingUrl + '" target="_blank" rel="noopener">' + u.icon('eye', { size: 16 }) + ' Ver mi ficha pública</a>' : '') +
+      '  <a href="#/">' + u.icon('chevronLeft', { size: 16 }) + ' Ir al sitio público</a>' +
+      '  <a href="#/soporte">' + u.icon('flag', { size: 16 }) + ' Soporte</a>' +
+      '  <a href="#" data-agent-logout>' + u.icon('logout', { size: 16 }) + ' Cerrar sesión</a>' +
+      '</div>';
+
+    ac.mount('dashboard', 'Dashboard', content, root);
+  }
+
   function render(params, root) {
     var agent = state.agents.current();
     if (agent.plan === 'propietario') { renderOwner(root, agent); return; }
+    if (agent.plan === 'proveedor') { renderProvider(root, agent); return; }
     var myClients = agentState.clients.all();
     var uncontacted = myClients.filter(function (cl) { return cl.status === 'nuevo'; }).length;
     var pendingPoolRequests = agentState.sharedPool.isPremium(agent.slug) ? agentState.sharedPool.pendingRequests().length : 0;

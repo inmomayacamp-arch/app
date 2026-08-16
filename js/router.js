@@ -25,6 +25,8 @@
       { pattern: "/planes", view: v.plans.render, key: "perfil" },
       { pattern: "/planes-propietario", view: v.ownerPlan.render, key: "perfil" },
       { pattern: "/registro-propietario", view: v.ownerRegister.render, key: "perfil" },
+      { pattern: "/planes-proveedor", view: v.providerPlans.render, key: "perfil" },
+      { pattern: "/registro-proveedor/:billing", view: window.App.agent.views.registerProviderPlan.render, key: "dashboard" },
       { pattern: "/solicitud", view: v.propertyRequest.render, key: "explore" },
       { pattern: "/soporte", view: v.support.render, key: "explore" },
       { pattern: "/terminos", view: v.terms.render, key: "explore" },
@@ -51,6 +53,7 @@
       { pattern: "/dashboard/enlaces/:clientSlug", view: window.App.agent.views.linkStats.render, key: "dashboard" },
       { pattern: "/dashboard/enlaces", view: window.App.agent.views.linksManage.renderList, key: "dashboard" },
       { pattern: "/dashboard/perfil-profesional", view: window.App.agent.views.profile.render, key: "dashboard" },
+      { pattern: "/dashboard/mi-ficha", view: window.App.agent.views.providerListing.render, key: "dashboard" },
       { pattern: "/dashboard/suscripcion", view: window.App.agent.views.subscription.render, key: "dashboard" },
       { pattern: "/admin/login", view: window.App.admin.views.login.render, key: "admin" },
       { pattern: "/admin", view: window.App.admin.views.dashboard.render, key: "admin" },
@@ -147,6 +150,22 @@
           return path === prefix || path.indexOf(prefix + "/") === 0;
         });
         if (!allowed) {
+          window.location.hash = "#/dashboard";
+          return;
+        }
+      }
+    }
+
+    // Las cuentas de proveedor (directorio de servicios) solo ven su propia
+    // ficha y su suscripción — nada del panel de propiedades de un asesor.
+    var PROVIDER_ALLOWED_DASHBOARD_PREFIXES = ["/dashboard/mi-ficha", "/dashboard/suscripcion"];
+    if (path.indexOf("/dashboard") === 0 && path !== "/dashboard/login") {
+      var loggedProvider = window.App.state.agents.current();
+      if (loggedProvider && loggedProvider.plan === "proveedor") {
+        var providerAllowed = path === "/dashboard" || PROVIDER_ALLOWED_DASHBOARD_PREFIXES.some(function (prefix) {
+          return path === prefix || path.indexOf(prefix + "/") === 0;
+        });
+        if (!providerAllowed) {
           window.location.hash = "#/dashboard";
           return;
         }

@@ -29,6 +29,12 @@
       '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
       '  </a>' +
 
+      '  <a class="account-row account-row--provider" href="#/planes-proveedor">' +
+      '    <span class="account-row__icon">' + u.icon('award', { size: 20 }) + '</span>' +
+      '    <div class="account-row__body"><h4>Doy un servicio inmobiliario</h4><p>Notario, valuador, arquitecto, SOFOM u otro — aparece en el directorio</p></div>' +
+      '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '  </a>' +
+
       '  <div class="account-sep">O si ya tienes cuenta</div>' +
       '  <a class="btn btn--outline btn--block" href="#/dashboard/login">Iniciar sesión</a>' +
 
