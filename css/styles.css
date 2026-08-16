@@ -1133,13 +1133,9 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .promo-card__body strong { display: block; font-size: 0.92rem; margin-bottom: 4px; }
 .promo-card__body p { font-size: 0.8rem; color: var(--color-ink-secondary); margin-bottom: 10px; }
 .promo-card--action {
-  width: 100%; text-align: left; cursor: pointer; background: var(--color-primary);
-  border-color: var(--color-primary); transition: transform 0.12s ease, box-shadow 0.12s ease;
+  width: 100%; text-align: left; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.promo-card--action .promo-card__icon { color: #fff; }
-.promo-card--action .promo-card__body strong { color: #fff; }
-.promo-card--action .promo-card__body p { color: rgba(255,255,255,0.85); }
-.promo-card--action svg:last-child { color: #fff; flex-shrink: 0; }
+.promo-card--action svg:last-child { color: var(--color-primary); flex-shrink: 0; }
 .promo-card--action:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .explore-discover { padding-bottom: 24px; }
 .explore-discover .container { padding-top: 4px; }
@@ -1163,7 +1159,7 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .provider-ficha__name { font-size: 0.74rem; font-weight: 800; color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .provider-ficha__loc { display: flex; align-items: center; gap: 3px; font-size: 0.66rem; color: var(--color-ink-muted); margin-top: 2px; }
 .provider-ficha--cta {
-  background: var(--color-primary); border-color: var(--color-primary); color: #fff;
+  background: var(--color-primary-light); border-color: var(--color-primary-ring); color: var(--color-primary);
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 10px;
 }
 .provider-ficha--cta strong { font-size: 0.78rem; font-weight: 800; line-height: 1.25; }
