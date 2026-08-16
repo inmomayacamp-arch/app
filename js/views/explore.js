@@ -104,6 +104,11 @@
       }).join('') +
       '      </div>' +
 
+      '      <div class="provider-marquee">' +
+      '        <h2 class="provider-marquee__title">Directorio de InmoMaps</h2>' +
+      '        <div class="provider-marquee__viewport"><div class="provider-marquee__track" data-provider-marquee></div></div>' +
+      '      </div>' +
+
       '      <div class="promo-card" style="margin-top:20px">' +
       '        <span class="promo-card__icon">' + u.icon('search', { size: 28 }) + '</span>' +
       '        <div class="promo-card__body">' +
@@ -131,6 +136,38 @@
 
     function onSelectProvider(provider) {
       window.location.hash = '#/servicios/' + provider.category + '/' + provider.id;
+    }
+
+    // Carrusel automático del directorio (entre las categorías y "no
+    // encontraste la propiedad"): fichas chicas, filtradas por la misma
+    // ciudad/estado que ya está activo para las propiedades, con "Anúnciate
+    // aquí" siempre primero. Se duplica la lista para que el loop de CSS
+    // (translateX -50%) no se note el corte.
+    var ctaFichaHTML = '<a class="provider-ficha provider-ficha--cta" href="#/planes-proveedor">' + u.icon('chat', { size: 20 }) + '<strong>Anúnciate<br>aquí</strong></a>';
+
+    function providerFichaHTML(p) {
+      var cat = u.SERVICE_CATEGORIES.filter(function (c2) { return c2.key === p.category; })[0] || u.SERVICE_CATEGORIES[0];
+      var cover = p.photos && p.photos.length ? p.photos[0] : p.photo;
+      return (
+        '<a class="provider-ficha" href="#/servicios/' + cat.key + '/' + p.id + '">' +
+        '<div class="provider-ficha__media" style="--cat-color:' + cat.color + ';--cat-bg:' + cat.bg + '">' +
+        (cover ? '<img src="' + u.thumbUrl(cover, 200, 150) + '" alt="" loading="lazy" />' : u.icon(cat.icon, { size: 22 })) +
+        '</div>' +
+        '<div class="provider-ficha__body">' +
+        '<div class="provider-ficha__name">' + u.escapeHtml(p.name) + '</div>' +
+        '<div class="provider-ficha__loc">' + u.icon('pin', { size: 10 }) + ' ' + u.escapeHtml(p.city || p.state || 'México') + '</div>' +
+        '</div></a>'
+      );
+    }
+
+    function refreshProviderMarquee() {
+      var st = filters.stateKey && mexicoStates[filters.stateKey];
+      var stateLabel = st ? st.label : null;
+      var cityLabel = (st && filters.cityKey && st.cities[filters.cityKey]) ? st.cities[filters.cityKey].label : null;
+      var list = state.providers.publicList(null, stateLabel, cityLabel).slice(0, 12);
+      var cards = [ctaFichaHTML].concat(list.map(providerFichaHTML)).join('');
+      var track = u.qs('[data-provider-marquee]', root);
+      if (track) track.innerHTML = cards + cards;
     }
 
     // El directorio no depende de los filtros de propiedades (operación, tipo,
@@ -161,9 +198,11 @@
       var label = u.qs('[data-location-label]', root);
       if (label) label.textContent = locationLabel();
       refreshList();
+      refreshProviderMarquee();
     }
 
     refreshList();
+    refreshProviderMarquee();
 
     // Chips rápidos de operación / tipo
     c.bindQuickFilterChips(root, filters, refreshList);

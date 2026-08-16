@@ -1144,6 +1144,30 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .explore-discover { padding-bottom: 24px; }
 .explore-discover .container { padding-top: 4px; }
 
+/* ---- Carrusel automático del directorio de proveedores (Explorar) ---- */
+.provider-marquee { margin: 22px 0 4px; }
+.provider-marquee__title { font-size: 0.95rem; font-weight: 800; margin: 0 0 10px; }
+.provider-marquee__viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+}
+.provider-marquee__track { display: flex; gap: 10px; width: max-content; animation: provider-marquee-scroll 26s linear infinite; padding: 2px 0 6px; }
+.provider-marquee__viewport:hover .provider-marquee__track { animation-play-state: paused; }
+@keyframes provider-marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.provider-ficha { display: block; width: 132px; flex: 0 0 132px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-sm); }
+.provider-ficha__media { aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; background: var(--cat-bg); color: var(--cat-color); overflow: hidden; }
+.provider-ficha__media img { width: 100%; height: 100%; object-fit: cover; }
+.provider-ficha__body { padding: 8px 10px 10px; }
+.provider-ficha__name { font-size: 0.74rem; font-weight: 800; color: var(--color-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.provider-ficha__loc { display: flex; align-items: center; gap: 3px; font-size: 0.66rem; color: var(--color-ink-muted); margin-top: 2px; }
+.provider-ficha--cta {
+  background: var(--color-primary); border-color: var(--color-primary); color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 10px;
+}
+.provider-ficha--cta strong { font-size: 0.78rem; font-weight: 800; line-height: 1.25; }
+
 .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
 @media (min-width: 480px) { .category-grid { grid-template-columns: repeat(5, 1fr); } }
 .category-card {
