@@ -209,7 +209,7 @@
         '  <div class="admin-section__head"><div><div class="admin-section__title">' + u.escapeHtml(client.name) + '</div><div class="admin-section__subtitle">' + u.escapeHtml(client.phone || '') + (client.email ? ' · ' + u.escapeHtml(client.email) : '') + '</div></div>' +
         '  <button type="button" class="btn btn--outline btn--sm" data-edit>Editar</button></div>' +
         '  <div class="row gap-2" style="flex-wrap:wrap;align-items:center">' +
-        (client.phone ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(client.phone, 'Hola ' + client.name + ', te escribo de parte de tu asesor en InmoMaps.') + '">' + u.icon('chat', { size: 14 }) + ' WhatsApp</a>' : '') +
+        (client.phone ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(client.phone, '¡Hola ' + client.name + '! Aquí tu asesor de InmoMaps 🏡 ¿Cómo va tu búsqueda de propiedad?') + '">' + u.icon('chat', { size: 14 }) + ' WhatsApp</a>' : '') +
         (client.budget ? '<span class="badge badge--venta">Presupuesto: ' + u.formatPrice(client.budget) + '</span>' : '') +
         '  <select data-status style="border:1px solid var(--color-border-strong);border-radius:var(--radius-full);padding:6px 12px;font-size:0.78rem;font-weight:800">' +
         STAGES.map(function (s) { return '<option value="' + s.value + '"' + (client.status === s.value ? ' selected' : '') + '>' + s.label + '</option>'; }).join('') +

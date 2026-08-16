@@ -39,7 +39,7 @@
     // propiedad misma (owner_phone), no en un perfil.
     var contactPhone = agent ? agent.whatsapp : property.ownerPhone;
     var contactCallPhone = agent ? agent.phone : property.ownerPhone;
-    var whatsappHref = u.whatsappLink(contactPhone, 'Hola, me interesa la propiedad "' + property.title + '" que vi en InmoMaps.');
+    var whatsappHref = u.whatsappLink(contactPhone, 'Hola, quiero información de "' + property.title + '" (la vi en InmoMaps). ¿Sigue disponible?');
     var trackAttrs = 'data-track-property="' + property.id + '"' + (fromLink ? ' data-track-link="' + fromLink.id + '"' : '');
 
     root.innerHTML =

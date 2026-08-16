@@ -60,7 +60,7 @@
         return '<span class="detail-location" style="margin-top:0">' + u.icon(m.icon, { size: 14 }) + ' ' + u.escapeHtml(m.text) + '</span>';
       }).join('') + '</div>' : '') +
       '  <div class="agent-hero__actions">' +
-      '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', vi tu perfil en InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
+      '    <a class="btn btn--whatsapp" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', encontré tu perfil en InmoMaps y quiero saber más de tus propiedades.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>' +
       '    <a class="btn btn--call" data-track-agent="' + agent.id + '" href="tel:' + u.escapeHtml(agent.phone) + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '  </div>' +
       (SOCIAL_LINKS.length ? '<div class="agent-hero__social">' + SOCIAL_LINKS.map(function (s) {

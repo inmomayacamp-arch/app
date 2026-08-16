@@ -35,7 +35,7 @@
       '    <div class="agent-hero__title">' + u.escapeHtml(cat.label) + ' · ' + u.icon('pin', { size: 12 }) + ' ' + u.escapeHtml(locationLabel) + '</div>' +
       '    <div class="agent-hero__actions">' +
       (provider.whatsapp
-        ? '<a class="btn btn--whatsapp" target="_blank" rel="noopener" href="' + u.whatsappLink(provider.whatsapp, 'Hola, vi tu ficha de ' + provider.name + ' en el directorio de InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>'
+        ? '<a class="btn btn--whatsapp" target="_blank" rel="noopener" href="' + u.whatsappLink(provider.whatsapp, '¡Hola! 👋 Vi la ficha de ' + provider.name + ' en el directorio de InmoMaps, me interesa su servicio.') + '">' + u.icon('chat', { size: 16 }) + ' WhatsApp</a>'
         : '') +
       (provider.phone
         ? '<a class="btn btn--call" href="tel:' + u.escapeHtml(provider.phone) + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>'
