@@ -5,6 +5,7 @@
   var u = window.App.utils;
   var state = window.App.state;
   var ac = window.App.agent.components;
+  var supabase = window.App.supabase;
 
   function render(params, root) {
     var agent = state.agents.current();
@@ -67,9 +68,37 @@
       '  </div>' +
       '</div>') +
 
-      '<button type="button" class="btn btn--primary" data-save>Guardar cambios</button>';
+      '<button type="button" class="btn btn--primary" data-save>Guardar cambios</button>' +
+
+      '<div class="admin-section" style="margin-top:20px">' +
+      '  <div class="admin-section__head"><div class="admin-section__title">Contraseña</div></div>' +
+      '  <div class="form-field"><label>Nueva contraseña</label>' + u.passwordFieldHTML('new-password', 'Mínimo 6 caracteres', 'new-password') + '</div>' +
+      '  <div class="form-field"><label>Confirmar contraseña</label>' + u.passwordFieldHTML('confirm-password', 'Repite la contraseña', 'new-password') + '</div>' +
+      '  <button type="button" class="btn btn--outline" data-save-password>Cambiar contraseña</button>' +
+      '</div>';
 
     ac.mount('perfil-profesional', 'Perfil profesional', content, root);
+    u.wirePasswordToggles(root);
+
+    var savePasswordBtn = u.qs('[data-save-password]', root);
+    savePasswordBtn.addEventListener('click', async function () {
+      var pass1 = u.qs('[data-new-password]', root).value;
+      var pass2 = u.qs('[data-confirm-password]', root).value;
+      if (!pass1 || pass1.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
+      if (pass1 !== pass2) { u.toast('Las contraseñas no coinciden'); return; }
+      savePasswordBtn.disabled = true;
+      try {
+        var updateResult = await supabase.auth.updateUser({ password: pass1 });
+        if (updateResult.error) throw updateResult.error;
+        u.qs('[data-new-password]', root).value = '';
+        u.qs('[data-confirm-password]', root).value = '';
+        u.toast('Contraseña actualizada', { tone: 'success' });
+      } catch (err) {
+        u.toast(err.message || 'No se pudo actualizar la contraseña');
+      } finally {
+        savePasswordBtn.disabled = false;
+      }
+    });
 
     var fileInput = u.qs('[data-avatar-input]', root);
     u.qs('[data-avatar-picker]', root).addEventListener('click', function () { fileInput.click(); });
