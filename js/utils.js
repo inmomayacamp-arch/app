@@ -237,7 +237,7 @@
     { key: "valuadores", label: "Valuadores", icon: "clipboard", color: "var(--color-terreno)", bg: "var(--color-terreno-bg)" },
     { key: "arquitectos", label: "Arquitectos", icon: "penTool", color: "var(--color-renta)", bg: "var(--color-renta-bg)" },
     { key: "servicios", label: "Servicios", icon: "tool", color: "#DB2777", bg: "#FDF2F8" },
-    { key: "sofom", label: "SOFOM", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
+    { key: "sofom", label: "Sofom", icon: "dollar", color: "var(--color-primary)", bg: "var(--color-primary-light)" }
   ];
 
   var CREDIT_TYPES = [

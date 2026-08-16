@@ -98,12 +98,10 @@
 
   function cardHTML(p, isOwner, allowFeatured, otherFeaturedCount) {
     var pubStatus = PUBLISH_STATUS_LABELS[p.publishStatus || 'publicada'] || PUBLISH_STATUS_LABELS.publicada;
-    var addon = window.App.admin.data.OWNER_PLAN.featuredAddon;
     var isExpired = isOwner && p.expiresAt && new Date(p.expiresAt) <= new Date();
     var daysLeft = (isOwner && p.expiresAt && !isExpired) ? Math.ceil((new Date(p.expiresAt) - new Date()) / 86400000) : null;
     var featuredDaysLeft = p.featuredExpiresAt ? Math.ceil((new Date(p.featuredExpiresAt) - new Date()) / 86400000) : null;
     var atFeaturedCap = allowFeatured && !p.featured && otherFeaturedCount >= 1;
-    var showPayHint = !p.featured && (isOwner || atFeaturedCap);
     return (
       '<div class="property-card admin-property-card">' +
       '  <a class="property-card__media" href="#/propiedad/' + p.id + '" target="_blank" rel="noopener">' +
@@ -125,12 +123,7 @@
           '      <p>' + u.icon('clock', { size: 13 }) + ' Tu publicación venció y ya no aparece en el mapa ni en las búsquedas.</p>' +
           '      <button type="button" class="btn btn--primary btn--sm btn--block" data-renew="' + p.id + '">Renovar gratis por 30 días más</button>' +
           '    </div>'
-        : (showPayHint
-          ? '    <div class="card-destacar-hint">' +
-            '      <p>' + u.icon('starFilled', { size: 13 }) + ' ' + (atFeaturedCap ? 'Ya usaste tu destacada incluida — paga para destacar esta también.' : u.escapeHtml(addon.description)) + '</p>' +
-            '      <a class="btn btn--primary btn--sm btn--block" href="#/dashboard/destacar/' + p.id + '">Destacar mi propiedad (+$' + addon.price + ')</a>' +
-            '    </div>'
-          : '')) +
+        : '') +
       '    <div class="admin-property-card__footer">' +
       '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) +
       (daysLeft !== null && daysLeft <= 7 ? ' · Vence en ' + daysLeft + (daysLeft === 1 ? ' día' : ' días') : '') +
@@ -162,7 +155,7 @@
         (canPublishNow ? '<button type="button" class="btn btn--outline btn--block" data-act="publish-now">' + u.icon('check', { size: 15 }) + ' Publicar ahora</button>' : '') +
         '<button type="button" class="btn btn--outline btn--block" data-act="duplicate">' + u.icon('copy', { size: 15 }) + ' Duplicar</button>' +
         (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="feature">' + u.icon('starFilled', { size: 15 }) + (p.featured ? ' Quitar destacado' : (atFeaturedCap ? ' Destacar (ya usada, quítasela a la otra)' : ' Destacar')) + '</button>' : '') +
-        (canPayFeature ? '<button type="button" class="btn btn--outline btn--block" data-act="pay-feature">' + u.icon('starFilled', { size: 15 }) + ' Destacar mi propiedad (+$' + addon.price + ' MXN)</button>' : '') +
+        (canPayFeature ? '<button type="button" class="btn btn--primary btn--block" data-act="pay-feature">' + u.icon('starFilled', { size: 15 }) + ' Destacar mi propiedad (+$' + addon.price + ' MXN)</button>' : '') +
         (allowFeatured ? '<button type="button" class="btn btn--outline btn--block" data-act="share">' + u.icon('exchange', { size: 15 }) + ' ' + (p.sharing && p.sharing.enabled ? 'Compartida con asesores' : 'Compartir con asesores') + '</button>' : '') +
         (otherStatuses.length ? '<div class="text-muted" style="font-size:0.76rem;font-weight:700;margin:6px 0 -2px">Otro estado</div><div class="row gap-2" style="flex-wrap:wrap">' +
           otherStatuses.map(function (s) { return '<button type="button" class="btn btn--sm btn--outline" data-act="status" data-status="' + s.value + '">' + s.label + '</button>'; }).join('') + '</div>' : '') +

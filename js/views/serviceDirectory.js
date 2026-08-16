@@ -27,6 +27,7 @@
       '<div class="page-header">' +
       '  <a class="btn btn--icon" href="#/" aria-label="Volver a Explorar">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
       '  <h1 class="page-header__title">' + u.escapeHtml(cat.label) + '</h1>' +
+      '  <a class="btn btn--outline btn--sm" href="#/planes-proveedor">' + u.icon('chat', { size: 14 }) + ' Anúnciate aquí</a>' +
       '</div>' +
       '<div class="page-wrap">' +
       '  <div class="chip-row" data-category-chips style="margin-bottom:12px">' +
@@ -58,7 +59,7 @@
           '<span class="empty-state__icon">' + u.icon(cat.icon, { size: 32 }) + '</span>' +
           '<h3>Sin ' + u.escapeHtml(cat.label.toLowerCase()) + ' registrados aquí todavía</h3>' +
           '<p>Prueba con otra ubicación, o si eres un profesional de este rubro, anúnciate en InmoMaps.</p>' +
-          '<a class="btn btn--primary btn--sm" href="#/anunciate">' + u.icon('chat', { size: 14 }) + ' Anúnciate aquí</a>' +
+          '<a class="btn btn--primary btn--sm" href="#/planes-proveedor">' + u.icon('chat', { size: 14 }) + ' Anúnciate aquí</a>' +
           '</div>'
         );
     }
