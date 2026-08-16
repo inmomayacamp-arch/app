@@ -27,7 +27,7 @@
       '<div class="page-header">' +
       '  <a class="btn btn--icon" href="#/" aria-label="Volver a Explorar">' + u.icon('chevronLeft', { size: 18 }) + '</a>' +
       '  <h1 class="page-header__title">' + u.escapeHtml(cat.label) + '</h1>' +
-      '  <a class="btn btn--outline btn--sm" href="#/planes-proveedor">' + u.icon('chat', { size: 14 }) + ' Anúnciate aquí</a>' +
+      '  <a class="btn btn--primary btn--sm" href="#/planes-proveedor">' + u.icon('chat', { size: 14 }) + ' Anúnciate aquí</a>' +
       '</div>' +
       '<div class="page-wrap">' +
       '  <div class="chip-row" data-category-chips style="margin-bottom:12px">' +
