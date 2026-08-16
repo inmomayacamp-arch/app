@@ -131,6 +131,9 @@
   function allOwners() {
     return window.App.data.getAllAgents().filter(function (a) { return a.plan === 'propietario' && a.role !== 'admin'; });
   }
+  function allProviderAccounts() {
+    return window.App.data.getAllAgents().filter(function (a) { return a.plan === 'proveedor' && a.role !== 'admin'; });
+  }
 
   // --- Propiedades (tabla real "properties") ---
   function allProperties() {
@@ -186,6 +189,26 @@
     return data;
   }
 
+  // --- Marcar una cuenta como pendiente de pago (o reactivarla) sin pasar
+  // por Stripe: para "recuperar" una cuenta de cortesía que se creó sin
+  // cobrar y ahora sí debe pagar. Bloquea sus funciones con el mismo
+  // mecanismo que ya usa una cuenta suspendida/vencida real.
+  async function setAccountStatus(profileId, status) {
+    var sessionResult = await window.App.supabase.auth.getSession();
+    var session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session) throw new Error("Debes iniciar sesión");
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/admin-set-status";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + session.access_token },
+      body: JSON.stringify({ profileId: profileId, status: status })
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo actualizar la cuenta");
+    logAction(status === 'activo' ? "Cuenta reactivada sin pago" : "Cuenta marcada pendiente de pago", profileId);
+    return data;
+  }
+
   // --- Errores de JavaScript reportados por el cliente (tabla client_errors) ---
   async function allClientErrors() {
     var result = await window.App.supabase.from('client_errors').select('*').order('last_seen', { ascending: false }).limit(200);
@@ -216,7 +239,7 @@
   window.App.admin.state = {
     auth: { isAuthed: isAuthed, login: login, logout: logout, completeMfaLogin: completeMfaLogin, checkMfaOnBoot: checkMfaOnBoot },
     mfa: { listFactors: mfaListFactors, enroll: mfaEnroll, confirm: mfaConfirm, unenroll: mfaUnenroll, level: mfaLevel },
-    agents: { all: allAgents, createFree: createFreeAccount },
+    agents: { all: allAgents, allProviders: allProviderAccounts, createFree: createFreeAccount, setStatus: setAccountStatus },
     owners: { all: allOwners },
     properties: { all: allProperties },
     payments: { all: allPayments },
