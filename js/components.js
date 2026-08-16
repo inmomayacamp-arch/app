@@ -780,17 +780,35 @@
     return root;
   }
 
-  function closeLightbox() {
+  var lightboxHistoryPushed = false;
+
+  // Atrás (botón del navegador o gesto del celular) debe cerrar solo el
+  // visor, no navegar la página de fondo: al abrir se mete un estado extra
+  // al historial, y "atrás" lo consume primero (dispara popstate sin tocar
+  // el hash) antes de llegar a la navegación real de la app.
+  function closeLightbox(fromPopState) {
     var root = lightboxRoot();
     root.innerHTML = '';
     document.removeEventListener('keydown', onLightboxKey);
+    window.removeEventListener('popstate', onLightboxPopState);
+    if (lightboxHistoryPushed && !fromPopState) {
+      lightboxHistoryPushed = false;
+      history.back();
+    } else {
+      lightboxHistoryPushed = false;
+    }
   }
 
   var onLightboxKey = function () {};
+  var onLightboxPopState = function () { closeLightbox(true); };
 
   function openLightbox(images, startIndex) {
     var root = lightboxRoot();
     var index = startIndex || 0;
+
+    history.pushState({ lightbox: true }, '', window.location.href);
+    lightboxHistoryPushed = true;
+    window.addEventListener('popstate', onLightboxPopState);
 
     function render() {
       root.innerHTML =
