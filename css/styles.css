@@ -1149,7 +1149,9 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
   mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
 }
 .provider-marquee__track { display: flex; gap: 10px; width: max-content; animation: provider-marquee-scroll 26s linear infinite; padding: 2px 0 6px; }
-.provider-marquee__viewport:hover .provider-marquee__track { animation-play-state: paused; }
+@media (hover: hover) and (pointer: fine) {
+  .provider-marquee__viewport:hover .provider-marquee__track { animation-play-state: paused; }
+}
 @keyframes provider-marquee-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 .provider-ficha { display: block; width: 132px; flex: 0 0 132px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-sm); }
