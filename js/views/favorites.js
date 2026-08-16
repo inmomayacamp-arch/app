@@ -30,7 +30,7 @@
         (list.length
           ? '<a class="btn btn--whatsapp btn--block" href="' + shareHref + '" target="_blank" rel="noopener" style="margin-bottom:14px">' + u.icon('chat', { size: 16 }) + ' Compartir mis favoritos</a>' +
             '<div class="stack gap-2">' + list.map(function (p) { return c.propertyCardHTML(p, { variant: 'row' }); }).join('') + '</div>'
-          : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('heart', { size: 32 }) + '</span><h3>Aún no tienes favoritos</h3><p>Toca el corazón en cualquier propiedad para guardarla aquí y comparar más tarde.</p><a class="btn btn--primary" href="#/">Explorar propiedades</a></div>') +
+          : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('heart', { size: 32 }) + '</span><h3>Aún no tienes favoritos</h3><div class="empty-state__steps"><span><b>①</b> Toca el ♥ en una propiedad</span><span><b>②</b> Compártela por WhatsApp</span></div><a class="btn btn--primary" href="#/">Explorar propiedades</a></div>') +
         '</div>';
     }
 

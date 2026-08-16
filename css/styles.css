@@ -926,6 +926,8 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .empty-state__icon { color: var(--color-ink-muted); }
 .empty-state h3 { color: var(--color-ink); font-size: 1rem; }
 .empty-state p { font-size: 0.86rem; max-width: 320px; }
+.empty-state__steps { display: flex; flex-direction: column; gap: 4px; font-size: 0.86rem; font-weight: 600; }
+.empty-state__steps b { color: var(--color-primary); font-weight: 800; }
 
 /* ==========================================================================
    Dashboard del asesor
