@@ -336,6 +336,10 @@
     if (status === "borrador" || status === "oculta") return false;
     if (status === "programada") return !!p.scheduledAt && new Date(p.scheduledAt) <= new Date();
     if (p.expiresAt && new Date(p.expiresAt) <= new Date()) return false;
+    // Si el asesor/propietario dueño ya no aparece en profiles_public
+    // (suspendido, o inactivo por falta de pago), su propiedad tampoco
+    // debe verse en el mapa ni en las búsquedas.
+    if (p.agentSlug && !cachedProfiles.some(function (a) { return a.slug === p.agentSlug; })) return false;
     return true;
   }
   function publicProperties() {

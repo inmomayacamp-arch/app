@@ -11,14 +11,19 @@
     var fromRef = params.query && params.query.from; // "agentSlug/clientSlug" si se llegó desde un enlace de cliente
     var backHref = fromRef ? '#/' + fromRef : '#/';
 
+    var agent = property ? window.App.data.getAgent(property.agentSlug) : null;
+    // Si el asesor dueño ya no aparece en profiles_public (suspendido o
+    // inactivo por falta de pago), su propiedad tampoco debe ser visible acá
+    // ni por enlace directo — salvo que quien la vea sea el propio asesor o
+    // el admin, casos en los que profiles_public sí deja verlo igual.
+    if (property && property.agentSlug && !agent) property = null;
+
     if (!property) {
       root.innerHTML = '<div class="empty-state"><h3>Propiedad no encontrada</h3><p>Es posible que ya no esté disponible.</p><a class="btn btn--primary" href="' + backHref + '">Volver</a></div>';
       if (fromRef) { document.body.classList.add('is-admin'); u.qs('#site-header').innerHTML = ''; u.qs('#bottom-nav').innerHTML = ''; }
       else c.mountChrome('explore');
       return;
     }
-
-    var agent = window.App.data.getAgent(property.agentSlug);
     var isFav = state.favorites.has(property.id);
     var priceLabel = c.propertyPriceLabel(property);
     var youtubeUrl = u.youtubeEmbedUrl(property.videoUrl);
