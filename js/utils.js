@@ -365,6 +365,9 @@
 
   function whatsappLink(phone, message) {
     var digits = String(phone).replace(/\D/g, '');
+    // Los teléfonos se guardan a 10 dígitos, sin código de país (todos los
+    // usuarios son de México) -- wa.me sí lo necesita para abrir el chat.
+    if (digits.length === 10) digits = '52' + digits;
     return 'https://wa.me/' + digits + (message ? '?text=' + encodeURIComponent(message) : '');
   }
 
