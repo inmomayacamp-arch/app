@@ -45,7 +45,7 @@
       '  <div class="container" style="max-width:640px">' +
       '    <div class="plans-section-label">Todo lo que incluye</div>' +
       '    <div class="tool-grid">' + toolsGridHTML() + '</div>' +
-      '    <a class="btn btn--outline btn--block" style="margin-top:18px;font-weight:800" href="#/plan-detalle/asesor">' + u.icon('list', { size: 16 }) + ' Ver todo lo que incluye el plan, a detalle</a>' +
+      '    <a class="btn btn--tint btn--block" style="margin-top:18px;font-weight:800" href="#/plan-detalle/asesor">' + u.icon('list', { size: 16 }) + ' Ver todo lo que incluye el plan, a detalle</a>' +
       '  </div>' +
 
       '  <div class="container" style="max-width:420px">' +
