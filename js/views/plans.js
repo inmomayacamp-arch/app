@@ -59,6 +59,7 @@
       '      <div class="price-block__price" data-price-display>' +
       '        <span class="price-block__amount" data-price-amount>$' + plan.price + '</span><span data-price-period>/mes</span>' +
       '      </div>' +
+      '      <div><span class="plandetail-annual-badge">' + u.icon('starFilled', { size: 13 }) + ' Paga $' + plan.priceAnnual + ' al año y ahorra 2 meses</span></div>' +
       '      <div class="price-block__alt" data-price-alt style="visibility:hidden">o $' + plan.priceAnnual + ' al año (' + annualMonthly + '/mes)</div>' +
       '      <a class="btn btn--primary btn--block" href="#/registro-agente/mensual" data-price-cta>Crear mi cuenta</a>' +
       '      <div class="price-block__note">Sin permanencia forzosa · cancela cuando quieras</div>' +
