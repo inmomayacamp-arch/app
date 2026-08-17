@@ -57,7 +57,7 @@
       var count = item.badge ? state.favorites.count() : 0;
       var badgeHtml = count ? '<span class="bottom-nav__badge">' + count + '</span>' : '';
       return '<a class="' + cls + '" href="' + item.href + '" aria-current="' + (item.route === activeRoute ? 'page' : 'false') + '">' +
-        badgeHtml + u.icon(item.icon, { size: 21 }) + '<span>' + u.escapeHtml(item.label) + '</span></a>';
+        badgeHtml + '<span class="bottom-nav__item-icon">' + u.icon(item.icon, { size: 21 }) + '</span><span>' + u.escapeHtml(item.label) + '</span></a>';
     }).join("");
   }
 

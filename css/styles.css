@@ -176,7 +176,12 @@ body.is-admin .site-header { display: none; }
   background: none; border: none; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
 .bottom-nav__item.is-active { color: var(--color-primary); }
-.bottom-nav__item--cta { color: var(--color-venta); }
+.bottom-nav__item-icon { display: flex; align-items: center; justify-content: center; }
+.bottom-nav__item--cta { color: var(--color-venta); font-weight: 800; }
+.bottom-nav__item--cta .bottom-nav__item-icon {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--color-venta); color: #fff;
+  margin-bottom: 1px;
+}
 .bottom-nav__badge {
   position: absolute; top: 2px; right: calc(50% - 18px);
   background: var(--color-primary); color: #fff;
