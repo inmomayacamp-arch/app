@@ -42,7 +42,7 @@
       '  <div class="container plans-hero">' +
       '    <a class="signup-checkout__back" style="display:flex;justify-content:center" href="#/perfil">' + u.icon('chevronLeft', { size: 16 }) + ' Volver</a>' +
       '    <span class="plans-hero__eyebrow">' + u.icon('home', { size: 14 }) + ' Para propietarios</span>' +
-      '    <h2 class="plans-hero__title">Vende o renta tu propiedad <span>directo, sin intermediarios</span></h2>' +
+      '    <h2 class="plans-hero__title">Vende o renta tu propiedad <span>totalmente gratis</span></h2>' +
       '    <p class="plans-hero__subtitle">Publica tu propiedad en el mapa de InmoMaps y recibe contactos directo a tu WhatsApp y teléfono.</p>' +
       '    <div class="plans-trust">' + trustBarHTML() + '</div>' +
       '  </div>' +
@@ -75,7 +75,7 @@
       '  </div>' +
 
       '  <div class="container">' +
-      '    <div class="plans-footnote">' + u.icon('shield', { size: 16 }) + ' No necesitas ser asesor inmobiliario para publicar tu propiedad.</div>' +
+      '    <div class="plans-footnote">' + u.icon('shield', { size: 16 }) + ' Sin compromisos: puedes editar o quitar tu propiedad cuando quieras.</div>' +
       '  </div>' +
       '</div>';
 
