@@ -42,6 +42,10 @@
     );
   }
 
+  function priceReminder() {
+    return '<div class="container"><div class="plandetail-price-reminder">' + icon('dollar', 14) + ' $299 MXN/mes <span>· o $2,999 al año, ahorra 2 meses</span></div></div>';
+  }
+
   function layout(num, title, text, listHtml, frameHtml, reverse) {
     return (
       '<div class="plandetail-section">' +
@@ -49,6 +53,7 @@
       '  <div class="container plandetail-layout' + (reverse ? ' plandetail-layout--rev' : '') + '">' +
       (reverse ? frameHtml + '<div>' + listHtml + '</div>' : '<div>' + listHtml + '</div>' + frameHtml) +
       '  </div>' +
+      priceReminder() +
       '</div>'
     );
   }
@@ -110,7 +115,7 @@
       }).join('') +
       '</div>' +
       '<div class="plans-footnote" style="margin-top:18px">' + icon('shield', 16) + ' Solo es obligatorio el precio, la ciudad y 1 foto — todo lo demás es opcional.</div>' +
-      '</div></div>';
+      '</div>' + priceReminder() + '</div>';
 
     s += layout(3, 'Administrar tus propiedades§12 acciones sobre cada propiedad, sin salir de la tarjeta',
       'Cada ficha muestra su estado real de un vistazo, y el menú "⋯" cubre todo lo que necesitas después de publicar.',
@@ -160,7 +165,7 @@
         { icon: 'dollar', tone: 'venta', title: 'Liquidaciones', text: 'Registra el reparto de cada comisión y márcala como pagada.' }
       ]) +
       '<div class="plans-footnote" style="margin-top:18px">' + icon('shield', 16) + ' Tú decides quién ve tu propiedad: todos, una lista, tu inmobiliaria, o solo quien tú apruebes.</div>' +
-      '</div></div>';
+      '</div>' + priceReminder() + '</div>';
 
     s += layout(6, 'Enlaces personalizados§Un enlace con el nombre de tu cliente',
       'Arma una selección de propiedades y mándasela como un enlace propio, con seguimiento real de qué hace tu cliente ahí.',
@@ -208,7 +213,7 @@
         { icon: 'starFilled', tone: 'renta', title: 'Gratis, después', text: 'Actívalo o cámbialo de propiedad desde el menú "⋯".' },
         { icon: 'dollar', tone: 'primary', title: '+$100 MXN, si quieres más', text: '¿Ya usaste tu destacado gratis? Destaca otra por $100/mes.' }
       ]) +
-      '</div></div>';
+      '</div>' + priceReminder() + '</div>';
 
     s += layout(9, 'Tu perfil y tu suscripción§Tu presencia profesional, y el control de tu pago',
       'Un perfil público completo, y un panel de suscripción claro — sin sorpresas.',
@@ -226,7 +231,7 @@
       '  <div class="price-block">' +
       '    <div class="price-block__label">Plan Asesor · resumen completo</div>' +
       '    <div class="price-block__price"><span>$299</span><span>/mes</span></div>' +
-      '    <div class="price-block__alt" style="visibility:visible">o $2,999 al año — ahorras 2 meses completos</div>' +
+      '    <div><span class="plandetail-annual-badge">' + icon('starFilled', 13) + ' Paga $2,999 al año y ahorra 2 meses</span></div>' +
       '    <ul class="plandetail-checklist">' +
       ['Hasta 15 propiedades activas', '1 publicación destacada incluida', 'Perfil profesional público', 'Enlaces personalizados ilimitados', 'Estadísticas completas de tus enlaces', 'CRM de clientes con seguimiento', 'Bolsa Compartida entre asesores', 'Soporte directo por WhatsApp'].map(function (f) {
         return '<li>' + icon('check', 14) + f + '</li>';
@@ -288,7 +293,7 @@
         { icon: 'search', tone: 'otro', title: 'Listado en tu categoría', text: 'Filtrable por ciudad y tipo de servicio.' },
         { icon: 'navigation', tone: 'renta', title: 'Carrusel automático', text: 'Tu ficha pasa sola frente a todos los que visitan la app.' }
       ]) +
-      '</div></div>';
+      '</div>' + priceReminder() + '</div>';
 
     s += layout(3, 'Contacto y control§Te escriben a ti — InmoMaps no se queda en medio',
       'Publicas, editas y recibes el contacto directo, sin pasos extra ni depender del administrador.',
@@ -313,7 +318,7 @@
       '  <div class="price-block">' +
       '    <div class="price-block__label">Plan Directorio · resumen completo</div>' +
       '    <div class="price-block__price"><span>$299</span><span>/mes</span></div>' +
-      '    <div class="price-block__alt" style="visibility:visible">o $2,999 al año — ahorras 2 meses completos</div>' +
+      '    <div><span class="plandetail-annual-badge">' + icon('starFilled', 13) + ' Paga $2,999 al año y ahorra 2 meses</span></div>' +
       '    <ul class="plandetail-checklist">' +
       ['Tu ficha propia en el directorio', 'Pin propio en el mapa de Explorar', 'Fotos y ubicación exacta', 'Contacto directo por WhatsApp y llamadas', 'Carrusel automático en Explorar', 'Soporte directo por WhatsApp'].map(function (f) {
         return '<li>' + icon('check', 14) + f + '</li>';
