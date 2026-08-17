@@ -17,15 +17,15 @@
       '    <p>¿Cómo quieres usar la plataforma?</p>' +
       '  </div>' +
 
-      '  <a class="account-row account-row--agent" href="#/planes">' +
-      '    <span class="account-row__icon">' + u.icon('briefcase', { size: 20 }) + '</span>' +
-      '    <div class="account-row__body"><h4>Soy asesor inmobiliario</h4><p>Publica, comparte enlaces y da seguimiento a tus clientes</p></div>' +
-      '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
-      '  </a>' +
-
       '  <a class="account-row account-row--owner" href="#/planes-propietario">' +
       '    <span class="account-row__icon">' + u.icon('home', { size: 20 }) + '</span>' +
       '    <div class="account-row__body"><h4>Quiero publicar mi propiedad</h4><p>Sin cuenta de asesor, contacto directo por WhatsApp</p></div>' +
+      '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
+      '  </a>' +
+
+      '  <a class="account-row account-row--agent" href="#/planes">' +
+      '    <span class="account-row__icon">' + u.icon('briefcase', { size: 20 }) + '</span>' +
+      '    <div class="account-row__body"><h4>Soy asesor inmobiliario</h4><p>Publica, comparte enlaces y da seguimiento a tus clientes</p></div>' +
       '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
       '  </a>' +
 
