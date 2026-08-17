@@ -38,7 +38,11 @@
     function renderForm() {
       mountPage(
         '<div class="page-wrap" style="max-width:560px">' +
-        '  <p class="text-secondary" style="margin-bottom:20px">¿Tienes un problema, una duda o una sugerencia? Escríbenos y el equipo de InmoMaps te responderá.</p>' +
+        '  <p class="text-secondary" style="margin-bottom:14px">¿Tienes un problema, una duda o una sugerencia? Escríbenos y el equipo de InmoMaps te responderá.</p>' +
+
+        '  <a class="btn btn--whatsapp btn--block" target="_blank" rel="noopener" style="margin-bottom:20px" href="' + u.whatsappLink(window.APP_CONFIG.SUPPORT_WHATSAPP, 'Hola, necesito ayuda con InmoMaps.') + '">' + u.icon('chat', { size: 16 }) + ' Escríbenos por WhatsApp</a>' +
+
+        '  <div class="account-sep" style="margin:0 0 18px">o completa el formulario</div>' +
 
         '  <div class="form-field"><label>Nombre completo</label><input type="text" data-name placeholder="Tu nombre" value="' + (agent ? u.escapeHtml(agent.name) : '') + '" /></div>' +
         '  <div class="form-row">' +

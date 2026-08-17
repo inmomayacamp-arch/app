@@ -62,7 +62,8 @@
 
       '  <div class="container">' +
       '    <div class="plans-footnote">' + u.icon("shield", { size: 16 }) + ' Puedes cancelar tu plan en cualquier momento.</div>' +
-      '    <p class="text-muted" style="text-align:center;font-size:0.85rem;margin-top:14px">¿Ya tienes cuenta? <a href="#/dashboard/login" style="color:var(--color-primary);font-weight:700">Inicia sesión</a></p>' +
+      '    <p class="text-muted" style="text-align:center;font-size:0.85rem;margin-top:14px">¿Dudas antes de registrarte? <a href="' + u.whatsappLink(window.APP_CONFIG.SUPPORT_WHATSAPP, 'Hola, tengo dudas sobre el plan del directorio de InmoMaps.') + '" target="_blank" rel="noopener" style="color:var(--color-primary);font-weight:700">Escríbenos por WhatsApp</a></p>' +
+      '    <p class="text-muted" style="text-align:center;font-size:0.85rem;margin-top:6px">¿Ya tienes cuenta? <a href="#/dashboard/login" style="color:var(--color-primary);font-weight:700">Inicia sesión</a></p>' +
       '  </div>' +
       '</div>';
 
