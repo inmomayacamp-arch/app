@@ -41,7 +41,7 @@
     var myProperty = state.properties.byAgent(agent.slug)[0] || null;
     var isExpired = myProperty && myProperty.expiresAt && new Date(myProperty.expiresAt) <= new Date();
     var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
-    var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+    var profileUrl = window.location.origin + '/' + agent.slug;
 
     var content =
       '<div class="agent-greeting">' +
@@ -101,7 +101,7 @@
   // asesor, que no aplica aquí.
   function renderProvider(root, agent) {
     var myListing = state.providers.all().filter(function (p) { return p.profileId === agent.id; })[0] || null;
-    var listingUrl = myListing ? (window.location.origin + window.location.pathname + '#/servicios/' + myListing.category + '/' + myListing.id) : null;
+    var listingUrl = myListing ? (window.location.origin + '/servicios/' + myListing.category + '/' + myListing.id) : null;
 
     var content =
       '<div class="agent-greeting">' +
@@ -159,7 +159,7 @@
 
     var topProperties = state.tracking.topPropertiesForAgent(agent.slug, 5);
     var recentContacts = state.tracking.recentContactsForAgent(agent.slug, 5);
-    var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+    var profileUrl = window.location.origin + '/' + agent.slug;
 
     var content =
       '<div class="agent-greeting">' +

@@ -1,6 +1,6 @@
 // Service worker mínimo: cachea el "app shell" para que InmoMaps sea instalable
 // y cargue rápido en visitas repetidas. Los mapas y fotos siempre van a la red.
-var CACHE_NAME = "inmomaps-shell-v170";
+var CACHE_NAME = "inmomaps-shell-v171";
 var APP_SHELL = [
   "./",
   "index.html",
@@ -103,6 +103,11 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
 
+  // Con rutas reales (sin "#"), entrar sin internet directo a algo como
+  // /propiedad/123 no tiene un archivo exacto en caché (nunca se guardó esa
+  // ruta puntual) -- si además falla la red, se sirve el index.html ya
+  // cacheado en vez de nada, para que la app arranque y pinte esa pantalla
+  // por su cuenta en cuanto tenga los datos.
   event.respondWith(
     caches.match(event.request).then(function (cached) {
       if (cached) return cached;
@@ -110,7 +115,10 @@ self.addEventListener("fetch", function (event) {
         var copy = response.clone();
         caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
         return response;
-      }).catch(function () { return cached; });
+      }).catch(function () {
+        if (event.request.mode === "navigate") return caches.match("index.html");
+        return cached;
+      });
     })
   );
 });

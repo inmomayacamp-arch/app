@@ -18,7 +18,7 @@
     var allProps = state.properties.byAgent(agent.slug);
     var filters = u.defaultFilters();
     var mapCtrl = null;
-    var profileUrl = window.location.origin + window.location.pathname + '#/' + agent.slug;
+    var profileUrl = window.location.origin + '/' + agent.slug;
     var social = agent.social || {};
     var subtitle = u.agentTitleLabel(agent);
     var metaLine = [

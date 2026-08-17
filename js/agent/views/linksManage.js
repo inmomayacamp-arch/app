@@ -18,7 +18,7 @@
       '</div>' +
       (links.length
         ? '<div class="stack gap-2">' + links.map(function (link) {
-          var url = window.location.origin + window.location.pathname + '#/' + agent.slug + '/' + link.clientSlug;
+          var url = window.location.origin + '/' + agent.slug + '/' + link.clientSlug;
           return '<div class="ranked-row">' +
             '<a href="#/dashboard/enlaces/' + link.clientSlug + '" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit">' +
             '<span class="dashboard-card__icon">' + u.icon('user', { size: 16 }) + '</span>' +

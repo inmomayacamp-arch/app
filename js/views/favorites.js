@@ -11,10 +11,10 @@
   // lista guardada en el servidor que se pueda compartir como un solo
   // enlace, así que cada propiedad manda a su propia ficha real).
   function buildShareText(list) {
-    var base = window.location.origin + window.location.pathname;
+    var base = window.location.origin;
     var shown = list.slice(0, 20);
     var items = shown.map(function (p, i) {
-      return (i + 1) + '. ' + p.title + ' — ' + c.propertyPriceLabel(p) + '\n' + base + '#/propiedad/' + p.id;
+      return (i + 1) + '. ' + p.title + ' — ' + c.propertyPriceLabel(p) + '\n' + base + '/propiedad/' + p.id;
     });
     var extra = list.length > shown.length ? '\n\n…y ' + (list.length - shown.length) + ' más en mis favoritos de InmoMaps.' : '';
     return 'Estas son mis propiedades favoritas en InmoMaps:\n\n' + items.join('\n\n') + extra;

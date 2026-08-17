@@ -134,7 +134,7 @@
     var quadRatio = quadW / quadH;
 
     var photoUrls = (property.photos || []).slice(0, 4);
-    var qrTarget = window.location.origin + window.location.pathname + "#/propiedad/" + property.id;
+    var qrTarget = window.location.origin + "/propiedad/" + property.id;
     var results = await Promise.all([
       loadImageAsDataUrl(photoUrls[0], quadRatio),
       loadImageAsDataUrl(photoUrls[1], quadRatio),
