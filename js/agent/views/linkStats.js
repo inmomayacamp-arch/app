@@ -33,7 +33,7 @@
       c.shareBarHTML(url) +
       '  <div class="row gap-2" style="margin-top:10px">' +
       (link.clientPhone
-        ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(link.clientPhone, '¡Hola ' + link.clientLabel + '! 👋 Aquí está tu selección de propiedades en InmoMaps: ' + url) + '">' + u.icon('chat', { size: 15 }) + ' Enviar por WhatsApp</a>'
+        ? '<a class="btn btn--whatsapp btn--sm" target="_blank" rel="noopener" href="' + u.whatsappLink(link.clientPhone, (link.message ? link.message + '\n\n' : '') + url) + '">' + u.icon('chat', { size: 15 }) + ' Enviar por WhatsApp</a>'
         : '') +
       (link.clientEmail ? '<a class="btn btn--outline btn--sm" href="mailto:' + u.escapeHtml(link.clientEmail) + '">' + u.icon('mail', { size: 15 }) + ' Enviar por correo</a>' : '') +
       '  </div>' +
