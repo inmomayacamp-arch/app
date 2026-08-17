@@ -1758,6 +1758,7 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .plan-summary--pro .plan-summary__features li .icon { color: #34D399; }
 .plan-summary__change { display: inline-block; margin-top: 10px; font-size: 0.76rem; font-weight: 700; color: var(--color-primary); }
 .plan-summary--pro .plan-summary__change { color: #F87171; }
+.plan-summary__change--anual { color: var(--color-venta); }
 
 .payment-section { margin: 6px 0 22px; }
 .payment-section__title { display: flex; align-items: center; gap: 7px; font-weight: 800; font-size: 0.86rem; margin-bottom: 10px; }

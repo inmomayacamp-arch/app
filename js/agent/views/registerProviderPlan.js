@@ -38,7 +38,7 @@
       '      <ul class="plan-summary__features">' +
       plan.features.slice(0, 4).map(function (f) { return '<li>' + u.icon('check', { size: 12 }) + u.escapeHtml(f) + '</li>'; }).join('') +
       '      </ul>' +
-      '      <a class="plan-summary__change" href="#/planes-proveedor">Cambiar forma de pago</a>' +
+      '      <a class="plan-summary__change plan-summary__change--anual" href="#/registro-proveedor/' + (billing === 'anual' ? 'mensual' : 'anual') + '">' + (billing === 'anual' ? 'Cambiar a mensual' : 'Cambiar a anual') + '</a>' +
       '    </div>' +
 
       '    <h1 class="signup-checkout__title">Crea tu cuenta de proveedor</h1>' +
