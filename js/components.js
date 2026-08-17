@@ -221,7 +221,13 @@
 
   var sheetCloseHandlers = [];
 
-  function closeSheet() {
+  var sheetHistoryPushed = false;
+
+  // Atrás (botón del navegador o gesto del celular) debe cerrar la hoja en
+  // vez de navegar la página de fondo: mismo patrón que el visor de fotos
+  // (ver openLightbox) -- al abrir se mete un estado extra al historial, y
+  // "atrás" lo consume primero.
+  function closeSheet(fromPopState) {
     var root = u.qs('#sheet-root');
     var sheetEl = u.qs('.sheet', root);
     var backdrop = u.qs('.sheet-backdrop', root);
@@ -234,13 +240,26 @@
     sheetCloseHandlers.forEach(function (fn) { fn(); });
     sheetCloseHandlers = [];
     document.removeEventListener('keydown', onEscape);
+    window.removeEventListener('popstate', onSheetPopState);
+    if (sheetHistoryPushed && !fromPopState) {
+      sheetHistoryPushed = false;
+      history.back();
+    } else {
+      sheetHistoryPushed = false;
+    }
   }
 
   function onEscape(e) { if (e.key === 'Escape') closeSheet(); }
+  var onSheetPopState = function () { closeSheet(true); };
 
   function openSheet(opts) {
     opts = opts || {};
     var root = u.qs('#sheet-root');
+    if (!sheetHistoryPushed) {
+      history.pushState({ sheet: true }, '', window.location.href);
+      sheetHistoryPushed = true;
+      window.addEventListener('popstate', onSheetPopState);
+    }
     root.innerHTML =
       '<div class="sheet-backdrop"></div>' +
       '<div class="sheet ' + (opts.className || '') + '" role="dialog" aria-modal="true" aria-label="' + u.escapeHtml(opts.title || '') + '">' +
