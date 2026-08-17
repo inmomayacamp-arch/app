@@ -26,6 +26,7 @@
       { pattern: "/planes-propietario", view: v.ownerPlan.render, key: "perfil" },
       { pattern: "/registro-propietario", view: v.ownerRegister.render, key: "perfil" },
       { pattern: "/planes-proveedor", view: v.providerPlans.render, key: "perfil" },
+      { pattern: "/plan-detalle/:tipo", view: v.planDetalle.render, key: "perfil" },
       { pattern: "/registro-proveedor/:billing", view: window.App.agent.views.registerProviderPlan.render, key: "dashboard" },
       { pattern: "/solicitud", view: v.propertyRequest.render, key: "explore" },
       { pattern: "/soporte", view: v.support.render, key: "explore" },
