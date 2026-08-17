@@ -17,9 +17,9 @@
       '    <p>¿Cómo quieres usar la plataforma?</p>' +
       '  </div>' +
 
-      '  <a class="account-row account-row--owner" href="#/planes-propietario">' +
+      '  <a class="account-row account-row--owner account-row--free" href="#/planes-propietario">' +
       '    <span class="account-row__icon">' + u.icon('home', { size: 20 }) + '</span>' +
-      '    <div class="account-row__body"><h4>Quiero publicar mi propiedad</h4><p>Sin cuenta de asesor, contacto directo por WhatsApp</p></div>' +
+      '    <div class="account-row__body"><h4>Publica tu propiedad gratis <span class="badge-free">Gratis</span></h4><p>Publícala en minutos y que te contacten directo los interesados.</p></div>' +
       '    <span class="account-row__chev">' + u.icon('chevronRight', { size: 18 }) + '</span>' +
       '  </a>' +
 

@@ -176,11 +176,10 @@ body.is-admin .site-header { display: none; }
   background: none; border: none; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
 .bottom-nav__item.is-active { color: var(--color-primary); }
-.bottom-nav__item-icon { display: flex; align-items: center; justify-content: center; }
+.bottom-nav__item-icon { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; }
 .bottom-nav__item--cta { color: var(--color-venta); font-weight: 800; }
 .bottom-nav__item--cta .bottom-nav__item-icon {
-  width: 30px; height: 30px; border-radius: 50%; background: var(--color-venta); color: #fff;
-  margin-bottom: 1px;
+  border-radius: 50%; background: var(--color-venta); color: #fff;
 }
 .bottom-nav__badge {
   position: absolute; top: 2px; right: calc(50% - 18px);
@@ -1460,9 +1459,18 @@ button.location-picker__crumb-pill:hover { border-color: var(--color-border-stro
 .account-row--owner .account-row__icon { background: var(--color-otro-bg); color: var(--color-otro); }
 .account-row--provider .account-row__icon { background: var(--color-terreno-bg); color: var(--color-terreno); }
 .account-row__body { flex: 1; min-width: 0; }
-.account-row__body h4 { font-size: 0.92rem; font-weight: 700; margin: 0 0 3px; color: var(--color-ink); }
+.account-row__body h4 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 0.92rem; font-weight: 700; margin: 0 0 3px; color: var(--color-ink); }
 .account-row__body p { font-size: 0.78rem; color: var(--color-ink-muted); margin: 0; }
 .account-row__chev { color: var(--color-ink-muted); flex-shrink: 0; }
+
+/* Fila "gratis" (publicar propiedad como propietario): fondo verde
+   translúcido para que resalte entre las otras dos cuentas de pago. */
+.account-row--free { background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.28); }
+.account-row--free .account-row__icon { background: var(--color-venta); color: #fff; }
+.badge-free {
+  display: inline-flex; align-items: center; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.02em;
+  background: var(--color-venta); color: #fff; padding: 2px 8px; border-radius: var(--radius-full); text-transform: uppercase;
+}
 
 .account-sep {
   display: flex; align-items: center; gap: 10px; margin: 26px 0 16px; color: var(--color-ink-muted);
