@@ -82,6 +82,17 @@
     return el;
   }
 
+  function clusterPinEl(count, operation) {
+    var colorVar = pinColorVar(operation);
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'map-pin map-pin--cluster';
+    el.style.setProperty('--pin-color', 'var(' + colorVar + ')');
+    el.innerHTML = '<span class="map-pin__cluster-count">' + count + '</span>';
+    el.setAttribute('aria-label', count + ' propiedades en esta zona, toca para acercar');
+    return el;
+  }
+
   function create(container, opts) {
     opts = opts || {};
     if (!isConfigured()) {
@@ -184,20 +195,75 @@
       });
     }
 
-    function setMarkers(properties, onSelect) {
-      clearMarkers();
-      properties.forEach(function (property) {
-        if (!property.coords) return;
-        var el = priceBubbleEl(property, { compact: opts.compactPins });
-        el.addEventListener('click', function (e) {
-          e.stopPropagation();
-          if (onSelect) openPeek(property, onSelect);
-        });
-        var marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat(property.coords)
-          .addTo(map);
-        markers.push(marker);
+    // Con muchas propiedades juntas (varias cuentas publicando en la misma
+    // zona), pintar una burbuja de precio por cada una satura el mapa y se
+    // pone lento. Por eso se agrupan por cercanía EN PANTALLA (no en el
+    // mundo real, para que el agrupado se sienta bien en cualquier zoom) en
+    // un pin con el conteo; alejados ya del CLUSTER_MIN_ZOOM se muestran
+    // siempre individuales, donde la precisión importa más que el orden.
+    var CLUSTER_CELL_PX = 56;
+    var CLUSTER_MIN_ZOOM = 15;
+    var currentProperties = [];
+    var currentOnSelect = null;
+    var clusterListenerBound = false;
+
+    function clusterCenter(group) {
+      var lng = 0, lat = 0;
+      group.forEach(function (p) { lng += p.coords[0]; lat += p.coords[1]; });
+      return [lng / group.length, lat / group.length];
+    }
+
+    function computeGroups(properties) {
+      var withCoords = properties.filter(function (p) { return p.coords; });
+      if (map.getZoom() >= CLUSTER_MIN_ZOOM) {
+        return withCoords.map(function (p) { return { type: 'single', property: p }; });
+      }
+      var buckets = {};
+      withCoords.forEach(function (p) {
+        var pt = map.project(p.coords);
+        var key = Math.round(pt.x / CLUSTER_CELL_PX) + ',' + Math.round(pt.y / CLUSTER_CELL_PX);
+        (buckets[key] = buckets[key] || []).push(p);
       });
+      var groups = [];
+      Object.keys(buckets).forEach(function (key) {
+        var bucket = buckets[key];
+        groups.push(bucket.length === 1 ? { type: 'single', property: bucket[0] } : { type: 'cluster', properties: bucket });
+      });
+      return groups;
+    }
+
+    function redrawMarkers() {
+      clearMarkers();
+      computeGroups(currentProperties).forEach(function (group) {
+        if (group.type === 'single') {
+          var property = group.property;
+          var el = priceBubbleEl(property, { compact: opts.compactPins });
+          el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (currentOnSelect) openPeek(property, currentOnSelect);
+          });
+          var marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' }).setLngLat(property.coords).addTo(map);
+          markers.push(marker);
+        } else {
+          var el2 = clusterPinEl(group.properties.length, group.properties[0].operation);
+          el2.addEventListener('click', function (e) {
+            e.stopPropagation();
+            fitToProperties(group.properties);
+          });
+          var marker2 = new mapboxgl.Marker({ element: el2, anchor: 'center' }).setLngLat(clusterCenter(group.properties)).addTo(map);
+          markers.push(marker2);
+        }
+      });
+    }
+
+    function setMarkers(properties, onSelect) {
+      currentProperties = properties;
+      currentOnSelect = onSelect;
+      if (!clusterListenerBound) {
+        clusterListenerBound = true;
+        map.on('moveend', redrawMarkers);
+      }
+      redrawMarkers();
     }
 
     function flyTo(coords, zoom) {

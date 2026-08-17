@@ -401,6 +401,17 @@ body.is-admin .site-header { display: none; }
 .map-pin--compact { transform-origin: center; }
 .map-pin__dot { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--pin-color); border: 2px solid #fff; box-shadow: var(--shadow-sm); }
 
+/* Pin de "varias propiedades juntas" (agrupadas al alejar el zoom, para no
+   saturar el mapa de burbujas de precio encimadas). Tocarlo hace zoom hasta
+   que se separan en pines individuales. */
+.map-pin--cluster {
+  transform-origin: center; width: 40px; height: 40px; border-radius: 50%;
+  background: var(--pin-color, var(--color-primary)); border: 3px solid #fff;
+  box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center;
+}
+.map-pin--cluster:hover, .map-pin--cluster:focus-visible { transform: scale(1.1); z-index: 5; }
+.map-pin__cluster-count { color: #fff; font-size: 0.82rem; font-weight: 800; }
+
 /* Pines del directorio de servicios: circulo chico con el color/icono de su
    categoria, para leerse como una capa distinta a las propiedades. */
 .map-pin--provider {
