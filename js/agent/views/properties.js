@@ -128,7 +128,10 @@
       '      <span class="text-muted" style="font-size:0.74rem">' + u.relativeTime(p.createdAt) + ' · ' + u.icon('eye', { size: 12 }) + ' ' + u.formatNumber(state.tracking.viewsForProperty(p.id)) +
       (daysLeft !== null && daysLeft <= 7 ? ' · Vence en ' + daysLeft + (daysLeft === 1 ? ' día' : ' días') : '') +
       '</span>' +
-      '      <button type="button" class="btn btn--icon btn--icon-solid" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
+      '      <div class="row gap-2">' +
+      '        <button type="button" class="btn btn--icon" data-copy-text="' + window.location.origin + '/propiedad/' + p.id + '" aria-label="Copiar enlace">' + u.icon('link', { size: 16 }) + '</button>' +
+      '        <button type="button" class="btn btn--icon btn--icon-solid" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
+      '      </div>' +
       '    </div>' +
       '  </div>' +
       '</div>'
@@ -287,6 +290,7 @@
     }
 
     refresh();
+    c.bindCopyButtons(root);
   }
 
   window.App.agent.views = window.App.agent.views || {};
