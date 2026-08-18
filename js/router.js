@@ -141,6 +141,24 @@
     leaveCallbacks = [];
   }
 
+  // Manda el "page_view" a Google Analytics después de que la vista terminó
+  // de pintarse (document.title ya está actualizado) -- algunas vistas
+  // (enlace de cliente, ficha de propiedad) son asíncronas, así que si el
+  // resultado es una promesa se espera a que resuelva antes de mandar el
+  // evento, para no reportar el título de la pantalla anterior.
+  function trackPageView(path, viewResult) {
+    function fire() {
+      if (typeof window.gtag !== "function") return;
+      window.gtag("event", "page_view", {
+        page_path: path,
+        page_location: window.location.href,
+        page_title: document.title
+      });
+    }
+    if (viewResult && typeof viewResult.then === "function") viewResult.then(fire);
+    else fire();
+  }
+
   function render() {
     runLeaveCallbacks();
     window.App.components.closeSheet();
@@ -193,6 +211,7 @@
     }
 
     var match = matchRoute(path);
+    var viewResult;
 
     if (!match) {
       root.innerHTML = '<div class="empty-state" style="padding-top:80px"><h3>Página no encontrada</h3><p>La ruta "' + u.escapeHtml(path) + '" no existe.</p><a class="btn btn--primary" href="#/">Ir al inicio</a></div>';
@@ -200,7 +219,7 @@
     } else {
       try {
         match.params.query = currentQuery();
-        match.view(match.params, root);
+        viewResult = match.view(match.params, root);
       } catch (err) {
         console.error("Error al renderizar la vista:", err);
         root.innerHTML = '<div class="empty-state" style="padding-top:80px"><h3>Ocurrió un error al cargar esta pantalla</h3><p>' + u.escapeHtml(err.message || "") + '</p><a class="btn btn--primary" href="#/">Ir al inicio</a></div>';
@@ -209,6 +228,7 @@
 
     window.scrollTo(0, 0);
     root.focus();
+    trackPageView(path, viewResult);
   }
 
   function onHashChange() {

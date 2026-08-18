@@ -23,6 +23,18 @@
     history.replaceState(null, "", raw);
   })();
 </script>
+<!-- Google Analytics (GA4). send_page_view queda en false porque la app es
+     de una sola página -- router.js manda un evento "page_view" manual en
+     cada cambio de vista (ver trackPageView en router.js); si se dejara la
+     medición automática, solo se contaría la primera carga y ninguna
+     navegación interna después. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6B4P30VFRH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag("js", new Date());
+  gtag("config", "G-6B4P30VFRH", { send_page_view: false });
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>InmoMaps — La plataforma inmobiliaria donde el mapa es el centro</title>
 <meta name="description" content="InmoMaps: explora propiedades en venta y renta directamente sobre un mapa interactivo. Para compradores y asesores inmobiliarios." />
