@@ -1,5 +1,14 @@
-// Router SPA basado en el hash de la URL (#/ruta). No requiere servidor:
-// funciona igual abriendo el archivo directamente o publicándolo en cualquier hosting estático.
+// Router SPA basado en rutas reales (/ruta, sin "#"). Necesita que el
+// hosting redirija cualquier ruta a index.html (ver vercel.json) -- a
+// cambio, cada propiedad/enlace/perfil puede tener su propia vista previa
+// al compartirse (foto, precio, descripción), cosa que con "#/ruta" nunca
+// era posible porque el servidor jamás llega a ver esa parte de la URL.
+//
+// Compatibilidad con enlaces viejos: en vez de reescribir los cientos de
+// "href=\"#/...\"" y "window.location.hash = ..." que ya existen en todo
+// el código, el router detecta cualquier cambio de hash (los de siempre
+// siguen funcionando tal cual) y lo convierte de inmediato a una ruta
+// limpia con history.replaceState, sin recargar la página.
 (function () {
   "use strict";
 
@@ -79,19 +88,16 @@
   }
 
   function currentPath() {
-    var hash = window.location.hash || "#/";
-    var path = hash.slice(1).split("?")[0];
-    if (!path.startsWith("/")) path = "/" + path;
+    var path = window.location.pathname;
     if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
     return path || "/";
   }
 
   function currentQuery() {
-    var hash = window.location.hash || "#/";
-    var qIndex = hash.indexOf("?");
+    var search = window.location.search || "";
     var query = {};
-    if (qIndex === -1) return query;
-    hash.slice(qIndex + 1).split("&").forEach(function (pair) {
+    if (!search) return query;
+    search.slice(1).split("&").forEach(function (pair) {
       if (!pair) return;
       var eq = pair.indexOf("=");
       var key = eq === -1 ? pair : pair.slice(0, eq);
@@ -99,6 +105,19 @@
       query[decodeURIComponent(key)] = decodeURIComponent(value);
     });
     return query;
+  }
+
+  // Si hay un "#/..." en la URL (enlace viejo, o cualquier código existente
+  // que todavía haga window.location.hash = "#/..."), lo convierte a una
+  // ruta real sin tocar el historial (no se agrega una entrada nueva, la
+  // que ya puso el navegador al cambiar el hash se reemplaza tal cual).
+  function convertHashIfPresent() {
+    var hash = window.location.hash;
+    if (!hash || hash === "#") return false;
+    var raw = hash.slice(1);
+    if (!raw.startsWith("/")) raw = "/" + raw;
+    history.replaceState(null, "", raw);
+    return true;
   }
 
   function matchRoute(path) {
@@ -192,9 +211,15 @@
     root.focus();
   }
 
+  function onHashChange() {
+    convertHashIfPresent();
+    render();
+  }
+
   function init() {
-    if (!window.location.hash) window.location.hash = "#/";
-    window.addEventListener("hashchange", render);
+    convertHashIfPresent();
+    window.addEventListener("hashchange", onHashChange);
+    window.addEventListener("popstate", render);
     render();
   }
 

@@ -24,9 +24,7 @@
   var EDGE_RESISTANCE = 3;   // divisor de arrastre cuando no hay sección a donde ir
 
   function currentPath() {
-    var hash = window.location.hash || "#/";
-    var path = hash.slice(1).split("?")[0];
-    if (path.indexOf("/") !== 0) path = "/" + path;
+    var path = window.location.pathname;
     if (path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
     return path || "/";
   }
@@ -67,7 +65,8 @@
       var w = window.innerWidth;
       setTransform(dir === 1 ? -w : w, "transform 0.16s ease-in");
       setTimeout(function () {
-        window.location.hash = "#" + targetPath;
+        history.pushState(null, "", targetPath);
+        window.App.router.render();
         setTransform(dir === 1 ? w : -w, "none");
         requestAnimationFrame(function () {
           requestAnimationFrame(function () {
