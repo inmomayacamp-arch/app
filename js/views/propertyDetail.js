@@ -6,7 +6,7 @@
   var c = window.App.components;
   var state = window.App.state;
 
-  function render(params, root) {
+  async function render(params, root) {
     var property = state.properties.get(params.id);
     var fromRef = params.query && params.query.from; // "agentSlug/clientSlug" si se llegó desde un enlace de cliente
     var backHref = fromRef ? '#/' + fromRef : '#/';
@@ -31,7 +31,11 @@
     var rentalFurnishedLabel = property.rentalFurnished ? ((u.RENTAL_FURNISHED_OPTIONS.filter(function (f) { return f.value === property.rentalFurnished; })[0] || {}).label || '') : '';
     var rentalAvailableFromLabel = property.rentalAvailableFrom ? new Date(property.rentalAvailableFrom + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
     var hasRentalInfo = property.operation !== 'venta' && !!(rentalDepositLabel || rentalFurnishedLabel || property.rentalMinContract || rentalAvailableFromLabel || (property.rentalGuarantees && property.rentalGuarantees.length) || (property.rentalServicesIncluded && property.rentalServicesIncluded.length));
-    var fromLink = fromRef ? state.links.get(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
+    // state.links.get() (caché local) solo trae los enlaces del propio
+    // asesor con sesión iniciada -- un cliente real viendo la propiedad
+    // desde su enlace no tiene esa caché, así que nunca se detectaba el
+    // enlace de origen y sus contactos/vistas no se le sumaban al enlace.
+    var fromLink = fromRef ? await state.links.getPublic(fromRef.split('/')[0], fromRef.split('/')[1]) : null;
     state.tracking.logPropertyView(property.id, fromLink ? fromLink.id : null);
 
     // Si no hay asesor (propiedad publicada directo por el propietario, sin

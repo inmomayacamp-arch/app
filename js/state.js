@@ -463,7 +463,11 @@
     if (!supabaseClient) throw new Error("Supabase no está configurado");
     var result = await supabaseClient.rpc("get_client_link", { p_agent_slug: agentSlug, p_client_slug: clientSlug });
     if (result.error) throw result.error;
-    return result.data ? mapLinkRow(result.data) : null;
+    // Cuando no hay un enlace que coincida, la función de Supabase regresa
+    // igual una fila (con todas las columnas en null) en vez de un valor
+    // nulo desnudo -- hay que detectarlo por el id, si no, se trata como un
+    // enlace real vacío en vez de "no existe".
+    return (result.data && result.data.id) ? mapLinkRow(result.data) : null;
   }
   async function createLink(payload) {
     if (!supabaseClient) throw new Error("Supabase no está configurado");
