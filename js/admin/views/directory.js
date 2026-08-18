@@ -75,7 +75,7 @@
         '<div class="form-field"><label>Ubicación</label>' +
         '<button type="button" class="location-picker-trigger" data-open-location>' + u.icon('pin', { size: 15 }) + '<span>' + u.escapeHtml(locationLabel()) + '</span>' + u.icon('chevronRight', { size: 15 }) + '</button>' +
         '<p class="text-muted" style="font-size:0.76rem;margin-top:4px">Si no eliges ciudad, aparece en todo el estado.</p>' +
-        (draft.stateLabel ? (
+        ((draft.stateLabel || draft.cityLabel) ? (
           '<label style="margin-top:12px;display:block">Ubicación exacta en el mapa (opcional)</label>' +
           '<div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div><span class="map-picker__pin">' + u.icon('pin', { size: 30 }) + '</span></div>' +
           '<p class="text-muted" style="font-size:0.76rem;margin-top:6px">Mueve el mapa hasta el punto exacto. Así aparece con su propio pin en Explorar, además de en el directorio.</p>'
@@ -105,16 +105,21 @@
     function wire() {
       var sheetRoot = u.qs('#sheet-root');
 
-      if (draft.stateLabel) {
+      if (draft.stateLabel || draft.cityLabel) {
         var states = window.APP_CONFIG.MEXICO_STATES;
-        var stateKey = null;
-        Object.keys(states).forEach(function (k) { if (states[k].label === draft.stateLabel) stateKey = k; });
+        var stateKey = null, cityKey = null;
+        Object.keys(states).forEach(function (k) {
+          if (states[k].label === draft.stateLabel) stateKey = k;
+          if (!cityKey && draft.cityLabel) {
+            Object.keys(states[k].cities || {}).forEach(function (ck) {
+              if (states[k].cities[ck].label === draft.cityLabel) { cityKey = ck; if (!stateKey) stateKey = k; }
+            });
+          }
+        });
         var center = draft.coords;
-        if (!center && stateKey) {
-          var st = states[stateKey];
-          var cityKey = null;
-          if (draft.cityLabel) Object.keys(st.cities).forEach(function (k) { if (st.cities[k].label === draft.cityLabel) cityKey = k; });
-          center = (cityKey ? st.cities[cityKey].center : st.center).slice();
+        if (!center) {
+          var st = stateKey ? states[stateKey] : null;
+          center = (st ? (cityKey && st.cities[cityKey] ? st.cities[cityKey].center : st.center) : window.APP_CONFIG.DEFAULT_CENTER).slice();
         }
         mapCtrl = window.App.map.create(u.qs('[data-map]', sheetRoot), { center: center, zoom: 15 });
         if (mapCtrl.ready) {

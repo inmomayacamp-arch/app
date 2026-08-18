@@ -87,7 +87,7 @@
         '  <div class="admin-section__head"><div class="admin-section__title">Ubicación</div></div>' +
         '  <button type="button" class="location-picker-trigger" data-open-location>' + u.icon('pin', { size: 15 }) + '<span>' + u.escapeHtml(locationLabel()) + '</span>' + u.icon('chevronRight', { size: 15 }) + '</button>' +
         '  <p class="text-muted" style="font-size:0.76rem;margin-top:4px">Si no eliges ciudad, apareces en todo el estado.</p>' +
-        (draft.stateLabel ? (
+        ((draft.stateLabel || draft.cityLabel) ? (
           '  <label style="margin-top:12px;display:block">Ubicación exacta en el mapa (opcional)</label>' +
           '  <div class="map-picker"><div class="map-canvas" data-map style="position:absolute;inset:0"></div><span class="map-picker__pin">' + u.icon('pin', { size: 30 }) + '</span></div>' +
           '  <p class="text-muted" style="font-size:0.76rem;margin-top:6px">Mueve el mapa hasta tu ubicación exacta. Así apareces con tu propio pin en el mapa de Explorar, además de en el directorio.</p>'
@@ -141,16 +141,25 @@
         }
       });
 
-      if (draft.stateLabel) {
+      if (draft.stateLabel || draft.cityLabel) {
+        // Una cuenta creada por el admin sin pasar por el selector de
+        // ubicación puede traer ciudad pero sin estado (el formulario
+        // rápido solo pide "Ciudad" en texto libre) -- se busca el estado
+        // recorriendo todas las ciudades, no solo el que ya viene resuelto.
         var states = window.APP_CONFIG.MEXICO_STATES;
-        var stateKey = null;
-        Object.keys(states).forEach(function (k) { if (states[k].label === draft.stateLabel) stateKey = k; });
+        var stateKey = null, cityKey = null;
+        Object.keys(states).forEach(function (k) {
+          if (states[k].label === draft.stateLabel) stateKey = k;
+          if (!cityKey && draft.cityLabel) {
+            Object.keys(states[k].cities || {}).forEach(function (ck) {
+              if (states[k].cities[ck].label === draft.cityLabel) { cityKey = ck; if (!stateKey) stateKey = k; }
+            });
+          }
+        });
         var center = draft.coords;
-        if (!center && stateKey) {
-          var st = states[stateKey];
-          var cityKey = null;
-          if (draft.cityLabel) Object.keys(st.cities).forEach(function (k) { if (st.cities[k].label === draft.cityLabel) cityKey = k; });
-          center = (cityKey ? st.cities[cityKey].center : st.center).slice();
+        if (!center) {
+          var st = stateKey ? states[stateKey] : null;
+          center = (st ? (cityKey && st.cities[cityKey] ? st.cities[cityKey].center : st.center) : window.APP_CONFIG.DEFAULT_CENTER).slice();
         }
         mapCtrl = window.App.map.create(u.qs('[data-map]', root), { center: center, zoom: 15 });
         if (mapCtrl.ready) {
