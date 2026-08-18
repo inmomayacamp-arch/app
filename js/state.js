@@ -882,8 +882,13 @@
     }
   }
 
-  async function logLinkVisit(linkId) {
-    var ctx = contextFromLink(linkId);
+  // ctx (opcional) trae el contexto ya resuelto por quien llama (la página
+  // del enlace público ya sabe el agente y el cliente de sobra) -- si no se
+  // manda, cae en contextFromLink(), que solo funciona con la caché del
+  // propio asesor con sesión iniciada y por eso nunca resolvía nada para un
+  // cliente real viendo su enlace sin sesión.
+  async function logLinkVisit(linkId, ctx) {
+    ctx = ctx || contextFromLink(linkId);
     if (!ctx) return;
     await logEvent("link_visit", { linkId: linkId, agentId: ctx.agentId, agentSlug: ctx.agentSlug, label: ctx.label });
   }
@@ -899,13 +904,18 @@
   }
   async function logContactClick(opts) {
     opts = opts || {};
+    // propertyId y agentId se resuelven contra datos públicos (propiedades y
+    // profiles_public, disponibles para cualquier visitante); linkId depende
+    // de la caché de enlaces del propio asesor con sesión iniciada, así que
+    // se intenta al final -- si un botón trae los tres, mejor no depender
+    // del que solo funciona para el asesor viendo su propio enlace.
     var ctx = null;
-    if (opts.linkId) ctx = contextFromLink(opts.linkId);
-    else if (opts.propertyId) ctx = contextFromProperty(opts.propertyId);
+    if (opts.propertyId) ctx = contextFromProperty(opts.propertyId);
     else if (opts.agentId) {
       var agent = cachedProfiles.filter(function (a) { return a.id === opts.agentId; })[0];
       ctx = agent ? { agentId: agent.id, agentSlug: agent.slug, label: agent.name } : null;
     }
+    if (!ctx && opts.linkId) ctx = contextFromLink(opts.linkId);
     if (!ctx) return;
     await logEvent("contact_click", {
       propertyId: opts.propertyId || null, linkId: opts.linkId || null,

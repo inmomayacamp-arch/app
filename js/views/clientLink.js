@@ -45,7 +45,10 @@
 
     var properties = link.propertyIds.map(function (id) { return state.properties.get(id); }).filter(Boolean);
     var mapCtrl = null;
-    state.tracking.logLinkVisit(link.id);
+    // Se le pasa el contexto ya resuelto (agent viene de datos públicos):
+    // logLinkVisit por sí solo depende de la caché de enlaces del propio
+    // asesor con sesión iniciada, que un cliente real nunca tiene.
+    state.tracking.logLinkVisit(link.id, { agentId: agent.id, agentSlug: agent.slug, label: link.clientLabel });
 
     root.innerHTML =
       headerHTML() +
@@ -65,8 +68,8 @@
       '      <div class="agent-hero__name">' + u.escapeHtml(agent.name) + ' <span class="verified-dot">' + u.icon('check', { size: 15 }) + '</span></div>' +
       '      <div class="agent-hero__title">' + u.escapeHtml(u.agentTitleLabel(agent)) + '</div>' +
       '      <div class="agent-hero__actions">' +
-      '        <a class="btn btn--whatsapp" data-track-link="' + link.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', revisé la selección de propiedades que armaste para mí. Hablemos.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
-      '        <a class="btn btn--call" data-track-link="' + link.id + '" href="tel:' + u.escapeHtml(agent.phone) + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
+      '        <a class="btn btn--whatsapp" data-track-link="' + link.id + '" data-track-agent="' + agent.id + '" target="_blank" rel="noopener" href="' + u.whatsappLink(agent.whatsapp, 'Hola ' + agent.name + ', revisé la selección de propiedades que armaste para mí. Hablemos.') + '">' + u.icon('chat', { size: 16 }) + ' Escribir por WhatsApp</a>' +
+      '        <a class="btn btn--call" data-track-link="' + link.id + '" data-track-agent="' + agent.id + '" href="tel:' + u.escapeHtml(agent.phone) + '">' + u.icon('phone', { size: 16 }) + ' Llamar</a>' +
       '      </div>' +
       '      <a class="text-muted" style="display:inline-block;margin-top:16px;font-weight:700;font-size:0.82rem" href="#/' + agent.slug + '">Ver perfil completo y todas sus propiedades</a>' +
       '    </div>' +
