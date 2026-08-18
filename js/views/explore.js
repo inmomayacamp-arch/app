@@ -89,7 +89,7 @@
       '  <div class="explore-discover">' +
       '    <div class="container">' +
       '      <h2 class="section-title" style="margin-top:20px">Explorar por categoría</h2>' +
-      '      <button type="button" class="promo-card promo-card--action" data-all-properties>' +
+      '      <button type="button" class="promo-card promo-card--action promo-card--neutral" data-all-properties>' +
       '        <span class="promo-card__icon">' + u.icon('home', { size: 28 }) + '</span>' +
       '        <div class="promo-card__body"><strong>Ver todas las casas</strong><p style="margin-bottom:0">Explora el catálogo completo de propiedades disponibles</p></div>' +
       u.icon('chevronRight', { size: 18 }) +
