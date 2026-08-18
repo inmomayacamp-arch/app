@@ -15,7 +15,11 @@ var SITE_URL = "https://www.inmomaps.com.mx";
 var DEFAULT_IMAGE = SITE_URL + "/icons/icon-512.png";
 var FALLBACK_PHOTO = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80";
 
-var BOT_UA = /facebookexternalhit|Facebot|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Applebot/i;
+// El patron de WhatsApp exige la barra y el numero de version (formato real
+// de su rastreador: "WhatsApp/2.23.20.0 A") en vez de solo la palabra
+// "WhatsApp" -- el navegador interno que abre WhatsApp cuando una persona
+// real toca un enlace dentro de un chat no debe caer aqui por error.
+var BOT_UA = /facebookexternalhit|Facebot|WhatsApp\/[\d.]+|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|SkypeUriPreview|Pinterest|redditbot|vkShare|Applebot/i;
 
 // Primer segmento de cada ruta fija del sitio (todo lo demás de uno o dos
 // segmentos se trata como slug de asesor / enlace de cliente, igual que
