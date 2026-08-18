@@ -129,7 +129,7 @@
       (daysLeft !== null && daysLeft <= 7 ? ' · Vence en ' + daysLeft + (daysLeft === 1 ? ' día' : ' días') : '') +
       '</span>' +
       '      <div class="row gap-2">' +
-      '        <button type="button" class="btn btn--icon" data-copy-text="' + window.location.origin + '/propiedad/' + p.id + '" aria-label="Copiar enlace">' + u.icon('link', { size: 16 }) + '</button>' +
+      '        <button type="button" class="btn btn--outline btn--sm" data-copy-text="' + window.location.origin + '/propiedad/' + p.id + '">' + u.icon('link', { size: 14 }) + ' Copiar enlace</button>' +
       '        <button type="button" class="btn btn--icon btn--icon-solid" data-actions="' + p.id + '" aria-label="Más opciones">' + u.icon('more', { size: 16 }) + '</button>' +
       '      </div>' +
       '    </div>' +
