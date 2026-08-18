@@ -2,6 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
+<!-- Con rutas reales de varios niveles (/dashboard/login, /plan-detalle/asesor,
+     etc.) todas las rutas relativas de este documento (scripts, css, iconos,
+     y hasta el registro del service worker) deben resolverse siempre contra
+     la raíz del sitio, sin importar cuántos niveles tenga la URL actual --
+     si no, en una ruta de 2 niveles el navegador busca "dashboard/js/..." en
+     vez de "/js/...", y la app entera falla en silencio. -->
+<base href="/" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>InmoMaps — La plataforma inmobiliaria donde el mapa es el centro</title>
 <meta name="description" content="InmoMaps: explora propiedades en venta y renta directamente sobre un mapa interactivo. Para compradores y asesores inmobiliarios." />
