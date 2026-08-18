@@ -843,6 +843,20 @@
     // Evita que un asesor infle sus propias estadísticas al previsualizar su anuncio.
     if (agentId && cachedCurrentProfile && cachedCurrentProfile.id === agentId) return;
 
+    // Espeja el mismo evento hacia Google Analytics -- link_events (Supabase)
+    // es la fuente de verdad para las estadísticas que ve cada asesor en su
+    // panel, pero así también quedan visibles en Analytics (con desglose de
+    // origen de tráfico, dispositivo, etc.) los momentos que de verdad
+    // importan: contacto por WhatsApp/llamada, favoritos y visitas a enlaces.
+    if (typeof window.gtag === "function") {
+      window.gtag("event", eventType, {
+        property_id: fields.propertyId || undefined,
+        link_id: fields.linkId || undefined,
+        agent_slug: fields.agentSlug || undefined,
+        channel: (fields.meta && fields.meta.channel) || undefined
+      });
+    }
+
     var row = {
       event_type: eventType,
       property_id: fields.propertyId || null,
