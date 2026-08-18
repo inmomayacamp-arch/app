@@ -9,6 +9,20 @@
      si no, en una ruta de 2 niveles el navegador busca "dashboard/js/..." en
      vez de "/js/...", y la app entera falla en silencio. -->
 <base href="/" />
+<script>
+  // Limpia un enlace viejo con "#/..." (de antes de quitar el hash routing)
+  // antes de que se pinte cualquier cosa -- si se espera a que cargue
+  // router.js (después de decenas de scripts diferidos), la barra de
+  // direcciones alcanza a mostrar el "#/" un momento y luego cambia,
+  // lo cual se ve como un parpadeo/error.
+  (function () {
+    var hash = window.location.hash;
+    if (!hash || hash === "#") return;
+    var raw = hash.slice(1);
+    if (raw.charAt(0) !== "/") raw = "/" + raw;
+    history.replaceState(null, "", raw);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>InmoMaps — La plataforma inmobiliaria donde el mapa es el centro</title>
 <meta name="description" content="InmoMaps: explora propiedades en venta y renta directamente sobre un mapa interactivo. Para compradores y asesores inmobiliarios." />
