@@ -54,6 +54,7 @@
       '    </div>' +
       '    <div class="form-field"><label>Ciudad</label><input type="text" data-city placeholder="Campeche" /></div>' +
       '    <div class="form-field"><label>Contraseña</label>' + u.passwordFieldHTML('password', 'Crea una contraseña', 'new-password') + '</div>' +
+      '    <div class="form-field"><label>Confirmar contraseña</label>' + u.passwordFieldHTML('confirm-password', 'Repite tu contraseña', 'new-password') + '</div>' +
 
       '    <div class="payment-section">' +
       '      <div class="payment-section__title">' + u.icon('shield', { size: 15 }) + ' Pago seguro con Stripe</div>' +
@@ -75,8 +76,10 @@
       var phone = u.qs('[data-phone]', root).value.trim();
       var city = u.qs('[data-city]', root).value.trim();
       var password = u.qs('[data-password]', root).value;
+      var password2 = u.qs('[data-confirm-password]', root).value;
       if (!name || !email || !password) { u.toast('Completa nombre, correo y contraseña'); return; }
       if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
+      if (password !== password2) { u.toast('Las contraseñas no coinciden'); return; }
       registerBtn.disabled = true;
       try {
         await state.payments.startSignupCheckout({

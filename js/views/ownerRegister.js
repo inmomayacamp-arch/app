@@ -36,6 +36,7 @@
       '    <div class="form-field"><label>Teléfono / WhatsApp</label><input type="text" data-phone placeholder="9811234567" /></div>' +
       '    </div>' +
       '    <div class="form-field"><label>Contraseña</label>' + u.passwordFieldHTML('password', 'Crea una contraseña', 'new-password') + '</div>' +
+      '    <div class="form-field"><label>Confirmar contraseña</label>' + u.passwordFieldHTML('confirm-password', 'Repite tu contraseña', 'new-password') + '</div>' +
 
       '    <p class="text-muted" style="font-size:0.76rem;margin:2px 0 12px">Al crear tu cuenta aceptas los <a href="#/terminos" style="color:var(--color-primary);font-weight:700">Términos y condiciones</a> y el <a href="#/privacidad" style="color:var(--color-primary);font-weight:700">Aviso de privacidad</a> de InmoMaps.</p>' +
       '    <button type="button" class="btn btn--primary btn--block" data-register>Crear mi cuenta y publicar</button>' +
@@ -50,8 +51,10 @@
       var email = u.qs('[data-email]', root).value.trim();
       var phone = u.qs('[data-phone]', root).value.trim();
       var password = u.qs('[data-password]', root).value;
+      var password2 = u.qs('[data-confirm-password]', root).value;
       if (!name || !email || !phone || !password) { u.toast('Completa nombre, correo, teléfono y contraseña'); return; }
       if (password.length < 6) { u.toast('La contraseña debe tener al menos 6 caracteres'); return; }
+      if (password !== password2) { u.toast('Las contraseñas no coinciden'); return; }
 
       registerBtn.disabled = true;
       try {

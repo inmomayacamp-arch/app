@@ -35,6 +35,7 @@
         '</div>' +
         '<div class="form-field"><label>Ciudad</label><input type="text" data-f="city" placeholder="Campeche" /></div>' +
         '<div class="form-field"><label>Contraseña</label><input type="text" data-f="password" placeholder="Mínimo 6 caracteres" /></div>' +
+        '<div class="form-field"><label>Confirmar contraseña</label><input type="text" data-f="password2" placeholder="Repite la contraseña" /></div>' +
         '<button type="button" class="btn btn--primary btn--block" data-save>Crear cuenta activa</button>'
     });
     var sheetRoot = u.qs('#sheet-root');
@@ -55,7 +56,9 @@
         password: u.qs('[data-f="password"]', sheetRoot).value,
         category: planSelect.value === 'proveedor' ? u.qs('[data-f="category"]', sheetRoot).value : null
       };
+      var password2 = u.qs('[data-f="password2"]', sheetRoot).value;
       if (!fields.name || !fields.email || !fields.password) { u.toast('Completa nombre, correo y contraseña'); return; }
+      if (fields.password !== password2) { u.toast('Las contraseñas no coinciden'); return; }
       saveBtn.disabled = true;
       try {
         await s.agents.createFree(fields);
