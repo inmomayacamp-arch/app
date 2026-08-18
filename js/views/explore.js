@@ -109,7 +109,7 @@
       '        <div class="provider-marquee__viewport"><div class="provider-marquee__track" data-provider-marquee></div></div>' +
       '      </div>' +
 
-      '      <div class="promo-card" style="margin-top:20px">' +
+      '      <div class="promo-card promo-card--neutral" style="margin-top:20px">' +
       '        <span class="promo-card__icon">' + u.icon('search', { size: 28 }) + '</span>' +
       '        <div class="promo-card__body">' +
       '          <strong>¿No encontraste la propiedad que buscabas?</strong>' +
