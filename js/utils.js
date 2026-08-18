@@ -145,6 +145,23 @@
     return (radiusKm == null || bestDist <= radiusKm) ? best : null;
   }
 
+  // Busca a qué estado pertenece una ciudad ya conocida del catálogo
+  // nacional -- para fichas/propiedades guardadas con ciudad pero sin
+  // estado (p.ej. creadas por un formulario rápido con solo un campo de
+  // texto libre), así los filtros por estado no las excluyen por un dato
+  // incompleto que la persona nunca llenó a propósito.
+  function stateLabelForCity(cityLabel) {
+    if (!cityLabel) return '';
+    var states = window.APP_CONFIG.MEXICO_STATES;
+    var found = '';
+    Object.keys(states).some(function (k) {
+      var match = Object.keys(states[k].cities || {}).some(function (ck) { return states[k].cities[ck].label === cityLabel; });
+      if (match) { found = states[k].label; return true; }
+      return false;
+    });
+    return found;
+  }
+
   function slugify(str) {
     var normalized = String(str).toLowerCase().normalize('NFD');
     var stripped = '';
@@ -516,6 +533,7 @@
     effectivePrice: effectivePrice,
     distanceKm: distanceKm,
     nearestMexicoLocation: nearestMexicoLocation,
+    stateLabelForCity: stateLabelForCity,
     slugify: slugify,
     uid: uid,
     escapeHtml: escapeHtml,

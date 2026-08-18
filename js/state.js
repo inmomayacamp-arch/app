@@ -741,7 +741,11 @@
     return cachedProviders.filter(function (p) {
       if (!p.active) return false;
       if (category && p.category !== category) return false;
-      if (stateLabel && p.state !== stateLabel) return false;
+      // p.state puede venir vacío (ficha creada con solo la ciudad en texto
+      // libre, sin pasar por el selector de estado+ciudad) -- se resuelve
+      // el estado real a partir de la ciudad antes de comparar, para que un
+      // dato incompleto no la esconda de quien filtra por estado.
+      if (stateLabel && (p.state || utils.stateLabelForCity(p.city)) !== stateLabel) return false;
       if (cityLabel && p.city && p.city !== cityLabel) return false;
       // Si la ficha tiene dueño (cuenta de proveedor de pago) y ese dueño ya
       // no aparece en profiles_public (suspendido, o inactivo por falta de
