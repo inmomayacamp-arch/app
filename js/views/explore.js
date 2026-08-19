@@ -47,6 +47,16 @@
       return filtered;
     }
 
+    // Para el aviso de "sé el primero en publicar": si la ciudad/estado
+    // elegido no tiene NINGUNA propiedad, sin importar filtros de operación,
+    // precio, etc. (esos filtran "no hay resultados para tu búsqueda", que es
+    // un caso distinto a "nadie ha publicado aquí todavía").
+    function locationHasNoProperties() {
+      if (!filters.stateKey) return false;
+      var base = state.properties.publicList();
+      return !base.some(function (p) { return u.matchesLocation(p, filters.stateKey, filters.cityKey); });
+    }
+
     // "Publicar" ocupa el primer lugar (antes era Notario) para que
     // resalte; Notario pasa al último lugar, donde estaba Publicar.
     var orderedCategories = u.SERVICE_CATEGORIES.filter(function (cat) { return cat.key !== 'notario'; })
@@ -76,6 +86,14 @@
       '        <span class="map-legend__item"><span class="map-legend__dot" style="background:var(--color-renta)"></span>Renta</span>' +
       '      </div>' +
       '    </div>' +
+      '    <button type="button" class="map-empty-banner" data-empty-banner style="display:none">' +
+      '      <span class="map-empty-banner__icon">' + u.icon('plus', { size: 18 }) + '</span>' +
+      '      <span class="map-empty-banner__body">' +
+      '        <strong data-empty-banner-label>Aún no hay propiedades aquí</strong>' +
+      '        <span>Sé el primero en aparecer en el mapa</span>' +
+      '      </span>' +
+      '      ' + u.icon('chevronRight', { size: 16 }) +
+      '    </button>' +
       '  </div>' +
       '  <div class="explore-list">' +
       '    <div class="explore-list__inner">' +
@@ -187,6 +205,16 @@
       u.qs('[data-list]', root).innerHTML = featuredList.length
         ? featuredList.map(function (p) { return c.propertyCardHTML(p, { variant: 'grid' }); }).join('')
         : '<div class="empty-state"><span class="empty-state__icon">' + u.icon('search', { size: 32 }) + '</span><h3>Sin destacadas para estos filtros</h3><p>Ajusta los filtros o revisa el mapa para ver todas las propiedades disponibles.</p></div>';
+
+      var banner = u.qs('[data-empty-banner]', root);
+      if (banner) {
+        if (locationHasNoProperties()) {
+          banner.style.display = '';
+          u.qs('[data-empty-banner-label]', banner).textContent = 'Aún no hay propiedades en ' + locationLabel();
+        } else {
+          banner.style.display = 'none';
+        }
+      }
     }
 
     // Fuente única de verdad para activar una ubicación: la usan la hoja de
@@ -224,6 +252,14 @@
         var target = resolveLocation(loc.stateKey, loc.cityKey);
         if (target && mapCtrl.ready) mapCtrl.flyTo(target.center, target.zoom);
       });
+    });
+
+    // Aviso de "sé el primero en publicar": mismo destino que la tarjeta
+    // "Publicar" de categorías -- decide ahí si manda a crear cuenta o
+    // directo al asistente, según haya o no sesión iniciada.
+    var emptyBanner = u.qs('[data-empty-banner]', root);
+    if (emptyBanner) emptyBanner.addEventListener('click', function () {
+      window.location.hash = '#/perfil';
     });
 
     // Ícono discreto sobre el mapa: mismo atajo de geolocalización, sin abrir la hoja
