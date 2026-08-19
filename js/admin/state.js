@@ -224,6 +224,7 @@
     var agents = allAgents();
     var owners = allOwners();
     var properties = allProperties();
+    var providers = window.App.state.providers.all();
 
     return {
       totalAgents: agents.length,
@@ -231,7 +232,8 @@
       totalProperties: properties.length,
       forSale: properties.filter(function (p) { return p.operation === 'venta'; }).length,
       forRent: properties.filter(function (p) { return p.operation === 'renta'; }).length,
-      featured: properties.filter(function (p) { return p.featured; }).length
+      featured: properties.filter(function (p) { return p.featured; }).length,
+      totalProviders: providers.length
     };
   }
 

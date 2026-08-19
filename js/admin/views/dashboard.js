@@ -50,6 +50,7 @@
         ac.kpiCardHTML('chart', u.formatNumber(k.forSale), 'En venta') +
         ac.kpiCardHTML('chart', u.formatNumber(k.forRent), 'En renta') +
         ac.kpiCardHTML('starFilled', u.formatNumber(k.featured), 'Destacadas') +
+        ac.kpiCardHTML('award', u.formatNumber(k.totalProviders), 'Fichas de directorio') +
         '</div>' +
 
         '<div class="admin-section">' +
