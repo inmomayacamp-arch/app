@@ -37,6 +37,7 @@
       { pattern: "/planes-proveedor", view: v.providerPlans.render, key: "perfil" },
       { pattern: "/plan-detalle/:tipo", view: v.planDetalle.render, key: "perfil" },
       { pattern: "/registro-proveedor/:billing", view: window.App.agent.views.registerProviderPlan.render, key: "dashboard" },
+      { pattern: "/prueba-asesor", view: window.App.agent.views.registerTrialPlan.render, key: "dashboard" },
       { pattern: "/solicitud", view: v.propertyRequest.render, key: "explore" },
       { pattern: "/soporte", view: v.support.render, key: "explore" },
       { pattern: "/terminos", view: v.terms.render, key: "explore" },

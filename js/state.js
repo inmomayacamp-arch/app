@@ -186,6 +186,23 @@
     return agent;
   }
 
+  // Cuenta de prueba de 30 días (enlaces de cortesía): a diferencia de
+  // registerAgent(), esto no pasa por signUp() del navegador -- la cuenta
+  // debe quedar activa de una vez (un plan "asesor" normal queda en
+  // pendiente_pago hasta que Stripe confirma un cobro), y eso solo se
+  // puede hacer con la clave de servicio, del lado del servidor.
+  async function registerTrial(fields) {
+    var url = window.APP_CONFIG.SUPABASE_URL + "/functions/v1/signup-trial-agent";
+    var response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "apikey": window.APP_CONFIG.SUPABASE_ANON_KEY },
+      body: JSON.stringify({ name: fields.name, email: fields.email, phone: fields.phone || "", city: fields.city || "", password: fields.password })
+    });
+    var data = await response.json();
+    if (!response.ok) throw new Error(data.error || "No se pudo crear la cuenta");
+    return loginAgent(fields.email, fields.password);
+  }
+
   async function updateAgentProfile(slug, fields) {
     if (!supabaseClient || !cachedCurrentProfile || cachedCurrentProfile.slug !== slug) return;
     var updateResult = await supabaseClient.from("profiles").update(agentFieldsToRow(fields)).eq("id", cachedCurrentProfile.id).select().single();
@@ -581,6 +598,7 @@
       bootstrap: bootstrapAgents,
       registered: registeredAgentsList,
       register: registerAgent,
+      registerTrial: registerTrial,
       updateProfile: updateAgentProfile,
       login: loginAgent,
       logout: logoutAgent,
